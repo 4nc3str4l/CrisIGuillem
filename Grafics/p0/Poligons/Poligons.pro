@@ -6,7 +6,8 @@ CONFIG -= qt
 SOURCES += main.cpp \
     square.cpp \
     figure.cpp \
-    circle.cpp
+    circle.cpp \
+    figurecontainer.cpp
 
 include(deployment.pri)
 qtcAddDeployment()
@@ -14,5 +15,6 @@ qtcAddDeployment()
 HEADERS += \
     square.h \
     figure.h \
-    circle.h
+    circle.h \
+    figurecontainer.h
 
