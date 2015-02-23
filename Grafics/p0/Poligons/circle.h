@@ -10,7 +10,7 @@ class Circle : public Figure
 public:
     Circle();
     Circle(double radius);
-    ~Circle();
+    virtual ~Circle();
     virtual double getPerimeter();
     void setRadius(double r);
 private:

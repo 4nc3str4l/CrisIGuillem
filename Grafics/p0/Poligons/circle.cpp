@@ -5,9 +5,9 @@ Circle::Circle()
 
 }
 
-Circle::Circle(double r)
+Circle::Circle(double r):
+    radius(r)
 {
-    this->radius = r;
 }
 
 Circle::~Circle()

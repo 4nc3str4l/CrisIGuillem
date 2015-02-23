@@ -2,7 +2,7 @@
 #define FIGURECONTAINER_H
 
 #include "figure.h"
-#include<iostream>
+#include <iostream>
 #include <vector>
 
 using namespace std;
@@ -11,7 +11,7 @@ class FigureContainer
 {
 public:
     FigureContainer();
-    ~FigureContainer();
+    virtual ~FigureContainer();
     void addFigure(Figure *figure);
     double getPerimeters();
 

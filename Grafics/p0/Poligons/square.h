@@ -8,10 +8,10 @@ class Square : public Figure
 public:
     Square();
     Square(double x);
-    ~Square();
+    virtual ~Square();
     virtual double getPerimeter();
 
 private:
-    double fanceLen;
+    double faceLen;
 };
 #endif // SQUARE_H

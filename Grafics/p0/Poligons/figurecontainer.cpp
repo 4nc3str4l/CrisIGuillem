@@ -10,9 +10,8 @@ FigureContainer::FigureContainer()
 
 FigureContainer::~FigureContainer()
 {
-    for(int i = 0;i < this->figures.size(); i++){
-        if(dynamic_cast<Square*>(figures[i])) delete(Square *)(figures[i]);
-        else delete(Circle *)(figures[i]);
+    for(int i = 0; i < this->figures.size(); i++){
+        delete figures[i];
     }
 }
 
@@ -25,7 +24,7 @@ double FigureContainer::getPerimeters()
 {
     double sum = 0.0;
     for(int i = 0; i < this->figures.size();i++){
-        sum += (figures[i])->getPerimeter();
+        sum += figures[i]->getPerimeter();
     }
     return sum;
 }

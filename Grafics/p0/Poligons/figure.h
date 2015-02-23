@@ -6,7 +6,7 @@ class Figure
 {
 public:
     Figure();
-    ~Figure();
+    virtual ~Figure();
 
     virtual double getPerimeter() = 0;
 };

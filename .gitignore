@@ -1,2 +1,10 @@
 # Ignore all build folders
 **/build-*
+**/*-build-*
+**/release
+**/debug
+**/.qmake.*
+**/Makefile
+**/Makefile.Debug
+**/Makefile.Release
+**/.pro.user*

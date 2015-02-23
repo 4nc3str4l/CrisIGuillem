@@ -5,9 +5,9 @@ Square::Square()
 
 }
 
-Square::Square(double x)
+Square::Square(double x):
+    faceLen(x)
 {
-    this->fanceLen = x;
 }
 
 Square::~Square()
@@ -16,6 +16,6 @@ Square::~Square()
 }
 
 double Square::getPerimeter(){
-    return 4 * this->fanceLen;
+    return 4 * this->faceLen;
 }
 
