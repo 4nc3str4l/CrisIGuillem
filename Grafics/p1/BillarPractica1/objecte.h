@@ -7,7 +7,7 @@
 
 #include <Common.h>
 #include <cara.h>
-
+#include <readfile.h>
 
 #include <QGLShaderProgram>
 
@@ -23,6 +23,7 @@ protected:
     QString nom; // nom del fitxer on esta el cotxe
     vector<Cara> cares; // cares de l'objecte
     vector<point4> vertexs; // vertexs de l'objecte sense repetits
+    vector<point4> vertexColors;
 
     // Sistema de coordenades d'un objecte: punt origen i eixos de rotació
     GLfloat xorig, yorig, zorig;
@@ -41,7 +42,6 @@ protected:
     int     numPoints;
     point4 *points;
     color4 *colors;
-    int Index; // index de control del numero de vertexs a posar a la GPU
 
 
 public:
@@ -63,7 +63,7 @@ public:
     virtual void make();
 
     // Pas generic de vertexs i colors a la GPU
-    void toGPU(QGLShaderProgram *p);
+    void toGPU(QGLShaderProgram* program);
     // Pintat amb la GPU
     virtual void draw();
 
@@ -77,10 +77,40 @@ public:
     void aplicaTGCentrat(mat4 m);
 
 private:
-    void construeix_cara ( char **words, int nwords, Objecte*objActual, int vindexUlt);
+    static void construeix_cara ( char **words, int nwords, Objecte*objActual, int vindexUlt)
+    {
+        Cara face;
+        for (int i = 0; i < nwords; i++)
+        {
+            int vindex;
+            int nindex;
+            int tindex;
+
+            if ((words[i][0] >= '0') && (words[i][0] <= '9'))
+            {
+                ReadFile::get_indices(words[i], &vindex, &tindex, &nindex);
+
+    #if DEBUG
+                printf ("vtn: %d %d %d\n", vindex, tindex, nindex);
+    #endif
+
+                /* store the vertex index */
+
+                if (vindex > 0)       /* indices are from one, not zero */
+                    face.idxVertices.push_back(vindex - 1 - vindexUlt);
+                else if (vindex < 0)  /* negative indices mean count backwards */
+                    face.idxVertices.push_back(objActual->vertexs.size() + vindex);
+                else
+                {
+                    fprintf (stderr, "Zero indices not allowed: '%s'\n", ReadFile::str_orig);
+                    exit (-1);
+                }
+            }
+        }
+
+        objActual->cares.push_back(face.setColor(vec4(1.0, 0.0, 0.0, 1.0)));
+    }
 
 };
-
-
 
 #endif // OBJECTE_H

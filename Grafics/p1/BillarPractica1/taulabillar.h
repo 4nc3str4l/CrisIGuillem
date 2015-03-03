@@ -7,7 +7,7 @@ class TaulaBillar : public Objecte
 {
 public:
     TaulaBillar(QString n);
-    ~TaulaBillar();
+    virtual ~TaulaBillar();
 
 private:
 

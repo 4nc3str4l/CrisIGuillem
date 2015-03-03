@@ -8,8 +8,6 @@ class PlaBase : public Objecte
 public:
     PlaBase();
     ~PlaBase();
-
-    virtual void make();
 };
 
 #endif // PLABASE_H

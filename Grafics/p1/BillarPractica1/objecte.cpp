@@ -1,5 +1,4 @@
-#include <objecte.h>
-#include <readfile.h>
+#include "objecte.h"
 
 Objecte::Objecte(int npoints, QObject *parent) : numPoints(npoints) ,
     QObject(parent)
@@ -17,9 +16,6 @@ Objecte::Objecte(int npoints, QString n) : numPoints(npoints)
     xRot = 0;
     yRot = 0;
     zRot = 0;
-
-
-    Index = 0;
 
     readObj(n);
 
@@ -51,32 +47,13 @@ void Objecte::aplicaTG(mat4 m)
     aplicaTGPoints(m);
 
     // Actualitzacio del vertex array per a preparar per pintar
-    glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4) * Index,
-                     &points[0] );
+    glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4) * numPoints, &points[0] );
 
 }
 
 void Objecte::aplicaTGPoints(mat4 m)
 {
-/*
-    point4  *transformed_points = new point4[Index];
-
-    for ( int i = 0; i < Index; ++i ) {
-        transformed_points[i] = m * points[i];
-    }
-
-    transformed_points = &transformed_points[0];
-    points = &points[0];
-
-    for ( int i = 0; i < Index; ++i )
-    {
-        points[i] = transformed_points[i];
-    }
-
-    delete transformed_points;
-    */
-
-    for ( int i = 0; i < Index; ++i ) {
+    for ( int i = 0; i < numPoints; ++i ) {
         points[i] = m * points[i];
     }
 }
@@ -86,32 +63,18 @@ void Objecte::aplicaTGCentrat(mat4 m)
     // Metode a implementar
 }
 
-void Objecte::toGPU(QGLShaderProgram *pr){
+void Objecte::toGPU(QGLShaderProgram* program){
 
-    program = pr;
+    this->program = program;
 
     std::cout<<"Passo les dades de l'objecte a la GPU\n";
 
     glGenBuffers( 1, &buffer );
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
-    glBufferData( GL_ARRAY_BUFFER, sizeof(point4) * Index + sizeof(color4) * Index,
-                  NULL, GL_STATIC_DRAW );
-    program->link();
+    glBufferData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints, NULL, GL_STATIC_DRAW );
 
-    program->bind();
-    glEnable( GL_DEPTH_TEST );
-}
-
-// Pintat en la GPU.
-void Objecte::draw()
-{
-
-    // cal activar el buffer de l'objecte. Potser que ja n'hi hagi un altre actiu
-    glBindBuffer( GL_ARRAY_BUFFER, buffer );
-
-    // per si han canviat les coordenades dels punts
-    glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4) * Index, &points[0] );
-    glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * Index, sizeof(color4) * Index, &colors[0] );
+    glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4) * numPoints, &points[0] );
+    glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints, sizeof(color4) * numPoints, &colors[0] );
 
     // Per a conservar el buffer
     int vertexLocation = program->attributeLocation("vPosition");
@@ -121,11 +84,18 @@ void Objecte::draw()
     program->setAttributeBuffer("vPosition", GL_FLOAT, 0, 4);
 
     program->enableAttributeArray(colorLocation);
-    program->setAttributeBuffer("vColor", GL_FLOAT, sizeof(point4) * Index, 4);
+    program->setAttributeBuffer("vColor", GL_FLOAT, sizeof(point4) * numPoints, 4);
 
+    program->link();
+    program->bind();
+    glEnable( GL_DEPTH_TEST );
+}
 
+// Pintat en la GPU.
+void Objecte::draw()
+{
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glDrawArrays( GL_TRIANGLES, 0, Index );
+    glDrawArrays( GL_TRIANGLES, 0, numPoints );
 
     // Abans nomes es feia: glDrawArrays( GL_TRIANGLES, 0, NumVerticesP );
 }
@@ -142,15 +112,25 @@ void Objecte::make()
     // Recorregut de totes les cares per a posar-les en les estructures de la GPU
     // Cal recorrer l'estructura de l'objecte per a pintar les seves cares
 
-    Index = 0;
+    int index = 0;
 
     for(unsigned int i=0; i<cares.size(); i++)
     {
         for(unsigned int j=0; j<cares[i].idxVertices.size(); j++)
         {
-            points[Index] = vertexs[cares[i].idxVertices[j]];
-            colors[Index] = vec4(base_colors[1], 1.0);
-            Index++;
+            points[index] = vertexs[cares[i].idxVertices[j]];
+
+            if (cares[i].idxColors.size() > j) {
+                colors[index] = vertexColors[cares[i].idxColors[j]];
+            }
+            else if (cares[i].homogeneousColor) {
+                colors[index] = cares[i].color;
+            }
+            else {
+                colors[index] = vec4(base_colors[1], 1.0);
+            }
+
+            index++;
         }
     }
 
@@ -248,40 +228,3 @@ void Objecte::readObj(QString filename)
 
     capsa = calculCapsa3D();
 }
-
-
-void Objecte::construeix_cara ( char **words, int nwords, Objecte*objActual, int vindexUlt)
-{
-    Cara face;
-    for (int i = 0; i < nwords; i++)
-    {
-        int vindex;
-        int nindex;
-        int tindex;
-
-        if ((words[i][0]>='0')&&(words[i][0]<='9'))
-        {
-            ReadFile::get_indices (words[i], &vindex, &tindex, &nindex);
-
-#if 0
-            printf ("vtn: %d %d %d\n", vindex, tindex, nindex);
-#endif
-
-            /* store the vertex index */
-
-            if (vindex > 0)       /* indices are from one, not zero */
-                face.idxVertices.push_back(vindex - 1 - vindexUlt);
-            else if (vindex < 0)  /* negative indices mean count backwards */
-                face.idxVertices.push_back(objActual->vertexs.size() + vindex);
-            else
-            {
-                fprintf (stderr, "Zero indices not allowed: '%s'\n", ReadFile::str_orig);
-                exit (-1);
-            }
-        }
-    }
-    face.color = vec4(1.0, 0.0, 0.0, 1.0);
-    objActual->cares.push_back(face);
-}
-
-

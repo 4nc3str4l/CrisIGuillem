@@ -3,7 +3,6 @@
 TaulaBillar::TaulaBillar(QString n) : Objecte(NumVerticesF)
 {
     nom = n;
-    Index = 0;
     tam = 1;
 
     xorig = 0;
