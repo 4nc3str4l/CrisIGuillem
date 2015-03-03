@@ -5,6 +5,8 @@
 #include <glwidget.h>
 #include <QString>
 
+#include "plabase.h"
+
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
@@ -150,8 +152,9 @@ void GLWidget::paintGL()
    // A modificar si cal girar tots els objectes
    if (esc->taulaBillar!=NULL) {
        esc->taulaBillar->aplicaTGCentrat(transform);
-       esc->draw();
    }
+
+   esc->draw();
 }
 
 
@@ -238,6 +241,9 @@ void GLWidget::newPlaBase()
 
     // Metode a implementar
 
+    Objecte* plaBase = new PlaBase();
+    plaBase->toGPU(program);
+    esc->addObjecte(plaBase);
 }
 
 void GLWidget::newObj(QString fichero)

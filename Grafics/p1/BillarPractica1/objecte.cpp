@@ -58,7 +58,7 @@ void Objecte::aplicaTG(mat4 m)
 
 void Objecte::aplicaTGPoints(mat4 m)
 {
-
+/*
     point4  *transformed_points = new point4[Index];
 
     for ( int i = 0; i < Index; ++i ) {
@@ -74,6 +74,11 @@ void Objecte::aplicaTGPoints(mat4 m)
     }
 
     delete transformed_points;
+    */
+
+    for ( int i = 0; i < Index; ++i ) {
+        points[i] = m * points[i];
+    }
 }
 
 void Objecte::aplicaTGCentrat(mat4 m)
@@ -119,8 +124,7 @@ void Objecte::draw()
     program->setAttributeBuffer("vColor", GL_FLOAT, sizeof(point4) * Index, 4);
 
 
-    glPolygonMode(GL_FRONT_AND_BACK,
-                  GL_LINE);
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDrawArrays( GL_TRIANGLES, 0, Index );
 
     // Abans nomes es feia: glDrawArrays( GL_TRIANGLES, 0, NumVerticesP );
