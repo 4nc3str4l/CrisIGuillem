@@ -71,7 +71,7 @@ using namespace Common;
 
 typedef struct {
       vec3 pmin;
-      GLfloat a, h, p;
+      vec3 pmax;
 } Capsa3D;
 
 typedef struct {

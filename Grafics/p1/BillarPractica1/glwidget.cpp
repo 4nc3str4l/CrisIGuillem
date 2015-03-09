@@ -6,6 +6,7 @@
 #include <QString>
 
 #include "plabase.h"
+#include "bola.h"
 
 
 GLWidget::GLWidget(QWidget *parent)
@@ -89,15 +90,14 @@ QSize GLWidget::sizeHint() const
 static void qNormalizeAngle(int &angle)
 {
     while (angle < 0)
-        angle += 360 * 16;
-    while (angle > 360 * 16)
-        angle -= 360 * 16;
+        angle += 180;
+    while (angle > 360)
+        angle -= 180;
 }
 
 
 void GLWidget::setXRotation(int angle)
 {
-    qNormalizeAngle(angle);
     if (angle != xRot) {
         xRot = angle;
         update();
@@ -107,7 +107,6 @@ void GLWidget::setXRotation(int angle)
 
 void GLWidget::setYRotation(int angle)
 {
-    qNormalizeAngle(angle);
     if (angle != yRot) {
         yRot = angle;
         update();
@@ -116,7 +115,6 @@ void GLWidget::setYRotation(int angle)
 
 void GLWidget::setZRotation(int angle)
 {
-    qNormalizeAngle(angle);
     if (angle != zRot) {
         zRot = angle;
         update();
@@ -150,10 +148,7 @@ void GLWidget::paintGL()
                        RotateZ( zRot / 16.0 ) );
 
    // A modificar si cal girar tots els objectes
-   if (esc->taulaBillar!=NULL) {
-       esc->taulaBillar->aplicaTGCentrat(transform);
-   }
-
+   esc->aplicaTGCentrat(transform);
    esc->draw();
 }
 
@@ -237,10 +232,6 @@ void GLWidget::newObjecte(Objecte * obj)
 }
 void GLWidget::newPlaBase()
 {
-    // Metode que crea un objecte PlaBase poligon amb el punt central al (0,0,0) i perpendicular a Y=0
-
-    // Metode a implementar
-
     Objecte* plaBase = new PlaBase();
     plaBase->toGPU(program);
     esc->addObjecte(plaBase);
@@ -257,8 +248,9 @@ void GLWidget::newObj(QString fichero)
 
 void GLWidget::newBola()
 {
-    // Metode que crea la Bola blanca de joc
-     // Metode a implementar
+    Objecte* bola = new Bola();
+    bola->toGPU(program);
+    esc->addObjecte(bola);
 }
 void GLWidget::newConjuntBoles()
 {
@@ -269,10 +261,11 @@ void GLWidget::newConjuntBoles()
 void GLWidget::newSalaBillar()
 {
     // Metode que construeix tota la sala de billar: taula, 15 boles i bola blanca
+    newObj("/home/guillem/Git/CrisIGuillem/Grafics/p1/BillarPractica1/resources/taula.obj");
 }
 
 // Metode per iniciar la dinàmica del joc
 void GLWidget::Play()
 {
-
+    newSalaBillar();
 }

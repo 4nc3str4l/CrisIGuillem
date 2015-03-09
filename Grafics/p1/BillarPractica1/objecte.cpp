@@ -4,6 +4,7 @@ Objecte::Objecte(int npoints, QObject *parent) : numPoints(npoints) ,
     QObject(parent)
 {
     points = new point4[npoints];
+    std::cout << npoints << " " << std::hex << points << std::endl;
     colors = new color4[npoints];
 }
 
@@ -33,11 +34,35 @@ Objecte::~Objecte()
 
 Capsa3D Objecte::calculCapsa3D()
 {
+    for (int i = 0; i < numPoints; ++i) {
+        if (points[i].x < capsa.pmin.x || i == 0)
+            capsa.pmin.x = points[i].x;
 
-    // Metode a implementar: calcula la capsa mínima contenidora d'un objecte
-    int i;
-    vec3    pmin, pmax;
+        if (points[i].y < capsa.pmin.y || i == 0)
+            capsa.pmin.y = points[i].y;
 
+        if (points[i].z < capsa.pmin.z || i == 0)
+            capsa.pmin.z = points[i].z;
+
+        if (points[i].x > capsa.pmax.x || i == 0)
+            capsa.pmax.x = points[i].x;
+
+        if (points[i].y > capsa.pmax.y || i == 0)
+            capsa.pmax.y = points[i].y;
+
+        if (points[i].z > capsa.pmax.z || i == 0)
+            capsa.pmax.z = points[i].z;
+    }
+
+    std::cout << std::endl;
+    std::cout << capsa.pmin.x << " " << capsa.pmin.y << " " << capsa.pmin.z << std::endl;
+    std::cout << capsa.pmax.x << " " << capsa.pmax.y << " " << capsa.pmax.z << std::endl;
+
+    GLfloat x = (capsa.pmax.x - capsa.pmin.x) / 2;
+    GLfloat y = (capsa.pmax.y - capsa.pmin.y) / 2;
+    GLfloat z = (capsa.pmax.z - capsa.pmin.z) / 2;
+
+    std::cout << x << " " << y << " " << z << std::endl;
 
     return capsa;
 }
@@ -61,6 +86,15 @@ void Objecte::aplicaTGPoints(mat4 m)
 void Objecte::aplicaTGCentrat(mat4 m)
 {
     // Metode a implementar
+    GLfloat x = (capsa.pmax.x - capsa.pmin.x) / 2 + capsa.pmin.x;
+    GLfloat y = (capsa.pmax.y - capsa.pmin.y) / 2 + capsa.pmin.y;
+    GLfloat z = (capsa.pmax.z - capsa.pmin.z) / 2 + capsa.pmin.z;
+    // TODO Optimitzar amb bit shift
+
+    mat4 centered = Translate(-x, -y, -z);
+    mat4 back = Translate(x, y, z);
+
+    aplicaTG(back * m * centered);
 }
 
 void Objecte::toGPU(QGLShaderProgram* program){
@@ -70,6 +104,7 @@ void Objecte::toGPU(QGLShaderProgram* program){
     std::cout<<"Passo les dades de l'objecte a la GPU\n";
 
     glGenBuffers( 1, &buffer );
+    std::cout << glGetError() << " " << buffer << std::endl;
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
     glBufferData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints, NULL, GL_STATIC_DRAW );
 
