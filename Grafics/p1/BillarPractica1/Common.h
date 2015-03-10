@@ -75,6 +75,10 @@ using namespace Common;
 typedef struct {
       vec3 pmin;
       vec3 pmax;
+      vec3 center;
+
+      mat4 toCenter;
+      mat4 fromCenter;
 } Capsa3D;
 
 typedef struct {

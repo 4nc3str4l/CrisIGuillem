@@ -223,21 +223,10 @@ void GLWidget::keyReleaseEvent(QKeyEvent *event)
 
 void GLWidget::adaptaObjecteTamanyWidget(Objecte *obj)
 {
-    /*
-    vec3 escalat = obj->capsa.pmax - obj->capsa.pmin ;
+    Capsa3D& capsa = obj->capsa;
+    vec3 nouCentre = vec3(capsa.center.x*(2/a),capsa.center.y*(2/h), capsa.center.z*(2/p));
 
-    escalat.x /= a/2;
-    escalat.y /= h/2;
-    escalat.z /= p/2;
-    */
-
-    //ens guardem el centre
-    vec3 center = (obj->capsa.pmax - obj->capsa.pmin) / 2;
-
-    vec3 nouCentre = vec3(center.x/(2/a),center.y/(2/h), center.z/(2/p));
-
-
-    mat4 tg = Translate(nouCentre) * Scale(2/a,2/h,2/p) * Translate(center);
+    mat4 tg = Translate(nouCentre) * Scale(2/a,2/h,2/p) * capsa.toCenter;
     obj->aplicaTG(tg);
 
     obj->calculCapsa3D();
@@ -245,7 +234,6 @@ void GLWidget::adaptaObjecteTamanyWidget(Objecte *obj)
 
 void GLWidget::newObjecte(Objecte * obj)
 {
-    adaptaObjecteTamanyWidget(obj);
     obj->toGPU(program);
     esc->addObjecte(obj);
 

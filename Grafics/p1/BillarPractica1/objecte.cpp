@@ -58,11 +58,11 @@ Capsa3D Objecte::calculCapsa3D()
     std::cout << capsa.pmin.x << " " << capsa.pmin.y << " " << capsa.pmin.z << std::endl;
     std::cout << capsa.pmax.x << " " << capsa.pmax.y << " " << capsa.pmax.z << std::endl;
 
-    GLfloat x = (capsa.pmax.x + capsa.pmin.x) / 2;
-    GLfloat y = (capsa.pmax.y + capsa.pmin.y) / 2;
-    GLfloat z = (capsa.pmax.z + capsa.pmin.z) / 2;
+    capsa.center = (capsa.pmax + capsa.pmin) / 2;
+    capsa.toCenter = Translate(-capsa.center);
+    capsa.fromCenter = Translate(capsa.center);
 
-    std::cout << x << " " << y << " " << z << std::endl;
+    std::cout << capsa.center.x << " " << capsa.center.y << " " << capsa.center.z << std::endl;
 
     return capsa;
 }
@@ -72,8 +72,8 @@ void Objecte::aplicaTG(mat4 m)
     aplicaTGPoints(m);
 
     // Actualitzacio del vertex array per a preparar per pintar
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4) * numPoints, &points[0] );
-
 }
 
 void Objecte::aplicaTGPoints(mat4 m)
@@ -85,16 +85,7 @@ void Objecte::aplicaTGPoints(mat4 m)
 
 void Objecte::aplicaTGCentrat(mat4 m)
 {
-    // Metode a implementar
-    GLfloat x = (capsa.pmax.x - capsa.pmin.x) / 2 + capsa.pmin.x;
-    GLfloat y = (capsa.pmax.y - capsa.pmin.y) / 2 + capsa.pmin.y;
-    GLfloat z = (capsa.pmax.z - capsa.pmin.z) / 2 + capsa.pmin.z;
-    // TODO Optimitzar amb bit shift
-
-    mat4 centered = Translate(-x, -y, -z);
-    mat4 back = Translate(x, y, z);
-
-    aplicaTG(back * m * centered);
+    aplicaTG(capsa.fromCenter * m * capsa.toCenter);
 }
 
 void Objecte::toGPU(QGLShaderProgram* program){
@@ -104,7 +95,6 @@ void Objecte::toGPU(QGLShaderProgram* program){
     std::cout<<"Passo les dades de l'objecte a la GPU\n";
 
     glGenBuffers( 1, &buffer );
-    std::cout << glGetError() << " " << buffer << std::endl;
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
     glBufferData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints, NULL, GL_STATIC_DRAW );
 
@@ -129,11 +119,16 @@ void Objecte::toGPU(QGLShaderProgram* program){
 // Pintat en la GPU.
 void Objecte::draw()
 {
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
 
     glPolygonMode(GL_FRONT_AND_BACK, Common::getWireframeView());
-
     glDrawArrays( GL_TRIANGLES, 0, numPoints );
 
+    glEnableClientState(GL_VERTEX_ARRAY);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     // Abans nomes es feia: glDrawArrays( GL_TRIANGLES, 0, NumVerticesP );
 }
 
