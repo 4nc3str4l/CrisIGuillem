@@ -4,7 +4,6 @@ Objecte::Objecte(int npoints, QObject *parent) : numPoints(npoints) ,
     QObject(parent)
 {
     points = new point4[npoints];
-    std::cout << npoints << " " << std::hex << points << std::endl;
     colors = new color4[npoints];
 }
 
@@ -21,14 +20,13 @@ Objecte::Objecte(int npoints, QString n) : numPoints(npoints)
     readObj(n);
 
     make();
-
 }
 
 
 Objecte::~Objecte()
 {
-    delete points;
-    delete colors;
+    delete [] points;
+    delete [] colors;
 }
 
 

@@ -11,7 +11,10 @@ public:
 
     void triangle(vec3 a, vec3 b, vec3 c);
     void divide_triangle(vec3 a, vec3 b, vec3 c, int n);
-    void tetrahedron(int n);
+    void generar(int n);
+
+private:
+    unsigned int k;
 };
 
 #endif // BOLA_H
