@@ -65,7 +65,6 @@ GLWidget::InitShader(const char* vShaderFile, const char* fShaderFile)
 
     // unió del shader al pipeline gràfic
     program->bind();
-
 }
 
 void GLWidget::initShadersGPU()
@@ -213,7 +212,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 void GLWidget::keyReleaseEvent(QKeyEvent *event)
 {
     // Metode a implementar en el cas que es mogui la bola
-    std::cout << "Em crido" << std::endl;
     Common::changeViewMode();
     updateGL();
 

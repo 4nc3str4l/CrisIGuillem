@@ -54,15 +54,14 @@ Capsa3D Objecte::calculCapsa3D()
             capsa.pmax.z = points[i].z;
     }
 
-    std::cout << std::endl;
-    std::cout << capsa.pmin.x << " " << capsa.pmin.y << " " << capsa.pmin.z << std::endl;
-    std::cout << capsa.pmax.x << " " << capsa.pmax.y << " " << capsa.pmax.z << std::endl;
-
     capsa.center = (capsa.pmax + capsa.pmin) / 2;
     capsa.toCenter = Translate(-capsa.center);
     capsa.fromCenter = Translate(capsa.center);
 
-    std::cout << capsa.center.x << " " << capsa.center.y << " " << capsa.center.z << std::endl;
+//    std::cout << std::endl;
+//    std::cout << capsa.pmin.x << " " << capsa.pmin.y << " " << capsa.pmin.z << std::endl;
+//    std::cout << capsa.pmax.x << " " << capsa.pmax.y << " " << capsa.pmax.z << std::endl;
+//    std::cout << capsa.center.x << " " << capsa.center.y << " " << capsa.center.z << std::endl;
 
     return capsa;
 }
@@ -74,6 +73,7 @@ void Objecte::aplicaTG(mat4 m)
     // Actualitzacio del vertex array per a preparar per pintar
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4) * numPoints, &points[0] );
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void Objecte::aplicaTGPoints(mat4 m)
@@ -106,30 +106,30 @@ void Objecte::toGPU(QGLShaderProgram* program){
     int colorLocation = program->attributeLocation("vColor");
 
     program->enableAttributeArray(vertexLocation);
-    program->setAttributeBuffer("vPosition", GL_FLOAT, 0, 4);
-
     program->enableAttributeArray(colorLocation);
-    program->setAttributeBuffer("vColor", GL_FLOAT, sizeof(point4) * numPoints, 4);
 
     program->link();
     program->bind();
+
     glEnable( GL_DEPTH_TEST );
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 // Pintat en la GPU.
 void Objecte::draw()
 {
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    program->setAttributeBuffer("vPosition", GL_FLOAT, 0, 4);
+    program->setAttributeBuffer("vColor", GL_FLOAT, sizeof(point4) * numPoints, 4);
 
     glEnableClientState(GL_VERTEX_ARRAY);
 
     glPolygonMode(GL_FRONT_AND_BACK, Common::getWireframeView());
     glDrawArrays( GL_TRIANGLES, 0, numPoints );
 
-    glEnableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_VERTEX_ARRAY);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    // Abans nomes es feia: glDrawArrays( GL_TRIANGLES, 0, NumVerticesP );
 }
 
 void Objecte::make()
