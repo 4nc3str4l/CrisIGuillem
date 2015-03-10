@@ -1,8 +1,19 @@
-# Ignore all build folders
-**/build-*
-**/*-build-*
-**/release
-**/debug
+# Ignore all (< 1.8.2)
+build-*/
+*-build-*/
+release/
+debug/
+.qmake.*
+Makefile
+Makefile.Debug
+Makefile.Release
+.pro.user*
+
+# Ignore all build folders (1.8.2+)
+**/build-*/
+**/*-build-*/
+**/release/
+**/debug/
 **/.qmake.*
 **/Makefile
 **/Makefile.Debug
