@@ -16,10 +16,10 @@ PlaBase::PlaBase():
     vertexColors.push_back(point4( 0.0, 0.5, 0.0, 1.0));
     vertexColors.push_back(point4( 0.0, 1.0, 0.0, 1.0));
 
-    vertexs.push_back(point4(-1, 0.0, -1, 1.0));
-    vertexs.push_back(point4( 1, 0.0, -1, 1.0));
-    vertexs.push_back(point4( 1, 0.0, 1,  1.0));
-    vertexs.push_back(point4(-1, 0.0, 1,  1.0));
+    vertexs.push_back(point4(-10, 0.0, -10, 1.0));
+    vertexs.push_back(point4( 10, 0.0, -10, 1.0));
+    vertexs.push_back(point4( 10, 0.0, 10,  1.0));
+    vertexs.push_back(point4(-10, 0.0, 10,  1.0));
 
     cares.push_back(Cara(0, 1, 2).setColor(1, 1, 0));
     cares.push_back(Cara(0, 2, 3).setColor(1,0,0));

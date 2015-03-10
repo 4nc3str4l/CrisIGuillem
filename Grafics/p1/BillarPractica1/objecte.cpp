@@ -129,7 +129,9 @@ void Objecte::toGPU(QGLShaderProgram* program){
 // Pintat en la GPU.
 void Objecte::draw()
 {
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    glPolygonMode(GL_FRONT_AND_BACK, Common::getWireframeView());
+
     glDrawArrays( GL_TRIANGLES, 0, numPoints );
 
     // Abans nomes es feia: glDrawArrays( GL_TRIANGLES, 0, NumVerticesP );

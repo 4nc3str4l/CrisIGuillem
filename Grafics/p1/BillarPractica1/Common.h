@@ -58,6 +58,9 @@ const GLfloat  DivideByZeroTolerance = GLfloat(1.0e-07);
 const GLfloat  DegreesToRadians = M_PI / 180.0;
 
 
+unsigned int getWireframeView();
+void changeViewMode();
+
 }  // namespace Common
 
 #include "vec.h"

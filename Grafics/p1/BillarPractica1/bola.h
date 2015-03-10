@@ -6,7 +6,7 @@
 class Bola : public Objecte
 {
 public:
-    Bola();
+    Bola(vec3 color);
     virtual ~Bola();
 
     void triangle(vec3 a, vec3 b, vec3 c);

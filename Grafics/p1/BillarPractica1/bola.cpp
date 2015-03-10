@@ -47,7 +47,7 @@ void Bola::tetrahedron(int n)
 const int iter = 5;
 const int len = 4 * (int)std::pow(4, iter) * 3;
 
-Bola::Bola():
+Bola::Bola(vec3 color):
     Objecte(len * 2)
 {
     tam = 1;
@@ -66,8 +66,10 @@ Bola::Bola():
         if (i < len) {
             points[len * 2 - i - 1] = vec4(-points[i].x, -points[i].y, -points[i].z, 1);
         }
-        colors[i] = vec3(i / float(len * 2), i / float(len * 2), i / float(len * 2));
+        colors[i] = color;
     }
+
+    calculCapsa3D();
 }
 
 Bola::~Bola()

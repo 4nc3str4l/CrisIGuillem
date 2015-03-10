@@ -9,6 +9,7 @@
 #include "bola.h"
 
 
+
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
 
@@ -212,6 +213,9 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 void GLWidget::keyReleaseEvent(QKeyEvent *event)
 {
     // Metode a implementar en el cas que es mogui la bola
+    std::cout << "Em crido" << std::endl;
+    Common::changeViewMode();
+    updateGL();
 
 }
 
@@ -219,7 +223,24 @@ void GLWidget::keyReleaseEvent(QKeyEvent *event)
 
 void GLWidget::adaptaObjecteTamanyWidget(Objecte *obj)
 {
-        // Metode a implementar
+    /*
+    vec3 escalat = obj->capsa.pmax - obj->capsa.pmin ;
+
+    escalat.x /= a/2;
+    escalat.y /= h/2;
+    escalat.z /= p/2;
+    */
+
+    //ens guardem el centre
+    vec3 center = (obj->capsa.pmax - obj->capsa.pmin) / 2;
+
+    vec3 nouCentre = vec3(center.x/(2/a),center.y/(2/h), center.z/(2/p));
+
+
+    mat4 tg = Translate(nouCentre) * Scale(2/a,2/h,2/p) * Translate(center);
+    obj->aplicaTG(tg);
+
+    obj->calculCapsa3D();
 }
 
 void GLWidget::newObjecte(Objecte * obj)
@@ -235,6 +256,7 @@ void GLWidget::newPlaBase()
     Objecte* plaBase = new PlaBase();
     plaBase->toGPU(program);
     esc->addObjecte(plaBase);
+    adaptaObjecteTamanyWidget(plaBase);
 }
 
 void GLWidget::newObj(QString fichero)
@@ -244,13 +266,15 @@ void GLWidget::newObj(QString fichero)
 
     obj = new TaulaBillar(fichero);
     newObjecte(obj);
+    adaptaObjecteTamanyWidget(obj);
 }
 
 void GLWidget::newBola()
 {
-    Objecte* bola = new Bola();
+    Objecte* bola = new Bola(vec3(1,1,1));
     bola->toGPU(program);
     esc->addObjecte(bola);
+    adaptaObjecteTamanyWidget(bola);
 }
 void GLWidget::newConjuntBoles()
 {
