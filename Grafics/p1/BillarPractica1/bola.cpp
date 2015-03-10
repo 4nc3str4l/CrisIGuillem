@@ -69,7 +69,8 @@ Bola::Bola(vec3 color):
         colors[i] = color;
     }
 
-    calculCapsa3D();
+    this->calculCapsa3D();
+
 }
 
 Bola::~Bola()

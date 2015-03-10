@@ -58,9 +58,9 @@ Capsa3D Objecte::calculCapsa3D()
     std::cout << capsa.pmin.x << " " << capsa.pmin.y << " " << capsa.pmin.z << std::endl;
     std::cout << capsa.pmax.x << " " << capsa.pmax.y << " " << capsa.pmax.z << std::endl;
 
-    GLfloat x = (capsa.pmax.x - capsa.pmin.x) / 2;
-    GLfloat y = (capsa.pmax.y - capsa.pmin.y) / 2;
-    GLfloat z = (capsa.pmax.z - capsa.pmin.z) / 2;
+    GLfloat x = (capsa.pmax.x + capsa.pmin.x) / 2;
+    GLfloat y = (capsa.pmax.y + capsa.pmin.y) / 2;
+    GLfloat z = (capsa.pmax.z + capsa.pmin.z) / 2;
 
     std::cout << x << " " << y << " " << z << std::endl;
 
