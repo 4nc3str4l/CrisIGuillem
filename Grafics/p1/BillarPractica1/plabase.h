@@ -6,7 +6,7 @@
 class PlaBase : public Objecte
 {
 public:
-    PlaBase();
+    PlaBase(Objecte* tauler);
     ~PlaBase();
 };
 

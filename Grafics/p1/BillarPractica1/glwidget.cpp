@@ -24,7 +24,7 @@ GLWidget::GLWidget(QWidget *parent)
     zRot = 0;
 
 
-    clearColor = Qt::black;
+    clearColor = QColor::fromRgbF(0.4, 0.4, 0.4);
     qtGreen = QColor::fromCmykF(0.40, 0.0, 1.0, 0.0);
     qtPurple = QColor::fromCmykF(0.39, 0.39, 0.0, 0.0);
 
@@ -72,7 +72,6 @@ void GLWidget::initShadersGPU()
 // Carrega dels shaders i posa a punt per utilitzar els programes carregats a la GPU
    InitShader( "://vshader1.glsl", "://fshader1.glsl" );
 
-   initTexture(GL_TEXTURE0,"://resources/Bola0.jpg",0);
    initTexture(GL_TEXTURE1,"://resources/Bola1.jpg",1);
    initTexture(GL_TEXTURE2,"://resources/Bola2.jpg",2);
    initTexture(GL_TEXTURE3,"://resources/Bola3.jpg",3);
@@ -87,6 +86,8 @@ void GLWidget::initShadersGPU()
    initTexture(GL_TEXTURE12,"://resources/Bola12.jpg",12);
    initTexture(GL_TEXTURE13,"://resources/Bola13.jpg",13);
    initTexture(GL_TEXTURE14,"://resources/Bola14.jpg",14);
+   initTexture(GL_TEXTURE0,"://resources/Bola0.jpg",0);
+   initTexture(GL_TEXTURE15,"://resources/Fabric_Green_L.jpg", 15);
 
 }
 
@@ -268,10 +269,26 @@ void GLWidget::newObjecte(Objecte * obj)
 }
 void GLWidget::newPlaBase()
 {
-    Objecte* plaBase = new PlaBase();
-    plaBase->toGPU(program);
-    esc->addObjecte(plaBase);
+    Objecte* tauler = esc->getObjecte(TAULER);
+    if (!tauler) {
+        QMessageBox::warning(NULL, "Falta tauler", "Per favor afegeix un tauler abans d'afegir el pla base");
+        return;
+    }
+
+    Objecte* plaBase = new PlaBase(tauler);
+    plaBase->toGPU(program, *(textures.end() - 1));
+
     adaptaObjecteTamanyWidget(plaBase);
+
+    vec3 scaleFactor = Common::scaleFactor();
+    vec3 tamanyTauler((tauler->capsa.pmax.x - tauler->capsa.pmin.x), 1, (tauler->capsa.pmax.z - tauler->capsa.pmin.z));
+    // 20 es el tamany del pla base
+    vec3 escalatReal(tamanyTauler.x / 2.34, 1, tamanyTauler.z / 2.16);
+
+    plaBase->aplicaTGCentrat(Scale(escalatReal) * RotateY(180));
+    plaBase->aplicaTG(Translate(tauler->capsa.center.x + 0.005, tauler->capsa.center.y+0.08, tauler->capsa.center.z));
+
+    tauler->addChild(plaBase);
 }
 
 void GLWidget::newObj(QString fichero)
@@ -293,7 +310,7 @@ void GLWidget::newBola()
     }
 
     Objecte* bola = new Bola(vec3(1,1,1));
-    bola->toGPU(program);
+    bola->toGPU(program, *(textures.end() - 2));
 
 
     const GLfloat ballTableRelation = 12;
@@ -302,17 +319,14 @@ void GLWidget::newBola()
     mat4 scaleMatrix = Scale(w, w, w);
 
     bola->aplicaTG(Translate(tauler->capsa.center.x * scaleFactor.x,
-                             1 / ballTableRelation + tauler->capsa.center.y * scaleFactor.y,
+                             1 + tauler->capsa.center.y * scaleFactor.y,
                              25 / ballTableRelation + tauler->capsa.center.z * scaleFactor.z));
     bola->calculCapsa3D();
     bola->aplicaTGCentrat(scaleMatrix);
 
 
-    esc->addObjecte(bola);
+    tauler->addChild(bola);
     adaptaObjecteTamanyWidget(bola);
-    bola->capsa.center = tauler->capsa.center;
-    bola->capsa.toCenter = tauler->capsa.toCenter;
-    bola->capsa.fromCenter = tauler->capsa.fromCenter;
 }
 void GLWidget::newConjuntBoles()
 {
@@ -323,25 +337,28 @@ void GLWidget::newConjuntBoles()
     }
 
     ConjuntBoles* boles = new ConjuntBoles(program, tauler, textures);
-    esc->addObjecte((Objecte*)boles);
-
-    mat4 transform = ( RotateX( xRot / 16.0 ) *
-                        RotateY( yRot / 16.0 ) *
-                        RotateZ( zRot / 16.0 ) );
+    tauler->addChild((Objecte*)boles);
 
     for (int i = 0; i < 15; ++i) {
         adaptaObjecteTamanyWidget(boles->getBola(i));
     }
 
+    /*
+    mat4 transform = ( RotateX( xRot / 16.0 ) *
+                        RotateY( yRot / 16.0 ) *
+                        RotateZ( zRot / 16.0 ) );
     boles->aplicaTGCentrat(transform);
+    */
 }
 void GLWidget::newSalaBillar()
 {
     // Metode que construeix tota la sala de billar: taula, 15 boles i bola blanca
     newObj(QDir().current().absoluteFilePath("../BillarPractica1/resources/taula.obj"));
+    newPlaBase();
     newConjuntBoles();
     newBola();
 
+    esc->aplicaTGCentrat(Scale(1.5, 1.5, 1.5));
 }
 
 // Metode per iniciar la dinàmica del joc

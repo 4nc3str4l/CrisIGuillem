@@ -9,8 +9,6 @@ public:
     TaulaBillar(QString n);
     virtual ~TaulaBillar();
 
-    void draw(){}
-
 private:
 
     static const int NumVerticesF = 100000;

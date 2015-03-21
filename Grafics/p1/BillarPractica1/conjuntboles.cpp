@@ -41,7 +41,7 @@ ConjuntBoles::ConjuntBoles(QGLShaderProgram* program, Objecte* tauler, std::vect
             Bola* bola = new Bola(colors[i]/255);
             bola->toGPU(program, textures[i]);
             bola->aplicaTG(Translate(x / ballTableRelation + tauler->capsa.center.x * scaleFactor.x,
-                                     1 / ballTableRelation + tauler->capsa.center.y * scaleFactor.y,
+                                     1 + tauler->capsa.center.y * scaleFactor.y,
                                      z / ballTableRelation + tauler->capsa.center.z * scaleFactor.z));
             bola->calculCapsa3D();
             bola->aplicaTGCentrat(scaleMatrix);
@@ -59,9 +59,9 @@ ConjuntBoles::ConjuntBoles(QGLShaderProgram* program, Objecte* tauler, std::vect
     this->setTipus(CONJUNT_BOLES);
 
     // Copiar matrius
-    capsa.center = tauler->capsa.center;
-    capsa.fromCenter = tauler->capsa.fromCenter;
-    capsa.toCenter = tauler->capsa.toCenter;
+    // capsa.center = tauler->capsa.center;
+    // capsa.fromCenter = tauler->capsa.fromCenter;
+    // capsa.toCenter = tauler->capsa.toCenter;
 }
 
 ConjuntBoles::~ConjuntBoles()

@@ -1,6 +1,6 @@
 #include "plabase.h"
 
-PlaBase::PlaBase():
+PlaBase::PlaBase(Objecte* tauler):
     Objecte(6)
 {
     tam = 1;
@@ -23,6 +23,13 @@ PlaBase::PlaBase():
 
     cares.push_back(Cara(0, 1, 2).setColor(1, 1, 0));
     cares.push_back(Cara(0, 2, 3).setColor(1,0,0));
+
+    textures[0] = vec2(0, 0);
+    textures[1] = vec2(1, 0);
+    textures[2] = vec2(1, 1);
+    textures[3] = vec2(0, 0);
+    textures[4] = vec2(1, 1);
+    textures[5] = vec2(0, 1);
 
     make();
 }

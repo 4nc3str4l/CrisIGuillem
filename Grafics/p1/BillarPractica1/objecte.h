@@ -90,7 +90,7 @@ public:
     virtual void aplicaTG(mat4 m);
     virtual void aplicaTGPoints(mat4 m);
     // Aplica una TG centrada en el punt central de la capsa de l'objecte a un objecte
-    void aplicaTGCentrat(mat4 m);
+    void aplicaTGCentrat(mat4 m, Capsa3D* capsa = NULL);
 
     // Tipus
     TIPUS_OBJECTE getTipus() {

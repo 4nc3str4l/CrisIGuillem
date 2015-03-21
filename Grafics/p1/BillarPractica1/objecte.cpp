@@ -89,9 +89,19 @@ void Objecte::aplicaTGPoints(mat4 m)
     }
 }
 
-void Objecte::aplicaTGCentrat(mat4 m)
+void Objecte::aplicaTGCentrat(mat4 m, Capsa3D* capsa)
 {
-    aplicaTG(capsa.fromCenter * m * capsa.toCenter);
+    if (!capsa)
+    {
+        capsa = &this->capsa;
+    }
+
+    aplicaTG(capsa->fromCenter * m * capsa->toCenter);
+
+    for (std::vector<Objecte*>::iterator it = fills.begin(); it != fills.end(); ++it)
+    {
+        (*it)->aplicaTGCentrat(m, capsa);
+    }
 }
 
 void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
@@ -141,6 +151,8 @@ void Objecte::draw()
     {
         _texture->bind(0);
 
+    }else{
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     std::cout << "Error opengl draw " << glGetError() << std::endl;
@@ -154,7 +166,7 @@ void Objecte::draw()
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    for (std::vector<Objecte*>::iterator it = fills.begin(); it != fills.end(); ++i)
+    for (std::vector<Objecte*>::iterator it = fills.begin(); it != fills.end(); ++it)
     {
         (*it)->draw();
     }
