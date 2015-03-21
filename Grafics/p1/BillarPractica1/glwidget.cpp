@@ -4,10 +4,11 @@
 
 #include <glwidget.h>
 #include <QString>
+#include <QMessageBox>
 
 #include "plabase.h"
 #include "bola.h"
-
+#include "conjuntboles.h"
 
 
 GLWidget::GLWidget(QWidget *parent)
@@ -15,15 +16,13 @@ GLWidget::GLWidget(QWidget *parent)
 
 {
     setFocusPolicy( Qt::StrongFocus );
-    esc = new Escena();
+
+    esc = new Escena(Common::sceneDimensions());
 
     xRot = 0;
     yRot = 0;
     zRot = 0;
 
-    a = 20.0;
-    h = 20.0;
-    p = 20.0;
 
     clearColor = Qt::black;
     qtGreen = QColor::fromCmykF(0.40, 0.0, 1.0, 0.0);
@@ -60,6 +59,7 @@ GLWidget::InitShader(const char* vShaderFile, const char* fShaderFile)
 
     program->bindAttributeLocation("vPosition", PROGRAM_VERTEX_ATTRIBUTE);
     program->bindAttributeLocation("vColor", PROGRAM_COLOR_ATTRIBUTE);
+
     // muntatge del shader en el pipeline gràfic per a ser usat
     program->link();
 
@@ -72,6 +72,34 @@ void GLWidget::initShadersGPU()
 // Carrega dels shaders i posa a punt per utilitzar els programes carregats a la GPU
    InitShader( "://vshader1.glsl", "://fshader1.glsl" );
 
+   initTexture(GL_TEXTURE0,"://resources/Bola0.jpg",0);
+   initTexture(GL_TEXTURE1,"://resources/Bola1.jpg",1);
+   initTexture(GL_TEXTURE2,"://resources/Bola2.jpg",2);
+   initTexture(GL_TEXTURE3,"://resources/Bola3.jpg",3);
+   initTexture(GL_TEXTURE4,"://resources/Bola4.jpg",4);
+   initTexture(GL_TEXTURE5,"://resources/Bola5.jpg",5);
+   initTexture(GL_TEXTURE6,"://resources/Bola6.jpg",6);
+   initTexture(GL_TEXTURE7,"://resources/Bola7.jpg",7);
+   initTexture(GL_TEXTURE8,"://resources/Bola8.jpg",8);
+   initTexture(GL_TEXTURE9,"://resources/Bola9.jpg",9);
+   initTexture(GL_TEXTURE10,"://resources/Bola10.jpg",10);
+   initTexture(GL_TEXTURE11,"://resources/Bola11.jpg",11);
+   initTexture(GL_TEXTURE12,"://resources/Bola12.jpg",12);
+   initTexture(GL_TEXTURE13,"://resources/Bola13.jpg",13);
+   initTexture(GL_TEXTURE14,"://resources/Bola14.jpg",14);
+
+}
+
+void GLWidget::initTexture(GLenum id, std::string path, int i){
+
+    glActiveTexture(id);
+    QOpenGLTexture* texture = new QOpenGLTexture(QImage(path.c_str()));
+    texture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+    texture->setMagnificationFilter(QOpenGLTexture::Linear);
+
+    texture->bind(0);
+
+    textures.push_back(texture);
 }
 
 
@@ -222,9 +250,10 @@ void GLWidget::keyReleaseEvent(QKeyEvent *event)
 void GLWidget::adaptaObjecteTamanyWidget(Objecte *obj)
 {
     Capsa3D& capsa = obj->capsa;
-    vec3 nouCentre = vec3(capsa.center.x*(2/a),capsa.center.y*(2/h), capsa.center.z*(2/p));
+    Capsa3D caixa = esc->getCapsaMinima();
+    vec3 nouCentre = vec3(capsa.center.x/caixa.pmax.x,capsa.center.y/caixa.pmax.y, capsa.center.z/caixa.pmax.z);
 
-    mat4 tg = Translate(nouCentre) * Scale(2/a,2/h,2/p) * capsa.toCenter;
+    mat4 tg = Translate(nouCentre) * esc->getScale() * capsa.toCenter;
     obj->aplicaTG(tg);
 
     obj->calculCapsa3D();
@@ -257,21 +286,62 @@ void GLWidget::newObj(QString fichero)
 
 void GLWidget::newBola()
 {
+    Objecte* tauler = esc->getObjecte(TAULER);
+    if (!tauler) {
+        QMessageBox::warning(NULL, "Falta tauler", "Per favor afegeix un tauler abans d'afegir boles");
+        return;
+    }
+
     Objecte* bola = new Bola(vec3(1,1,1));
     bola->toGPU(program);
+
+
+    const GLfloat ballTableRelation = 12;
+    vec3 scaleFactor = Common::scaleFactor();
+    GLfloat w = (tauler->capsa.pmax.x - tauler->capsa.pmin.x) / ballTableRelation;
+    mat4 scaleMatrix = Scale(w, w, w);
+
+    bola->aplicaTG(Translate(tauler->capsa.center.x * scaleFactor.x,
+                             1 / ballTableRelation + tauler->capsa.center.y * scaleFactor.y,
+                             25 / ballTableRelation + tauler->capsa.center.z * scaleFactor.z));
+    bola->calculCapsa3D();
+    bola->aplicaTGCentrat(scaleMatrix);
+
+
     esc->addObjecte(bola);
     adaptaObjecteTamanyWidget(bola);
+    bola->capsa.center = tauler->capsa.center;
+    bola->capsa.toCenter = tauler->capsa.toCenter;
+    bola->capsa.fromCenter = tauler->capsa.fromCenter;
 }
 void GLWidget::newConjuntBoles()
 {
-    // Metode que crea les 15 Boles del billar america
-    // Metode a implementar
+    Objecte* tauler = esc->getObjecte(TAULER);
+    if (!tauler) {
+        QMessageBox::warning(NULL, "Falta tauler", "Per favor afegeix un tauler abans d'afegir boles");
+        return;
+    }
 
+    ConjuntBoles* boles = new ConjuntBoles(program, tauler, textures);
+    esc->addObjecte((Objecte*)boles);
+
+    mat4 transform = ( RotateX( xRot / 16.0 ) *
+                        RotateY( yRot / 16.0 ) *
+                        RotateZ( zRot / 16.0 ) );
+
+    for (int i = 0; i < 15; ++i) {
+        adaptaObjecteTamanyWidget(boles->getBola(i));
+    }
+
+    boles->aplicaTGCentrat(transform);
 }
 void GLWidget::newSalaBillar()
 {
     // Metode que construeix tota la sala de billar: taula, 15 boles i bola blanca
-    newObj("/home/guillem/Git/CrisIGuillem/Grafics/p1/BillarPractica1/resources/taula.obj");
+    newObj(QDir().current().absoluteFilePath("../BillarPractica1/resources/taula.obj"));
+    newConjuntBoles();
+    newBola();
+
 }
 
 // Metode per iniciar la dinàmica del joc

@@ -5,12 +5,14 @@ Objecte::Objecte(int npoints, QObject *parent) : numPoints(npoints) ,
 {
     points = new point4[npoints];
     colors = new color4[npoints];
+    textures = new vec2[npoints];
 }
 
 Objecte::Objecte(int npoints, QString n) : numPoints(npoints)
 {
     points = new point4[npoints];
     colors = new color4[npoints];
+    textures = new vec2[npoints];
     std::cout<<"Estic en el constructor parametritzat del objecte\n";
 
     xRot = 0;
@@ -22,11 +24,17 @@ Objecte::Objecte(int npoints, QString n) : numPoints(npoints)
     make();
 }
 
+Objecte::Objecte(QObject *parent){
+    points = NULL;
+    colors = NULL;
+    textures = NULL;
+}
 
 Objecte::~Objecte()
 {
     delete [] points;
     delete [] colors;
+    delete [] textures;
 }
 
 
@@ -86,39 +94,56 @@ void Objecte::aplicaTGCentrat(mat4 m)
     aplicaTG(capsa.fromCenter * m * capsa.toCenter);
 }
 
-void Objecte::toGPU(QGLShaderProgram* program){
+void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
 
     this->program = program;
 
     std::cout<<"Passo les dades de l'objecte a la GPU\n";
 
+    _texture = texture;
+
+
     glGenBuffers( 1, &buffer );
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
-    glBufferData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints, NULL, GL_STATIC_DRAW );
+    glBufferData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints, NULL, GL_STATIC_DRAW );
 
     glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4) * numPoints, &points[0] );
     glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints, sizeof(color4) * numPoints, &colors[0] );
+    glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints, sizeof(vec2) * numPoints, textures );
 
     // Per a conservar el buffer
     int vertexLocation = program->attributeLocation("vPosition");
     int colorLocation = program->attributeLocation("vColor");
+    int coordTextureLocation = program->attributeLocation("vCoordTexture");
 
     program->enableAttributeArray(vertexLocation);
     program->enableAttributeArray(colorLocation);
+    program->enableAttributeArray(coordTextureLocation);
 
     program->link();
     program->bind();
 
     glEnable( GL_DEPTH_TEST );
+    glEnable(GL_TEXTURE_2D);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 // Pintat en la GPU.
 void Objecte::draw()
 {
+
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     program->setAttributeBuffer("vPosition", GL_FLOAT, 0, 4);
     program->setAttributeBuffer("vColor", GL_FLOAT, sizeof(point4) * numPoints, 4);
+    program->setAttributeBuffer("vCoordTexture", GL_FLOAT, sizeof(vec4) * numPoints + sizeof(vec4) * numPoints, 2);
+
+    if (_texture)
+    {
+        _texture->bind(0);
+
+    }
+
+    std::cout << "Error opengl draw " << glGetError() << std::endl;
 
     glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -128,6 +153,11 @@ void Objecte::draw()
     glDisableClientState(GL_VERTEX_ARRAY);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    for (std::vector<Objecte*>::iterator it = fills.begin(); it != fills.end(); ++i)
+    {
+        (*it)->draw();
+    }
 }
 
 void Objecte::make()

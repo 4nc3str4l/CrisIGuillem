@@ -57,10 +57,6 @@ const GLfloat  DivideByZeroTolerance = GLfloat(1.0e-07);
 //  Degrees-to-radians constant 
 const GLfloat  DegreesToRadians = M_PI / 180.0;
 
-
-unsigned int getWireframeView();
-void changeViewMode();
-
 }  // namespace Common
 
 #include "vec.h"
@@ -86,5 +82,20 @@ typedef struct {
       float a, h;
 } Capsa2D;
 
+
+namespace Common
+{
+    const GLfloat a = 20;
+    const GLfloat h = 20;
+    const GLfloat p = 20;
+
+    const vec3 dimensions(a, h, p);
+    const vec3 scale(a/2, h/2, p/2);
+
+    unsigned int getWireframeView();
+    void changeViewMode();
+    vec3 sceneDimensions();
+    vec3 scaleFactor();
+}
 
 #endif // __ANGEL_H__

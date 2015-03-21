@@ -1,11 +1,12 @@
 #include "escena.h"
 
-Escena::Escena()
+Escena::Escena(vec3 dimensions)
 {
     // Capsa minima contenidora provisional: S'ha de fer un recorregut dels objectes de l'escenes
-    capsaMinima.pmin.x = -1; capsaMinima.pmin.y = -1; capsaMinima.pmin.z = -1;
-    capsaMinima.pmax.x = 1; capsaMinima.pmax.y = 1; capsaMinima.pmax.z = 1;
+    capsaMinima.pmin.x = -dimensions.x/2; capsaMinima.pmin.y =-dimensions.y/2; capsaMinima.pmin.z = -dimensions.z/2;
+    capsaMinima.pmax.x = dimensions.x/2; capsaMinima.pmax.y = dimensions.y/2; capsaMinima.pmax.z = dimensions.z/2;
     //capsaMinima.a = 1; capsaMinima.h = 1; capsaMinima.p = 1;
+    scale = Scale(2/dimensions.x,2/dimensions.y,2/dimensions.z);
 }
 
 Escena::~Escena()
@@ -48,5 +49,15 @@ void Escena::draw() {
     }
 }
 
+Objecte* Escena::getObjecte(TIPUS_OBJECTE tipus)
+{
+    for (std::vector<Objecte*>::iterator it = objectes.begin(); it != objectes.end(); ++it)
+    {
+        if ((*it)->getTipus() == tipus) {
+            return (*it);
+        }
+    }
 
+    return NULL;
+}
 

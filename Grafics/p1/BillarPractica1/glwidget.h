@@ -11,6 +11,7 @@
 
 #define PROGRAM_VERTEX_ATTRIBUTE 0
 #define PROGRAM_COLOR_ATTRIBUTE 1
+#define PROGRAM_TEXTURE_ATTRIBUTE 2
 
 class QGLShaderProgram;
 
@@ -55,7 +56,6 @@ private:
     int xRot;
     int yRot;
     int zRot;
-    float  a, p, h;
 
     QColor clearColor;
     QPoint lastPos;
@@ -63,6 +63,8 @@ private:
     QColor qtPurple;
 
     bool moviment;
+
+    std::vector<QOpenGLTexture*> textures;
 
     // Programa de la GPU
     QGLShaderProgram *program;
@@ -82,6 +84,8 @@ private:
 
     // Metode per adaptar l'escena al tamany del widget
     void adaptaObjecteTamanyWidget(Objecte *obj);
+    void initTexture(GLenum texture, std::string path, int i);
+
 
 
 };

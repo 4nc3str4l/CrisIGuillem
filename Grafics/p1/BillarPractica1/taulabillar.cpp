@@ -17,6 +17,8 @@ TaulaBillar::TaulaBillar(QString n) : Objecte(NumVerticesF)
 
     Objecte::make();
     capsa = calculCapsa3D();
+
+    setTipus(TAULER);
 }
 
 TaulaBillar::~TaulaBillar()

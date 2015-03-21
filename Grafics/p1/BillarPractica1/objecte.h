@@ -10,11 +10,19 @@
 #include <readfile.h>
 
 #include <QGLShaderProgram>
+#include <QOpenGLTexture>
 
 typedef Common::vec4  color4;
 typedef Common::vec4  point4;
 
 using namespace std;
+
+enum TIPUS_OBJECTE
+{
+    BOLA,
+    CONJUNT_BOLES,
+    TAULER
+};
 
 class Objecte : public QObject
 {
@@ -36,20 +44,28 @@ protected:
 
     // Programa de shaders de la GPU
     QGLShaderProgram *program;
+    QOpenGLTexture* _texture;
     GLuint buffer; // Buffer de comunicacio amb la GPU
 
     // Estructures de vertexs i colors per passar a la GPU
-    int     numPoints;
+    int numPoints;
+    int _textureID;
     point4 *points;
     color4 *colors;
+    vec2* textures;
 
+    // Tipus d'objecte
+    TIPUS_OBJECTE _tipus;
+
+    // Llista de fills
+    std::vector<Objecte*> fills;
 
 public:
 
   // Capsa mínima contenidora de l'objecte
     Capsa3D capsa;
 
-    //explicit Objecte(QObject *parent = 0);
+    Objecte(QObject *parent = 0);
     Objecte(const int npoints, QObject *parent = 0);
     Objecte(const int npoints, QString n);
 
@@ -63,7 +79,7 @@ public:
     virtual void make();
 
     // Pas generic de vertexs i colors a la GPU
-    void toGPU(QGLShaderProgram* program);
+    void toGPU(QGLShaderProgram* program, QOpenGLTexture* texture = NULL);
     // Pintat amb la GPU
     virtual void draw();
 
@@ -71,10 +87,23 @@ public:
     Capsa3D calculCapsa3D();
 
     // Aplica una TG qualsevol a un objecte
-    void aplicaTG(mat4 m);
-    void aplicaTGPoints(mat4 m);
+    virtual void aplicaTG(mat4 m);
+    virtual void aplicaTGPoints(mat4 m);
     // Aplica una TG centrada en el punt central de la capsa de l'objecte a un objecte
     void aplicaTGCentrat(mat4 m);
+
+    // Tipus
+    TIPUS_OBJECTE getTipus() {
+        return _tipus;
+    }
+
+    void setTipus(TIPUS_OBJECTE tipus) {
+        _tipus = tipus;
+    }
+
+    void addChild(Objecte* objecte) {
+        fills.push_back(objecte);
+    }
 
 private:
     static void construeix_cara ( char **words, int nwords, Objecte*objActual, int vindexUlt)

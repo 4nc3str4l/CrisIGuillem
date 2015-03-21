@@ -21,7 +21,7 @@ using namespace std;
 class Escena
 {
 public:
-    Escena();
+    Escena(vec3 dimensions);
     ~Escena();
 
     void addObjecte(Objecte *obj);
@@ -33,11 +33,21 @@ public:
     void draw();
     void CapsaMinCont3DEscena();
 
-    // Capsa contenedora de l'escena
-    Capsa3D capsaMinima;
+    inline Capsa3D getCapsaMinima(){
+        return capsaMinima;
+    }
+
+    inline mat4 getScale(){
+        return scale;
+    }
+
+    Objecte* getObjecte(TIPUS_OBJECTE tipus);
 
 private:
     std::vector<Objecte*> objectes;
+    // Capsa contenedora de l'escena
+    Capsa3D capsaMinima;
+    mat4 scale;
 };
 
 #endif // ESCENA_H

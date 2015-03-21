@@ -12,5 +12,15 @@ namespace Common{
     unsigned int getWireframeView(){
         return wireframeView  ? GL_LINE : GL_FILL;
     }
+
+    vec3 sceneDimensions()
+    {
+        return dimensions;
+    }
+
+    vec3 scaleFactor()
+    {
+        return scale;
+    }
 }
 
