@@ -273,6 +273,16 @@ struct vec3 {
 //
 
 inline
+bool intersects(vec3 apmin, vec3 apmax, vec3 bpmin, vec3 bpmax)
+{
+    return !(apmin.x > bpmax.x ||
+            apmax.x < bpmin.x ||
+            apmin.z > bpmax.z ||
+            apmax.z < bpmin.z);
+}
+
+
+inline
 GLfloat dot( const vec3& u, const vec3& v ) {
     return u.x*v.x + u.y*v.y + u.z*v.z ;
 }

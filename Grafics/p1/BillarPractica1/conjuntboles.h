@@ -14,6 +14,7 @@ public:
     void draw();
     void aplicaTG(mat4 m);
     void aplicaTGPoints(mat4 m);
+    bool collides(vec3 pmin, vec3 pmax);
 
     Objecte* getBola(int i) {
         return boles[i];

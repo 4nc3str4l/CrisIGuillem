@@ -225,19 +225,13 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     lastPos = event->pos();
 }
 
-bool intersects(vec3 apmin, vec3 apmax, vec3 bpmin, vec3 bpmax)
-{
-    return !(apmin.x > bpmax.x ||
-            apmax.x < bpmin.x ||
-            apmin.z > bpmax.z ||
-            apmax.z < bpmin.z);
-}
 
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
 
     Objecte* tauler = NULL;
     Objecte* bola = NULL;
+    ConjuntBoles* conjuntBoles = NULL;
     PlaBase* plaBase = NULL;
 
     mat4 transformacions;
@@ -251,9 +245,10 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         if (tauler) {
             bola = tauler->getFill(BOLA_BLANCA);
             plaBase = (PlaBase*)tauler->getFill(PLA_BASE);
+            conjuntBoles = (ConjuntBoles*)tauler->getFill(CONJUNT_BOLES);
         }
 
-        if (!bola || !tauler || !plaBase) {
+        if (!bola || !tauler || !plaBase || !conjuntBoles) {
             cout << bola << " " << tauler << " " << plaBase << endl;
             return;
         }
@@ -272,7 +267,8 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     {
     case Qt::Key_Up:
         tauler->aplicaTGCentrat(inversa);
-        if (intersects(bola->capsa.pmin, bola->capsa.pmax  + vec3(0,0,-0.02), plaBase->capsa.pmin, plaBase->capsa.pmax))
+        if (intersects(bola->capsa.pmin, bola->capsa.pmax  + vec3(0,0,-0.02), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
+                !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax  + vec3(0,0,-0.01)))
         {
             bola->aplicaTGCentrat(moveUp);
         }
@@ -281,7 +277,8 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
     case Qt::Key_Down:
         tauler->aplicaTGCentrat(inversa);
-        if (intersects(bola->capsa.pmin + vec3(0,0,0.02), bola->capsa.pmax, plaBase->capsa.pmin, plaBase->capsa.pmax))
+        if (intersects(bola->capsa.pmin + vec3(0,0,0.02), bola->capsa.pmax, plaBase->capsa.pmin, plaBase->capsa.pmax) &&
+                       !conjuntBoles->collides(bola->capsa.pmin + vec3(0,0,0.01), bola->capsa.pmax))
         {
             bola->aplicaTGCentrat(moveDown);
         }
@@ -290,7 +287,8 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
     case Qt::Key_Left:
         tauler->aplicaTGCentrat(inversa);
-        if (intersects(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.02,0,0), plaBase->capsa.pmin, plaBase->capsa.pmax))
+        if (intersects(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.02,0,0), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
+                       !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.01,0,0)))
         {
             bola->aplicaTGCentrat(moveLeft);
         }
@@ -299,7 +297,8 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
     case Qt::Key_Right:
         tauler->aplicaTGCentrat(inversa);
-        if (intersects(bola->capsa.pmin+ vec3(0.02,0,0), bola->capsa.pmax , plaBase->capsa.pmin, plaBase->capsa.pmax))
+        if (intersects(bola->capsa.pmin+ vec3(0.02,0,0), bola->capsa.pmax , plaBase->capsa.pmin, plaBase->capsa.pmax) &&
+                        !conjuntBoles->collides(bola->capsa.pmin+ vec3(0.01,0,0), bola->capsa.pmax))
         {
             bola->aplicaTGCentrat(moveRight);
         }
@@ -311,6 +310,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         rotar = false;
         break;
     }
+
 
     rotar = false;
     updateGL();
@@ -387,14 +387,14 @@ void GLWidget::newBola()
     bola->toGPU(program, *(textures.end() - 2));
 
 
-    const GLfloat ballTableRelation = 12;
+    const GLfloat ballTableRelation = 6;
     vec3 scaleFactor = Common::scaleFactor();
     GLfloat w = (tauler->capsa.pmax.x - tauler->capsa.pmin.x) / ballTableRelation;
     mat4 scaleMatrix = Scale(w, w, w);
 
     bola->aplicaTG(Translate(tauler->capsa.center.x * scaleFactor.x,
                              1 + tauler->capsa.center.y * scaleFactor.y,
-                             25 / ballTableRelation + tauler->capsa.center.z * scaleFactor.z));
+                             15 / ballTableRelation + tauler->capsa.center.z * scaleFactor.z));
     bola->calculCapsa3D();
     bola->aplicaTGCentrat(scaleMatrix);
 

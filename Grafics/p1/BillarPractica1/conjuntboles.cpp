@@ -25,11 +25,11 @@ ConjuntBoles::ConjuntBoles(QGLShaderProgram* program, Objecte* tauler, std::vect
     };
 
     int k = 1;
-    GLfloat z = -20;
+    GLfloat z = -10;
 
     // table: 300x440
     // ball: 25x25
-    const GLfloat ballTableRelation = 12;
+    const GLfloat ballTableRelation = 6;
     vec3 scaleFactor = Common::scaleFactor();
     GLfloat w = (tauler->capsa.pmax.x - tauler->capsa.pmin.x) / ballTableRelation;
     mat4 scaleMatrix = Scale(w, w, w);
@@ -83,6 +83,7 @@ void ConjuntBoles::aplicaTG(mat4 m)
     for (std::vector<Objecte*>::iterator it = boles.begin(); it != boles.end(); ++it)
     {
         (*it)->aplicaTG(m);
+        (*it)->calculCapsa3D();
     }
 }
 
@@ -92,4 +93,18 @@ void ConjuntBoles::aplicaTGPoints(mat4 m)
     {
         (*it)->aplicaTGPoints(m);
     }
+}
+
+bool ConjuntBoles::collides(vec3 pmin, vec3 pmax)
+{
+    for (std::vector<Objecte*>::iterator it = boles.begin(); it != boles.end(); ++it)
+    {
+        if(intersects(pmin, pmax, (*it)->capsa.pmin, (*it)->capsa.pmax))
+        {
+            return true;
+        }
+    }
+
+    return false;
+
 }
