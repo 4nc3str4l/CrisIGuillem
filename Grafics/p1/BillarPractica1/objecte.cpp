@@ -24,7 +24,9 @@ Objecte::Objecte(int npoints, QString n) : numPoints(npoints)
     make();
 }
 
-Objecte::Objecte(QObject *parent){
+Objecte::Objecte(QObject *parent):
+    numPoints(0)
+{
     points = NULL;
     colors = NULL;
     textures = NULL;
@@ -101,6 +103,7 @@ void Objecte::aplicaTGCentrat(mat4 m, Capsa3D* capsa)
     for (std::vector<Objecte*>::iterator it = fills.begin(); it != fills.end(); ++it)
     {
         (*it)->aplicaTGCentrat(m, capsa);
+        (*it)->calculCapsa3D();
     }
 }
 
@@ -150,12 +153,10 @@ void Objecte::draw()
     if (_texture)
     {
         _texture->bind(0);
-
+        program->setUniformValue("texMap", 0);
     }else{
         glBindTexture(GL_TEXTURE_2D, 0);
     }
-
-    std::cout << "Error opengl draw " << glGetError() << std::endl;
 
     glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -207,6 +208,17 @@ void Objecte::make()
     }
 
     // S'ha de dimensionar uniformement l'objecte a la capsa de l'escena i s'ha posicionar en el lloc corresponent
+}
+
+Objecte* Objecte::getFill(TIPUS_OBJECTE tipus)
+{
+    for (std::vector<Objecte*>::iterator it = fills.begin(); it != fills.end(); ++it)
+    {
+        if ((*it)->getTipus() == tipus)
+        {
+            return *it;
+        }
+    }
 }
 
 

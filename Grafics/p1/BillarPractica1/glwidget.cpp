@@ -30,7 +30,7 @@ GLWidget::GLWidget(QWidget *parent)
 
     program = 0;
     moviment = false;
-
+    rotar = true;
 }
 
 
@@ -168,16 +168,24 @@ void GLWidget::paintGL()
 {
    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-   qNormalizeAngle(xRot);
-   qNormalizeAngle(yRot);
-   qNormalizeAngle(zRot);
+   if (rotar)
+   {
+       qNormalizeAngle(xRot);
+       qNormalizeAngle(yRot);
+       qNormalizeAngle(zRot);
 
-   mat4 transform = ( RotateX( xRot / 16.0 ) *
-                       RotateY( yRot / 16.0 ) *
-                       RotateZ( zRot / 16.0 ) );
+       mat4 transform = ( RotateX( xRot / 16.0 ) *
+                           RotateY( yRot / 16.0 ) *
+                           RotateZ( zRot / 16.0 ) );
 
-   // A modificar si cal girar tots els objectes
-   esc->aplicaTGCentrat(transform);
+       // A modificar si cal girar tots els objectes
+       esc->aplicaTGCentrat(transform);
+   }
+   else
+   {
+       rotar = true;
+   }
+
    esc->draw();
 }
 
@@ -217,33 +225,99 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     lastPos = event->pos();
 }
 
+bool intersects(vec3 apmin, vec3 apmax, vec3 bpmin, vec3 bpmax)
+{
+    return !(apmin.x > bpmax.x ||
+            apmax.x < bpmin.x ||
+            apmin.z > bpmax.z ||
+            apmax.z < bpmin.z);
+}
 
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
+
+    Objecte* tauler = NULL;
+    Objecte* bola = NULL;
+    PlaBase* plaBase = NULL;
+
+    mat4 transformacions;
+    mat4 inversa;
+
+    if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down ||
+            event->key() == Qt::Key_Left || event->key() == Qt::Key_Right)
+    {
+        tauler = esc->getObjecte(TAULER);
+
+        if (tauler) {
+            bola = tauler->getFill(BOLA_BLANCA);
+            plaBase = (PlaBase*)tauler->getFill(PLA_BASE);
+        }
+
+        if (!bola || !tauler || !plaBase) {
+            cout << bola << " " << tauler << " " << plaBase << endl;
+            return;
+        }
+
+        transformacions = plaBase->getTransformacions();
+        inversa = plaBase->getInversa();
+    }
+
+    static mat4 moveUp = Translate(vec3(0, 0, -0.01));
+    static mat4 moveDown = Translate(vec3(0, 0, 0.01));
+    static mat4 moveLeft = Translate(vec3(-0.01, 0, 0));
+    static mat4 moveRight = Translate(vec3(0.01, 0, 0));
+
     // Metode a implementar
     switch ( event->key() )
     {
     case Qt::Key_Up:
-
+        tauler->aplicaTGCentrat(inversa);
+        if (intersects(bola->capsa.pmin, bola->capsa.pmax  + vec3(0,0,-0.02), plaBase->capsa.pmin, plaBase->capsa.pmax))
+        {
+            bola->aplicaTGCentrat(moveUp);
+        }
+        tauler->aplicaTGCentrat(transformacions);
         break;
+
     case Qt::Key_Down:
-
+        tauler->aplicaTGCentrat(inversa);
+        if (intersects(bola->capsa.pmin + vec3(0,0,0.02), bola->capsa.pmax, plaBase->capsa.pmin, plaBase->capsa.pmax))
+        {
+            bola->aplicaTGCentrat(moveDown);
+        }
+        tauler->aplicaTGCentrat(transformacions);
         break;
+
     case Qt::Key_Left:
-
+        tauler->aplicaTGCentrat(inversa);
+        if (intersects(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.02,0,0), plaBase->capsa.pmin, plaBase->capsa.pmax))
+        {
+            bola->aplicaTGCentrat(moveLeft);
+        }
+        tauler->aplicaTGCentrat(transformacions);
         break;
-    case Qt::Key_Right:
 
+    case Qt::Key_Right:
+        tauler->aplicaTGCentrat(inversa);
+        if (intersects(bola->capsa.pmin+ vec3(0.02,0,0), bola->capsa.pmax , plaBase->capsa.pmin, plaBase->capsa.pmax))
+        {
+            bola->aplicaTGCentrat(moveRight);
+        }
+        tauler->aplicaTGCentrat(transformacions);
+        break;
+
+    case Qt::Key_V:
+        Common::changeViewMode();
+        rotar = false;
         break;
     }
+
+    rotar = false;
+    updateGL();
 }
 
 void GLWidget::keyReleaseEvent(QKeyEvent *event)
 {
-    // Metode a implementar en el cas que es mogui la bola
-    Common::changeViewMode();
-    updateGL();
-
 }
 
 
@@ -280,7 +354,6 @@ void GLWidget::newPlaBase()
 
     adaptaObjecteTamanyWidget(plaBase);
 
-    vec3 scaleFactor = Common::scaleFactor();
     vec3 tamanyTauler((tauler->capsa.pmax.x - tauler->capsa.pmin.x), 1, (tauler->capsa.pmax.z - tauler->capsa.pmin.z));
     // 20 es el tamany del pla base
     vec3 escalatReal(tamanyTauler.x / 2.34, 1, tamanyTauler.z / 2.16);
@@ -310,6 +383,7 @@ void GLWidget::newBola()
     }
 
     Objecte* bola = new Bola(vec3(1,1,1));
+    bola->setTipus(BOLA_BLANCA);
     bola->toGPU(program, *(textures.end() - 2));
 
 
@@ -359,6 +433,20 @@ void GLWidget::newSalaBillar()
     newBola();
 
     esc->aplicaTGCentrat(Scale(1.5, 1.5, 1.5));
+
+    Objecte* tauler = esc->getObjecte(TAULER);
+    PlaBase* plaBase = NULL;
+
+    if (tauler) {
+        plaBase = (PlaBase*)tauler->getFill(PLA_BASE);
+        tauler->calculCapsa3D();
+    }
+
+    if (!tauler || !plaBase) {
+        return;
+    }
+
+    plaBase->guardaTransformacions();
 }
 
 // Metode per iniciar la dinàmica del joc

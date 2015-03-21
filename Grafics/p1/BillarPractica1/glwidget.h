@@ -53,6 +53,7 @@ protected:
 private:
     Escena *esc;
 
+    bool rotar;
     int xRot;
     int yRot;
     int zRot;

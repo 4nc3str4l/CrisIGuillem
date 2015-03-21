@@ -20,7 +20,9 @@ using namespace std;
 enum TIPUS_OBJECTE
 {
     BOLA,
+    BOLA_BLANCA,
     CONJUNT_BOLES,
+    PLA_BASE,
     TAULER
 };
 
@@ -104,6 +106,8 @@ public:
     void addChild(Objecte* objecte) {
         fills.push_back(objecte);
     }
+
+    Objecte* getFill(TIPUS_OBJECTE tipus);
 
 private:
     static void construeix_cara ( char **words, int nwords, Objecte*objActual, int vindexUlt)

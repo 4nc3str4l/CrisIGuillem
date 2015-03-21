@@ -1,8 +1,11 @@
 #include "plabase.h"
 
 PlaBase::PlaBase(Objecte* tauler):
-    Objecte(6)
+    Objecte(6),
+    _guarda(false),
+    transformacions()
 {
+    setTipus(PLA_BASE);
     tam = 1;
 
     xorig = 0;
@@ -37,4 +40,14 @@ PlaBase::PlaBase(Objecte* tauler):
 PlaBase::~PlaBase()
 {
 
+}
+
+void PlaBase::aplicaTG(mat4 m)
+{
+    if (_guarda)
+    {
+        transformacions = m * transformacions;
+        inverse(transformacions, inversa);
+    }
+    Objecte::aplicaTG(m);
 }
