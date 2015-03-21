@@ -18,6 +18,9 @@ MainWindow::MainWindow(QWidget *parent) :
     glWidget = new GLWidget;
     setCentralWidget(glWidget);
 
+    QLabel* i_label = new QLabel("Afegeix una sala de billar i juga mitjançant les fletxes o la telca espai", glWidget);
+    i_label->setStyleSheet("background-color: #fff; color: #000; min-width: 100%;");
+
     //conecto las distintas opciones de menú con sus metodes
     connect(this->ui->action_Play, SIGNAL(triggered()), glWidget, SLOT(Play()));
 

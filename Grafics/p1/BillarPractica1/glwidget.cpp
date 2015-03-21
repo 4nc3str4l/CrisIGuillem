@@ -159,7 +159,6 @@ void GLWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    std::cout<<"Estic inicialitzant el shaders"<<std::ends;
     initShadersGPU();
 
     glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
@@ -252,7 +251,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         }
 
         if (!bola || !tauler || !plaBase || !conjuntBoles) {
-            cout << bola << " " << tauler << " " << plaBase << endl;
+            QMessageBox::warning(NULL, "Atencio", "No tens una taula amb tots els elements.\nPer jugar, tanca, torna a obrir i afegeix sala de billar.");
             return;
         }
 
@@ -312,7 +311,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     {
         if (!event->isAutoRepeat())
         {
-            cout << "C" << endl;
             QDateTime time = QDateTime::currentDateTime();
             _startTime = time.toMSecsSinceEpoch();
         }
@@ -349,7 +347,7 @@ void GLWidget::mouBola()
     }
 
     if (!bola || !tauler || !plaBase || !conjuntBoles) {
-        cout << bola << " " << tauler << " " << plaBase << endl;
+        QMessageBox::warning(NULL, "Atencio", "No tens una taula amb tots els elements.\nPer jugar, tanca, torna a obrir i afegeix sala de billar.");
         return;
     }
 
@@ -404,7 +402,7 @@ void GLWidget::mouBola()
 
 void GLWidget::keyReleaseEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Space && !event->isAutoRepeat())
+    if (event->key() == Qt::Key_Space)
     {
         QDateTime time = QDateTime::currentDateTime();
         GLfloat total = (time.toMSecsSinceEpoch() - _startTime) / 1000.0;
@@ -413,21 +411,29 @@ void GLWidget::keyReleaseEvent(QKeyEvent *event)
             total = 5;
         }
 
-        Objecte* tauler = NULL;
-        Objecte* bola = NULL;
+        if (!event->isAutoRepeat())
+        {
+            Objecte* tauler = NULL;
+            Objecte* bola = NULL;
 
-        tauler = esc->getObjecte(TAULER);
+            tauler = esc->getObjecte(TAULER);
 
-        if (tauler) {
-            bola = tauler->getFill(BOLA_BLANCA);
+            if (tauler) {
+                bola = tauler->getFill(BOLA_BLANCA);
+            }
+
+            if (!bola || !tauler) {
+                QMessageBox::warning(NULL, "Atencio", "No tens una taula amb tots els elements.\nPer jugar, tanca, torna a obrir i afegeix sala de billar.");
+                return;
+            }
+
+            bola->speed = vec3(0,0, total * -0.003);
+            timer->start(16);
         }
-
-        if (!bola || !tauler) {
-            return;
+        else
+        {
+            cout << "Velocitat acumulada: " << (total * 100 / 5.0) << "%" << endl;
         }
-
-        bola->speed = vec3(0,0, total * -0.003);
-        timer->start(16);
     }
 }
 
@@ -454,25 +460,26 @@ void GLWidget::newObjecte(Objecte * obj)
 }
 void GLWidget::newPlaBase()
 {
-    Objecte* tauler = esc->getObjecte(TAULER);
-    if (!tauler) {
-        QMessageBox::warning(NULL, "Falta tauler", "Per favor afegeix un tauler abans d'afegir el pla base");
-        return;
-    }
-
-    Objecte* plaBase = new PlaBase(tauler);
+    Objecte* plaBase = new PlaBase();
     plaBase->toGPU(program, *(textures.end() - 1));
 
     adaptaObjecteTamanyWidget(plaBase);
 
-    vec3 tamanyTauler((tauler->capsa.pmax.x - tauler->capsa.pmin.x), 1, (tauler->capsa.pmax.z - tauler->capsa.pmin.z));
-    // 20 es el tamany del pla base
-    vec3 escalatReal(tamanyTauler.x / 2.34, 1, tamanyTauler.z / 2.16);
+    Objecte* tauler = esc->getObjecte(TAULER);
+    if (!tauler) {
+        esc->addObjecte(plaBase);
+    }
+    else
+    {
+        vec3 tamanyTauler((tauler->capsa.pmax.x - tauler->capsa.pmin.x), 1, (tauler->capsa.pmax.z - tauler->capsa.pmin.z));
+        // 20 es el tamany del pla base
+        vec3 escalatReal(tamanyTauler.x / 2.34, 1, tamanyTauler.z / 2.16);
 
-    plaBase->aplicaTGCentrat(Scale(escalatReal) * RotateY(180));
-    plaBase->aplicaTG(Translate(tauler->capsa.center.x + 0.005, tauler->capsa.center.y+0.08, tauler->capsa.center.z));
+        plaBase->aplicaTGCentrat(Scale(escalatReal) * RotateY(180));
+        plaBase->aplicaTG(Translate(tauler->capsa.center.x + 0.005, tauler->capsa.center.y+0.08, tauler->capsa.center.z));
 
-    tauler->addChild(plaBase);
+        tauler->addChild(plaBase);
+    }
 }
 
 void GLWidget::newObj(QString fichero)
@@ -487,54 +494,51 @@ void GLWidget::newObj(QString fichero)
 
 void GLWidget::newBola()
 {
-    Objecte* tauler = esc->getObjecte(TAULER);
-    if (!tauler) {
-        QMessageBox::warning(NULL, "Falta tauler", "Per favor afegeix un tauler abans d'afegir boles");
-        return;
-    }
-
     Objecte* bola = new Bola(vec3(1,1,1));
     bola->setTipus(BOLA_BLANCA);
     bola->toGPU(program, *(textures.end() - 2));
 
+    Objecte* tauler = esc->getObjecte(TAULER);
+    if (!tauler) {
+        esc->addObjecte(bola);
+    }
+    else
+    {
+        const GLfloat ballTableRelation = 6;
+        vec3 scaleFactor = Common::scaleFactor();
+        GLfloat w = (tauler->capsa.pmax.x - tauler->capsa.pmin.x) / ballTableRelation;
+        mat4 scaleMatrix = Scale(w, w, w);
 
-    const GLfloat ballTableRelation = 6;
-    vec3 scaleFactor = Common::scaleFactor();
-    GLfloat w = (tauler->capsa.pmax.x - tauler->capsa.pmin.x) / ballTableRelation;
-    mat4 scaleMatrix = Scale(w, w, w);
-
-    bola->aplicaTG(Translate(tauler->capsa.center.x * scaleFactor.x,
-                             1 + tauler->capsa.center.y * scaleFactor.y,
-                             15 / ballTableRelation + tauler->capsa.center.z * scaleFactor.z));
-    bola->calculCapsa3D();
-    bola->aplicaTGCentrat(scaleMatrix);
+        bola->aplicaTG(Translate(tauler->capsa.center.x * scaleFactor.x,
+                                 1 + tauler->capsa.center.y * scaleFactor.y,
+                                 15 / ballTableRelation + tauler->capsa.center.z * scaleFactor.z));
+        bola->calculCapsa3D();
+        bola->aplicaTGCentrat(scaleMatrix);
 
 
-    tauler->addChild(bola);
+        tauler->addChild(bola);
+    }
+
     adaptaObjecteTamanyWidget(bola);
 }
 void GLWidget::newConjuntBoles()
 {
     Objecte* tauler = esc->getObjecte(TAULER);
-    if (!tauler) {
-        QMessageBox::warning(NULL, "Falta tauler", "Per favor afegeix un tauler abans d'afegir boles");
-        return;
-    }
-
     ConjuntBoles* boles = new ConjuntBoles(program, tauler, textures);
-    tauler->addChild((Objecte*)boles);
+
+    if (!tauler) {
+        esc->addObjecte(boles);
+    }
+    else
+    {
+        tauler->addChild((Objecte*)boles);
+    }
 
     for (int i = 0; i < 15; ++i) {
         adaptaObjecteTamanyWidget(boles->getBola(i));
     }
-
-    /*
-    mat4 transform = ( RotateX( xRot / 16.0 ) *
-                        RotateY( yRot / 16.0 ) *
-                        RotateZ( zRot / 16.0 ) );
-    boles->aplicaTGCentrat(transform);
-    */
 }
+
 void GLWidget::newSalaBillar()
 {
     // Metode que construeix tota la sala de billar: taula, 15 boles i bola blanca
@@ -554,7 +558,7 @@ void GLWidget::newSalaBillar()
     }
 
     if (!tauler || !plaBase) {
-        return;
+        QMessageBox::warning(NULL, "Atencio", "Algo no ha funcionat be.");
     }
 
     plaBase->guardaTransformacions();

@@ -27,11 +27,23 @@ ConjuntBoles::ConjuntBoles(QGLShaderProgram* program, Objecte* tauler, std::vect
     int k = 1;
     GLfloat z = -10;
 
+    Capsa3D capsa;
+    if (tauler)
+    {
+        capsa = tauler->capsa;
+    }
+    else
+    {
+        capsa.pmin = vec3(0,0,0);
+        capsa.pmax = vec3(1,1,1);
+        capsa.center = vec3(0,0,0);
+    }
+
     // table: 300x440
     // ball: 25x25
     const GLfloat ballTableRelation = 6;
     vec3 scaleFactor = Common::scaleFactor();
-    GLfloat w = (tauler->capsa.pmax.x - tauler->capsa.pmin.x) / ballTableRelation;
+    GLfloat w = (capsa.pmax.x - capsa.pmin.x) / ballTableRelation;
     mat4 scaleMatrix = Scale(w, w, w);
 
     for(int i=0; i<15;)
@@ -40,13 +52,11 @@ ConjuntBoles::ConjuntBoles(QGLShaderProgram* program, Objecte* tauler, std::vect
         for (int j = 0; j < k; ++j, ++i) {
             Bola* bola = new Bola(colors[i]/255);
             bola->toGPU(program, textures[i]);
-            bola->aplicaTG(Translate(x / ballTableRelation + tauler->capsa.center.x * scaleFactor.x,
-                                     1 + tauler->capsa.center.y * scaleFactor.y,
-                                     z / ballTableRelation + tauler->capsa.center.z * scaleFactor.z));
+            bola->aplicaTG(Translate(x / ballTableRelation + capsa.center.x * scaleFactor.x,
+                                     1 + capsa.center.y * scaleFactor.y,
+                                     z / ballTableRelation + capsa.center.z * scaleFactor.z));
             bola->calculCapsa3D();
             bola->aplicaTGCentrat(scaleMatrix);
-
-            cout << tauler->capsa.center.x << " " << tauler->capsa.center.y << " " << tauler->capsa.center.z << endl;
 
             boles.push_back(bola);
             x += 2;
@@ -57,11 +67,6 @@ ConjuntBoles::ConjuntBoles(QGLShaderProgram* program, Objecte* tauler, std::vect
     }
 
     this->setTipus(CONJUNT_BOLES);
-
-    // Copiar matrius
-    // capsa.center = tauler->capsa.center;
-    // capsa.fromCenter = tauler->capsa.fromCenter;
-    // capsa.toCenter = tauler->capsa.toCenter;
 }
 
 ConjuntBoles::~ConjuntBoles()

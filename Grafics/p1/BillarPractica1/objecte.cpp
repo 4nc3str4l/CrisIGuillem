@@ -13,7 +13,6 @@ Objecte::Objecte(int npoints, QString n) : numPoints(npoints)
     points = new point4[npoints];
     colors = new color4[npoints];
     textures = new vec2[npoints];
-    std::cout<<"Estic en el constructor parametritzat del objecte\n";
 
     xRot = 0;
     yRot = 0;
@@ -66,11 +65,6 @@ Capsa3D Objecte::calculCapsa3D()
     capsa.toCenter = Translate(-capsa.center);
     capsa.fromCenter = Translate(capsa.center);
 
-//    std::cout << std::endl;
-//    std::cout << capsa.pmin.x << " " << capsa.pmin.y << " " << capsa.pmin.z << std::endl;
-//    std::cout << capsa.pmax.x << " " << capsa.pmax.y << " " << capsa.pmax.z << std::endl;
-//    std::cout << capsa.center.x << " " << capsa.center.y << " " << capsa.center.z << std::endl;
-
     return capsa;
 }
 
@@ -110,8 +104,6 @@ void Objecte::aplicaTGCentrat(mat4 m, Capsa3D* capsa)
 void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
 
     this->program = program;
-
-    std::cout<<"Passo les dades de l'objecte a la GPU\n";
 
     _texture = texture;
 

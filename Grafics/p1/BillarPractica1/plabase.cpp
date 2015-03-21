@@ -1,6 +1,6 @@
 #include "plabase.h"
 
-PlaBase::PlaBase(Objecte* tauler):
+PlaBase::PlaBase():
     Objecte(6),
     _guarda(false),
     transformacions()

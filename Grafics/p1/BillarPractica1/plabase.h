@@ -6,7 +6,7 @@
 class PlaBase : public Objecte
 {
 public:
-    PlaBase(Objecte* tauler);
+    PlaBase();
     ~PlaBase();
 
     virtual void aplicaTG(mat4 m);
