@@ -28,6 +28,9 @@ GLWidget::GLWidget(QWidget *parent)
     qtGreen = QColor::fromCmykF(0.40, 0.0, 1.0, 0.0);
     qtPurple = QColor::fromCmykF(0.39, 0.39, 0.0, 0.0);
 
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(mouBola()));
+
     program = 0;
     moviment = false;
     rotar = true;
@@ -267,20 +270,20 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     {
     case Qt::Key_Up:
         tauler->aplicaTGCentrat(inversa);
-        if (intersects(bola->capsa.pmin, bola->capsa.pmax  + vec3(0,0,-0.02), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
-                !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax  + vec3(0,0,-0.01)))
+        if (intersects(bola->capsa.pmin + vec3(0,0,0.02), bola->capsa.pmax, plaBase->capsa.pmin, plaBase->capsa.pmax) &&
+                       !conjuntBoles->collides(bola->capsa.pmin + vec3(0,0,0.01), bola->capsa.pmax))
         {
-            bola->aplicaTGCentrat(moveUp);
+            bola->aplicaTGCentrat(moveDown*RotateX(-30));
         }
         tauler->aplicaTGCentrat(transformacions);
         break;
 
     case Qt::Key_Down:
         tauler->aplicaTGCentrat(inversa);
-        if (intersects(bola->capsa.pmin + vec3(0,0,0.02), bola->capsa.pmax, plaBase->capsa.pmin, plaBase->capsa.pmax) &&
-                       !conjuntBoles->collides(bola->capsa.pmin + vec3(0,0,0.01), bola->capsa.pmax))
+        if (intersects(bola->capsa.pmin, bola->capsa.pmax  + vec3(0,0,-0.02), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
+                !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax  + vec3(0,0,-0.01)))
         {
-            bola->aplicaTGCentrat(moveDown);
+            bola->aplicaTGCentrat(moveUp*RotateX(30));
         }
         tauler->aplicaTGCentrat(transformacions);
         break;
@@ -290,7 +293,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         if (intersects(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.02,0,0), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
                        !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.01,0,0)))
         {
-            bola->aplicaTGCentrat(moveLeft);
+            bola->aplicaTGCentrat(moveLeft*RotateZ(-30));
         }
         tauler->aplicaTGCentrat(transformacions);
         break;
@@ -300,10 +303,21 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         if (intersects(bola->capsa.pmin+ vec3(0.02,0,0), bola->capsa.pmax , plaBase->capsa.pmin, plaBase->capsa.pmax) &&
                         !conjuntBoles->collides(bola->capsa.pmin+ vec3(0.01,0,0), bola->capsa.pmax))
         {
-            bola->aplicaTGCentrat(moveRight);
+            bola->aplicaTGCentrat(moveRight*RotateZ(30));
         }
         tauler->aplicaTGCentrat(transformacions);
         break;
+
+    case Qt::Key_Space:
+    {
+        if (!event->isAutoRepeat())
+        {
+            cout << "C" << endl;
+            QDateTime time = QDateTime::currentDateTime();
+            _startTime = time.toMSecsSinceEpoch();
+        }
+        break;
+    }
 
     case Qt::Key_V:
         Common::changeViewMode();
@@ -316,8 +330,105 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     updateGL();
 }
 
+void GLWidget::mouBola()
+{
+    Objecte* tauler = NULL;
+    Objecte* bola = NULL;
+    ConjuntBoles* conjuntBoles = NULL;
+    PlaBase* plaBase = NULL;
+
+    mat4 transformacions;
+    mat4 inversa;
+
+    tauler = esc->getObjecte(TAULER);
+
+    if (tauler) {
+        bola = tauler->getFill(BOLA_BLANCA);
+        plaBase = (PlaBase*)tauler->getFill(PLA_BASE);
+        conjuntBoles = (ConjuntBoles*)tauler->getFill(CONJUNT_BOLES);
+    }
+
+    if (!bola || !tauler || !plaBase || !conjuntBoles) {
+        cout << bola << " " << tauler << " " << plaBase << endl;
+        return;
+    }
+
+    transformacions = plaBase->getTransformacions();
+    inversa = plaBase->getInversa();
+
+    if (bola->speed.z == 0)
+    {
+        timer->stop();
+    }
+    else
+    {
+        char sign = -1;
+        if (bola->speed.z < 0)
+        {
+            sign = 1;
+        }
+
+        tauler->aplicaTGCentrat(inversa);
+        if (intersects(bola->capsa.pmin + vec3(0,0,0.02), bola->capsa.pmax + vec3(0,0,-0.02), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
+                !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax + bola->speed))
+        {
+            bola->aplicaTGCentrat(Translate(bola->speed)*RotateX(sign*30));
+        }
+        else
+        {
+            bola->speed = -bola->speed;
+            bola->aplicaTGCentrat(Translate(bola->speed)*RotateX(sign*30));
+        }
+        tauler->aplicaTGCentrat(transformacions);
+
+        GLfloat delta = 0.00005;
+        if (bola->speed.z > 0)
+        {
+            delta *= -1;
+        }
+
+        if ((delta < 0 && bola->speed.z + delta < 0) ||
+                (delta > 0 && bola->speed.z + delta > 0))
+        {
+            bola->speed.z = 0;
+        }
+        else
+        {
+            bola->speed.z += delta;
+        }
+
+        rotar = false;
+        updateGL();
+    }
+}
+
 void GLWidget::keyReleaseEvent(QKeyEvent *event)
 {
+    if (event->key() == Qt::Key_Space && !event->isAutoRepeat())
+    {
+        QDateTime time = QDateTime::currentDateTime();
+        GLfloat total = (time.toMSecsSinceEpoch() - _startTime) / 1000.0;
+        if (total > 5)
+        {
+            total = 5;
+        }
+
+        Objecte* tauler = NULL;
+        Objecte* bola = NULL;
+
+        tauler = esc->getObjecte(TAULER);
+
+        if (tauler) {
+            bola = tauler->getFill(BOLA_BLANCA);
+        }
+
+        if (!bola || !tauler) {
+            return;
+        }
+
+        bola->speed = vec3(0,0, total * -0.003);
+        timer->start(16);
+    }
 }
 
 

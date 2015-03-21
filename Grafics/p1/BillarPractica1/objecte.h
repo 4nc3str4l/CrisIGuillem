@@ -66,6 +66,7 @@ public:
 
   // Capsa mínima contenidora de l'objecte
     Capsa3D capsa;
+    vec3 speed;
 
     Objecte(QObject *parent = 0);
     Objecte(const int npoints, QObject *parent = 0);
