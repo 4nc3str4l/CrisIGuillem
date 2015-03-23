@@ -1,5 +1,6 @@
 #include "bola.h"
 
+//coordenades inicials de la bola
 vec3 v[4] = {
     vec3(0.0, 0.0, 1.0),
     vec3(0.0, 0.942809, -0.333333),
@@ -7,7 +8,9 @@ vec3 v[4] = {
     vec3(0.816497, -0.471405, -0.333333)
 };
 
-
+/*Genera un triagle a partir de 3 vectors, en aquest moment aprofitant que iterem per cada un dels
+* punt associem també les textures.
+*/
 void Bola::triangle(vec3 a, vec3 b, vec3 c)
 {
     points[k] = vec4(a);
@@ -19,6 +22,7 @@ void Bola::triangle(vec3 a, vec3 b, vec3 c)
     k += 3;
 }
 
+/* Mètode recursiu (ACABAR!) */
 void Bola::divide_triangle(vec3 a, vec3 b, vec3 c, int n)
 {
     vec3 v1, v2, v3;
