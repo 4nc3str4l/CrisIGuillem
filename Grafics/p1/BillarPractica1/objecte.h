@@ -72,7 +72,7 @@ public:
     Objecte(const int npoints, QObject *parent = 0);
     Objecte(const int npoints, QString n);
 
-    ~Objecte();
+    virtual ~Objecte();
 
     // llegeix un model en format OBJ
     virtual void readObj(QString filename);

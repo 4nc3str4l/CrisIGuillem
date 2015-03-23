@@ -27,6 +27,7 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
+    QLabel* i_label;
     GLWidget *glWidget;
 
 

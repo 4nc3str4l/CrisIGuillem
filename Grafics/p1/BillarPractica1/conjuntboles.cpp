@@ -71,7 +71,10 @@ ConjuntBoles::ConjuntBoles(QGLShaderProgram* program, Objecte* tauler, std::vect
 
 ConjuntBoles::~ConjuntBoles()
 {
-
+    for (std::vector<Objecte*>::iterator it = boles.begin(); it != boles.end(); ++it)
+    {
+        delete *it;
+    }
 }
 
 void ConjuntBoles::draw()

@@ -36,6 +36,11 @@ Objecte::~Objecte()
     delete [] points;
     delete [] colors;
     delete [] textures;
+
+    for (std::vector<Objecte*>::iterator it = fills.begin(); it != fills.end(); ++it)
+    {
+        delete *it;
+    }
 }
 
 

@@ -41,6 +41,23 @@ GLWidget::~GLWidget()
 {
     makeCurrent();
     delete esc;
+    delete timer;
+
+    if (program)
+    {
+        QList<QGLShader*> list = program->shaders();
+        for (QList<QGLShader*>::iterator it = list.begin(); it != list.end(); ++it)
+        {
+            delete *it;
+        }
+
+        delete program;
+    }
+
+    for (std::vector<QOpenGLTexture*>::iterator it = textures.begin(); it != textures.end(); ++it)
+    {
+        delete *it;
+    }
 }
 
 
