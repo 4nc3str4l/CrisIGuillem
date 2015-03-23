@@ -22,7 +22,7 @@ void Bola::triangle(vec3 a, vec3 b, vec3 c)
     k += 3;
 }
 
-/* Mètode recursiu (ACABAR!) */
+/* Mètode recursiu, que divideix el triangle en mes triangles i va generant la bola */
 void Bola::divide_triangle(vec3 a, vec3 b, vec3 c, int n)
 {
     vec3 v1, v2, v3;
@@ -42,6 +42,9 @@ void Bola::divide_triangle(vec3 a, vec3 b, vec3 c, int n)
         triangle(a, b, c);
 }
 
+/*
+ * El mètode que crida al mètode recursiu de generar els subtriangles, aquí és on especifiquem el nombre de iteracions (n)
+ * */
 void Bola::generar(int n)
 {
     divide_triangle(v[0], v[1], v[2], n);
@@ -53,6 +56,10 @@ void Bola::generar(int n)
 const unsigned int iter = 5;
 const unsigned int len = (int)std::pow(4, iter + 1) * 3;
 
+/*
+ * Hereda d'objecte, pots pasar-li un color per defecte, es genera amb els codis abans esmetats
+ * i calcula la seva capça 3d.
+ * */
 Bola::Bola(vec3 color):
     Objecte(len),
     k(0)
@@ -75,6 +82,8 @@ Bola::Bola(vec3 color):
     }
 
     this->calculCapsa3D();
+
+    //Ens serveix per mes tard poder recuperar l'objecte.
     this->setTipus(BOLA);
 }
 

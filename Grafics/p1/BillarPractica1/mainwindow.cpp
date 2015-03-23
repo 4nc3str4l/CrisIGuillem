@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     glWidget = new GLWidget;
     setCentralWidget(glWidget);
 
+    //Label explicatiu de com jugar.
     i_label = new QLabel("Afegeix una sala de billar i juga mitjançant les fletxes o la telca espai", glWidget);
     i_label->setStyleSheet("background-color: #fff; color: #000; min-width: 100%;");
 

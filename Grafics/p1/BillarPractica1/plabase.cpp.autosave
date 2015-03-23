@@ -46,6 +46,11 @@ PlaBase::~PlaBase()
 
 }
 
+/**
+ * guardem les rotacions de cara a poder fer la seva inversa.
+ * @brief PlaBase::aplicaTG
+ * @param m
+ */
 void PlaBase::aplicaTG(mat4 m)
 {
     if (_guarda)

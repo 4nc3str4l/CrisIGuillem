@@ -83,6 +83,10 @@ typedef struct {
 } Capsa2D;
 
 
+/**
+ *Defineix un namespace que conte totes les variables i metodes que ens interesaran consultar durant l'execucio del programa
+ * Aixo ens permet unificar nombres, fent aixi mes facil qualsevol canvi.
+ */
 namespace Common
 {
     const GLfloat a = 20;

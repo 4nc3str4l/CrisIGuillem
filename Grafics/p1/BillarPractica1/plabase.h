@@ -21,6 +21,7 @@ public:
         return inversa;
     }
 
+    //defineix quan s'ha de començar a guardar totes les rotacions que es produeixin duran't l'execucio del programa.
     inline void guardaTransformacions()
     {
         _guarda = true;

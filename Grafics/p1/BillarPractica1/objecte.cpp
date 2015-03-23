@@ -1,5 +1,11 @@
 #include "objecte.h"
 
+/**
+ * Creem les arrays per guardar punts, colors i textures
+ * @brief Objecte::Objecte
+ * @param npoints
+ * @param parent
+ */
 Objecte::Objecte(int npoints, QObject *parent) : numPoints(npoints) ,
     QObject(parent)
 {
@@ -8,6 +14,12 @@ Objecte::Objecte(int npoints, QObject *parent) : numPoints(npoints) ,
     textures = new vec2[npoints];
 }
 
+/**
+ * Fa el mateix inicialitzant unes variables per defecte
+ * @brief Objecte::Objecte
+ * @param npoints
+ * @param n
+ */
 Objecte::Objecte(int npoints, QString n) : numPoints(npoints)
 {
     points = new point4[npoints];
@@ -23,6 +35,11 @@ Objecte::Objecte(int npoints, QString n) : numPoints(npoints)
     make();
 }
 
+/**
+ * Constructor per defecte
+ * @brief Objecte::Objecte
+ * @param parent
+ */
 Objecte::Objecte(QObject *parent):
     numPoints(0)
 {
@@ -31,19 +48,31 @@ Objecte::Objecte(QObject *parent):
     textures = NULL;
 }
 
+/**
+ * LLibera tota la memoria dels vectors que hem allotjat per formar l'objecte i les propietats
+ * @brief Objecte::~Objecte
+ */
 Objecte::~Objecte()
 {
-    delete [] points;
-    delete [] colors;
-    delete [] textures;
+    //Si tenim memoria allotjada la lliberem
+    if(points){
+        delete [] points;
+        delete [] colors;
+        delete [] textures;
+    }
 
+    //LLiberem la memoria de tots els fills del objecte
     for (std::vector<Objecte*>::iterator it = fills.begin(); it != fills.end(); ++it)
     {
         delete *it;
     }
 }
 
-
+/**
+ * Iterem tots els punts de cada una de les dimensions amb l'objectiu d'obtenir la seva capça minima contenidora
+ * @brief Objecte::calculCapsa3D
+ * @return
+ */
 Capsa3D Objecte::calculCapsa3D()
 {
     for (int i = 0; i < numPoints; ++i) {
@@ -73,6 +102,11 @@ Capsa3D Objecte::calculCapsa3D()
     return capsa;
 }
 
+/**
+ * Ens permet realitzar canvis en la posicio, tamany i/o rotacio del objecte segons les matrius que reb com entrada.
+ * @brief Objecte::aplicaTG
+ * @param m
+ */
 void Objecte::aplicaTG(mat4 m)
 {
     aplicaTGPoints(m);
@@ -90,6 +124,12 @@ void Objecte::aplicaTGPoints(mat4 m)
     }
 }
 
+/**
+ * Mou l'objecte al centre de l'escena aplica la matriu de transofrmacio i torna a la posicio del centre de l'objecte.
+ * @brief Objecte::aplicaTGCentrat
+ * @param m
+ * @param capsa
+ */
 void Objecte::aplicaTGCentrat(mat4 m, Capsa3D* capsa)
 {
     if (!capsa)
@@ -106,6 +146,12 @@ void Objecte::aplicaTGCentrat(mat4 m, Capsa3D* capsa)
     }
 }
 
+/**
+ * Li passem la textura com a parametre a part del shader.
+ * @brief Objecte::toGPU
+ * @param program
+ * @param texture
+ */
 void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
 
     this->program = program;
@@ -115,8 +161,11 @@ void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
 
     glGenBuffers( 1, &buffer );
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
+
+    //reservem espai per els punts, colors i textures.
     glBufferData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints, NULL, GL_STATIC_DRAW );
 
+    //Les enviem a la gpu.
     glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4) * numPoints, &points[0] );
     glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints, sizeof(color4) * numPoints, &colors[0] );
     glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints, sizeof(vec2) * numPoints, textures );
@@ -128,8 +177,10 @@ void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
 
     program->enableAttributeArray(vertexLocation);
     program->enableAttributeArray(colorLocation);
+    //Informem al shader de que existeix una array que conte les coordenades de la textura
     program->enableAttributeArray(coordTextureLocation);
 
+    //Linkeejem el programa amb la grafica
     program->link();
     program->bind();
 
@@ -142,11 +193,13 @@ void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
 void Objecte::draw()
 {
 
+    //Indiquem la posicio del objecte a la GPU
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     program->setAttributeBuffer("vPosition", GL_FLOAT, 0, 4);
     program->setAttributeBuffer("vColor", GL_FLOAT, sizeof(point4) * numPoints, 4);
     program->setAttributeBuffer("vCoordTexture", GL_FLOAT, sizeof(vec4) * numPoints + sizeof(vec4) * numPoints, 2);
 
+    //SI hi ha textura li indiquem que utilitzi la textura, sino la desactivem.
     if (_texture)
     {
         _texture->bind(0);
@@ -164,12 +217,17 @@ void Objecte::draw()
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+    //Dibuxem els fills del objecte.
     for (std::vector<Objecte*>::iterator it = fills.begin(); it != fills.end(); ++it)
     {
         (*it)->draw();
     }
 }
 
+/**
+ * Converteix cada vertex de cada cara en un punt de GPU.
+ * @brief Objecte::make
+ */
 void Objecte::make()
 {
 
@@ -207,6 +265,12 @@ void Objecte::make()
     // S'ha de dimensionar uniformement l'objecte a la capsa de l'escena i s'ha posicionar en el lloc corresponent
 }
 
+/**
+ * Retorna el fills del objecte.
+ * @brief Objecte::getFill
+ * @param tipus
+ * @return
+ */
 Objecte* Objecte::getFill(TIPUS_OBJECTE tipus)
 {
     for (std::vector<Objecte*>::iterator it = fills.begin(); it != fills.end(); ++it)

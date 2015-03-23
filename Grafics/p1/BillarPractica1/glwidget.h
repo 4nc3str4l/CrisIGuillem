@@ -65,8 +65,6 @@ private:
     QColor qtGreen;
     QColor qtPurple;
 
-    bool moviment;
-
     std::vector<QOpenGLTexture*> textures;
 
     // Programa de la GPU
@@ -87,7 +85,7 @@ private:
 
     // Metode per adaptar l'escena al tamany del widget
     void adaptaObjecteTamanyWidget(Objecte *obj);
-    void initTexture(GLenum texture, std::string path, int i);
+    void initTexture(GLenum texture, std::string path);
 
 private slots:
     void mouBola();
