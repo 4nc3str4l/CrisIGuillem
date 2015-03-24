@@ -7,7 +7,7 @@
 #include<string>
 //using namespace std;
 
-
+#include <QFile>
 #include <Common.h>
 
 /*
@@ -37,7 +37,7 @@ public:
     static char**words;
 
     static void get_indices ( char *word, int *vindex, int *tindex, int *nindex );
-    static char *fetch_line ( FILE *fp );
+    static char *fetch_line ( QFile *fp );
     static int fetch_words ();
     static std::string getPath(const std::string& filename);
 

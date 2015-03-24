@@ -290,9 +290,10 @@ Objecte* Objecte::getFill(TIPUS_OBJECTE tipus)
 
 void Objecte::readObj(QString filename)
 {
+    QFile fp(filename);
+    fp.open(QIODevice::ReadOnly);
 
-    FILE *fp = fopen(filename.toLocal8Bit(),"rb");
-    if (!fp)
+    if (!fp.isOpen())
     {
         cout << "No puc obrir el fitxer " << endl;
     }
@@ -300,7 +301,7 @@ void Objecte::readObj(QString filename)
 
         while (true)
         {
-            char *comment_ptr = ReadFile::fetch_line (fp);
+            char *comment_ptr = ReadFile::fetch_line (&fp);
 
             if (comment_ptr == (char *) -1)  /* end-of-file */
                 break;

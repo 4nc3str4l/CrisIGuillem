@@ -671,7 +671,7 @@ void GLWidget::newSalaBillar()
 {
     // Metode que construeix tota la sala de billar: taula, 15 boles i bola blanca
     //Obtenim el path del objecte que defineix la taula
-    newObj(QDir().current().absoluteFilePath("../BillarPractica1/resources/taula.obj"));
+    newObj(":/resources/taula.obj");
     //creem el tapete
     newPlaBase();
     //Creem el conjunt de boles.

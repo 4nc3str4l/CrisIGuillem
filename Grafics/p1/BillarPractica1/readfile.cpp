@@ -1,6 +1,7 @@
 #include"readfile.h"
 //read files functions
-#include<QString>
+#include <QString>
+
 /*
 Lectura d'un fitxer OBJ
 
@@ -75,19 +76,19 @@ nindex - third number (normal vector index)
 
 
 
-char *ReadFile::fetch_line ( FILE *fp )
+char *ReadFile::fetch_line ( QFile *fp )
 {
     //int i,j;
     char *ptr;
     char *ptr2;
-    char *result;
+    qint64 result;
     //char *comment_ptr;
 
     /* read in a line */
-    result = fgets (ReadFile::str, BIG_STRING, fp);
+    result = fp->readLine(ReadFile::str, BIG_STRING);
 
     /* return NULL if we're at the end-of-file */
-    if (result == NULL)
+    if (result <= 0)
         return ((char *) -1);
 
     /* convert line-feed and tabs into spaces */
