@@ -16,12 +16,15 @@
 #include <taulabillar.h>
 #include <plabase.h>
 
+//forward declaration of camera
+class Camera;
+
 using namespace std;
 
 class Escena
 {
 public:
-    Escena(vec3 dimensions);
+    Escena(vec3 dimensions, QGLShaderProgram* program);
     ~Escena();
 
     void addObjecte(Objecte *obj);
@@ -41,13 +44,32 @@ public:
         return scale;
     }
 
+    inline void setSize(int width, int height)
+    {
+        this->width = width;
+        this->height = height;
+    }
+
     Objecte* getObjecte(TIPUS_OBJECTE tipus);
+private:
+
+    void initCamera(bool camGeneral);
+    void setAnglesCamera(Camera* camera,float angX, float angY, float angZ);
+    void setVRPCamera(Camera* camera, point4 vrp);
+    void setWindowCamera(Camera* camera, bool retallat, Capsa2D window);
+    void setDCamera(Camera* camera, float d);
 
 private:
+
     std::vector<Objecte*> objectes;
     // Capsa contenedora de l'escena
     Capsa3D capsaMinima;
     mat4 scale;
+    Camera* camGeneral;
+
+    int width;
+    int height;
+
 };
 
 #endif // ESCENA_H

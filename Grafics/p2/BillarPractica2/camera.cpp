@@ -1,7 +1,8 @@
 #include "camera.h"
 
-Camera::Camera()
+Camera::Camera(QGLShaderProgram* program)
 {
+
     vs.vrp = vec4(0.0, 0.0, 0.0, 1.0);
     vs.vup = vec4(0.0, 1.0, 0.0, 0.0);
     vs.obs = vec4(0.0, 0.0, 200.0, 1.0);
@@ -17,6 +18,11 @@ Camera::Camera()
 
     piram.proj = PARALLELA;
     piram.d = 100;
+
+    //Asign the model view variable of the shader
+    model_view = program->uniformLocation("model_view");
+    projection = program->uniformLocation("projection");
+    std::cout << model_view << " " << projection <<  std::endl;
 }
 
 void Camera::ini(int a, int h, Capsa3D capsaMinima)
@@ -25,10 +31,7 @@ void Camera::ini(int a, int h, Capsa3D capsaMinima)
     // CAL IMPLEMENTAR
     // CODI A MODIFICAR DURANT LA PRACTICA 2
     
-    vs.vrp[0] = 0.0;
-    vs.vrp[1] = 0.0;
-    vs.vrp[2] = 0.0;
-    
+    vs.vrp = capsaMinima.center;
    
     vp.a = a;
     vp.h = h;
@@ -41,7 +44,8 @@ void Camera::ini(int a, int h, Capsa3D capsaMinima)
 
 void Camera::toGPU(QGLShaderProgram *program)
 {
-    // CODI A MODIFICAR DURANT LA PRACTICA 2
+    setModelViewToGPU(program, modView);
+    setProjectionToGPU(program, proj);
 }
 
 
@@ -51,19 +55,18 @@ void Camera::toGPU(QGLShaderProgram *program)
 
 void Camera::CalculaMatriuModelView()
 {
-    // CODI A MODIFICAR DURANT LA PRACTICA 2
-    modView = identity();
+    modView = LookAt(vs.obs,vs.vrp,vs.vup);
 }
 
 void Camera::CalculaMatriuProjection()
 {
     // CODI A MODIFICAR DURANT LA PRACTICA 2
-    proj = identity();
-
+    proj = Perspective(45.f, vp.a > vp.h ? (vp.a / vp.h) : (vp.h / vp.a), 0, -20);
+    //proj = Frustum()
 }
 
-
-void Camera::CalculWindow( Capsa3D c)
+//TODO: Intentar interpretar aquest metode.
+void Camera::CalculWindow(Capsa2D c)
 {
    // CODI A MODIFICAR DURANT LA PRACTICA 2
     
@@ -86,15 +89,12 @@ void Camera::setViewport(int x, int y, int a, int h)
 
 void Camera::setModelViewToGPU(QGLShaderProgram *program, mat4 m)
 {
-
-   // CODI A MODIFICAR DURANT LA PRACTICA 2
-
+   glUniformMatrix4fv(model_view, 1, GL_TRUE, modView);
 }
 
 void Camera::setProjectionToGPU(QGLShaderProgram *program, mat4 p)
 {
- 
-       // CODI A MODIFICAR DURANT LA PRACTICA 2
+    glUniformMatrix4fv(projection, 1, GL_TRUE, proj);
 }
 
 void  Camera::AmpliaWindow(double r)
@@ -259,9 +259,9 @@ vec4 Camera::CalculObs(vec4 vrp, double d, double angx, double angy)
 
  /* Calcul del vector de visio a partir dels angles */
 
- v[0] = sin (PI*angy/180.) * cos (PI*angx/180.);
- v[2] = cos (PI*angy/180.) * cos (PI*angx/180.);
- v[1]= - sin (PI*angx/180.);
+ v[0] = sin(PI * angy / 180.) * cos(PI * angx / 180.);
+ v[2] = cos(PI * angy / 180.) * cos(PI * angx / 180.);
+ v[1]= - sin(PI * angx / 180.);
 
  norma = sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
 
@@ -305,9 +305,9 @@ void Camera::VertexCapsa3D(Capsa3D capsaMinima, vec4 vaux[8])
 {
     vec3 ptfi;
 
-    ptfi[0] = capsaMinima.pmin[0]+capsaMinima.a;
-    ptfi[1] = capsaMinima.pmin[1]+capsaMinima.h;
-    ptfi[2] = capsaMinima.pmin[2]+capsaMinima.p;
+    ptfi[0] = capsaMinima.pmin[0]+(capsaMinima.pmax.x - capsaMinima.pmin.x);
+    ptfi[1] = capsaMinima.pmin[1]+(capsaMinima.pmax.y - capsaMinima.pmin.y);
+    ptfi[2] = capsaMinima.pmin[2]+(capsaMinima.pmax.z - capsaMinima.pmin.z);
 
     vaux[0] = vec4(capsaMinima.pmin[0], capsaMinima.pmin[1], capsaMinima.pmin[2], 1.0);
     vaux[1] = vec4(capsaMinima.pmin[0], capsaMinima.pmin[1], ptfi[2], 1.0);

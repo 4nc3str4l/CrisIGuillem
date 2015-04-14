@@ -17,9 +17,6 @@ GLWidget::GLWidget(QWidget *parent)
 {
     setFocusPolicy( Qt::StrongFocus );
 
-    //Construim l'escena utilitzant el tamanys del common.
-    esc = new Escena(Common::sceneDimensions());
-
     xRot = 0;
     yRot = 0;
     zRot = 0;
@@ -189,6 +186,9 @@ void GLWidget::initializeGL()
 
     initShadersGPU();
 
+    //Construim l'escena utilitzant el tamanys del common.
+    esc = new Escena(Common::sceneDimensions(), program);
+
     glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -236,6 +236,8 @@ void GLWidget::resizeGL(int width, int height)
     glOrtho(-1.5, +1.5, -1.5, +1.5, 0.0, 15.0);
 #endif
     glMatrixMode(GL_MODELVIEW);
+
+    esc->setSize(width, height);
 }
 
 

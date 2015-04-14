@@ -47,7 +47,7 @@ typedef struct
 class Camera
 {
 public:
-    explicit Camera();
+    explicit Camera(QGLShaderProgram* program);
     ~Camera() {}
 
     void ini(int a, int h, Capsa3D c);
@@ -55,7 +55,7 @@ public:
 
     void CalculaMatriuModelView();
     void CalculaMatriuProjection();
-    void CalculWindow(Capsa3D);
+    void CalculWindow(Capsa2D c);
     void CalculWindowAmbRetallat();
 
     vec4 CalculObs(vec4 vrp, double d, double angx, double angy);
@@ -78,6 +78,34 @@ public:
     void pan();
     void zoom();
 
+    inline void setVRP(vec4 vrp)
+    {
+        vs.vrp = vrp;
+    }
+
+    inline void setObs(vec4 obs)
+    {
+        vs.obs = obs;
+    }
+
+    inline void setVUP(vec4 vup){
+        vs.vup = vup;
+    }
+
+    inline void setD(float d)
+    {
+        piram.d = d;
+    }
+
+    inline vec4 getVRP()
+    {
+        return vs.vrp;
+    }
+
+    inline float getD()
+    {
+        return piram.d;
+    }
 
     VisuSystem vs;      /* Sistema de visualitzacio  */
     PiramProj piram;    /* Piramide de visualitzacio */
