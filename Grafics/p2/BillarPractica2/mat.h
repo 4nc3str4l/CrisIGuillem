@@ -879,6 +879,7 @@ mat4 Frustum( const GLfloat left, const GLfloat right,
     return c;
 }
 
+/*
 inline
 mat4 Perspective( const GLfloat fovy, const GLfloat aspect,
 		  const GLfloat zNear, const GLfloat zFar)
@@ -894,6 +895,22 @@ mat4 Perspective( const GLfloat fovy, const GLfloat aspect,
     c[3][2] = -1.0;
     return c;
 }
+*/
+
+inline
+mat4 Perspective( const GLfloat fovy, const GLfloat aspect,
+          const GLfloat zNear, const GLfloat zFar)
+{
+    GLfloat tanHalfFovy = tan(fovy*DegreesToRadians/2);
+
+    mat4 c;
+    c[0][0] = 1.0f / (tanHalfFovy * aspect);
+    c[1][1] = 1.0f / tanHalfFovy;
+    c[2][2] = (zNear + zFar)/(zFar - zNear);
+    c[2][3] = 1.0f;
+    c[3][2] = -2.0f*zFar*zNear/(zFar - zNear);
+    return c;
+}
 
 //----------------------------------------------------------------------------
 //
@@ -901,14 +918,18 @@ mat4 Perspective( const GLfloat fovy, const GLfloat aspect,
 //
 
 inline
-mat4 LookAt( const vec4& eye, const vec4& at, const vec4& up )
+mat4 LookAt( const vec4& eye_, const vec4& at_, const vec4& up_ )
 {
+    vec3 eye = vec3(eye_.x, eye_.y, eye_.z);
+    vec3 at = vec3(at_.x, at_.y, at_.z);
+    vec3 up = vec3(up_.x, up_.y, up_.z);
+
     vec4 n = normalize(eye - at);
     vec4 u = vec4(normalize(cross(up,n)), 0.0);
     vec4 v = vec4(normalize(cross(n,u)), 0.0);
     vec4 t = vec4(0.0, 0.0, 0.0, 1.0);
     mat4 c = mat4(u, v, n, t);
-    return c * Translate( -eye );
+    return c * Translate( -eye_ );
 }
 
 //----------------------------------------------------------------------------
