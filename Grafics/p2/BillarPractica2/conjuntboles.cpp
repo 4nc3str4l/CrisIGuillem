@@ -25,7 +25,7 @@ ConjuntBoles::ConjuntBoles(QGLShaderProgram* program, Objecte* tauler, std::vect
     };
 
     int k = 1;
-    GLfloat z = -10;
+    GLfloat z = -100;
 
     Capsa3D capsa;
     if (tauler)
@@ -41,29 +41,28 @@ ConjuntBoles::ConjuntBoles(QGLShaderProgram* program, Objecte* tauler, std::vect
 
     // table: 300x440
     // ball: 25x25
-    const GLfloat ballTableRelation = 6;
-    vec3 scaleFactor = Common::scaleFactor();
+    const GLfloat ballTableRelation = 50;
     GLfloat w = (capsa.pmax.x - capsa.pmin.x) / ballTableRelation;
     mat4 scaleMatrix = Scale(w, w, w);
+    const int dist = 10;
 
     for(int i=0; i<15;)
     {
-        GLfloat x = -(k - 1);
+        GLfloat x = -(k*dist/2 - dist/2);
         for (int j = 0; j < k; ++j, ++i) {
-            Bola* bola = new Bola(colors[i]/255);
+            Bola* bola = new Bola(colors[i]/255.0f);
             bola->toGPU(program, textures[i]);
-            bola->aplicaTG(Translate(x / ballTableRelation + capsa.center.x * scaleFactor.x,
-                                     1 + capsa.center.y * scaleFactor.y,
-                                     z / ballTableRelation + capsa.center.z * scaleFactor.z));
+            bola->aplicaTG(Translate(x / ballTableRelation + capsa.center.x,
+                                     1 + capsa.center.y,
+                                     z / ballTableRelation + capsa.center.z) * scaleMatrix);
             bola->calculCapsa3D();
-            bola->aplicaTGCentrat(scaleMatrix);
 
             boles.push_back(bola);
-            x += 2;
+            x += dist;
         }
 
         ++k;
-        z -= 2;
+        z -= dist;
     }
 
     this->setTipus(CONJUNT_BOLES);

@@ -281,6 +281,13 @@ bool intersects(vec3 apmin, vec3 apmax, vec3 bpmin, vec3 bpmax)
             apmax.z < bpmin.z);
 }
 
+bool intersects(vec3 center, float r, vec3 bpmin, vec3 bpmax)
+{
+    return !(center.x - r > bpmax.x ||
+            center.x + r < bpmin.x ||
+            center.z - r > bpmax.z ||
+            center.z + r < bpmin.z);
+}
 
 inline
 GLfloat dot( const vec3& u, const vec3& v ) {

@@ -36,6 +36,8 @@ public:
     void draw();
     void CapsaMinCont3DEscena();
 
+    Camera* getCamaraGeneral();
+
     inline Capsa3D getCapsaMinima(){
         return capsaMinima;
     }

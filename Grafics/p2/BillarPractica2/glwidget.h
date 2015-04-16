@@ -14,6 +14,7 @@
 #define PROGRAM_TEXTURE_ATTRIBUTE 2
 
 class QGLShaderProgram;
+class Camera;
 
 class GLWidget : public QGLWidget
 {
@@ -86,6 +87,8 @@ private:
     // Metode per adaptar l'escena al tamany del widget
     void adaptaObjecteTamanyWidget(Objecte *obj);
     void initTexture(GLenum texture, std::string path);
+
+    Camera* camGeneral;
 
 private slots:
     void mouBola();

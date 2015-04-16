@@ -9,6 +9,7 @@
 #include "plabase.h"
 #include "bola.h"
 #include "conjuntboles.h"
+#include "camera.h"
 
 
 GLWidget::GLWidget(QWidget *parent)
@@ -188,6 +189,8 @@ void GLWidget::initializeGL()
 
     //Construim l'escena utilitzant el tamanys del common.
     esc = new Escena(Common::sceneDimensions(), program);
+    //Obtenim la camera general
+    this->camGeneral = esc->getCamaraGeneral();
 
     glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -197,6 +200,7 @@ void GLWidget::initializeGL()
 void GLWidget::paintGL()
 {
    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
 
    //Si ha de rotar doncs, crida a aplica tgcentrat de l'escena que fa que girin tots els objectes de l'escena respecte al centre de la mateixa.
    if (rotar)
@@ -228,16 +232,8 @@ void GLWidget::resizeGL(int width, int height)
     int side = qMin(width, height);
     glViewport((width - side) / 2, (height - side) / 2, side, side);
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-#ifdef QT_OPENGL_ES_1
-    glOrthof(-1.5, +1.5, -1.5, +1.5, 0.0, 15.0);
-#else
-    glOrtho(-1.5, +1.5, -1.5, +1.5, 0.0, 15.0);
-#endif
-    glMatrixMode(GL_MODELVIEW);
-
     esc->setSize(width, height);
+    camGeneral->setViewport((width - side) / 2, (height - side) / 2, side, side);
 }
 
 
@@ -300,10 +296,10 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     }
 
     //Son matrius de translació precalculades
-    static mat4 moveUp = Translate(vec3(0, 0, -0.01));
-    static mat4 moveDown = Translate(vec3(0, 0, 0.01));
-    static mat4 moveLeft = Translate(vec3(-0.01, 0, 0));
-    static mat4 moveRight = Translate(vec3(0.01, 0, 0));
+    static mat4 moveUp = Translate(vec3(0, 0, -0.1));
+    static mat4 moveDown = Translate(vec3(0, 0, 0.1));
+    static mat4 moveLeft = Translate(vec3(-0.1, 0, 0));
+    static mat4 moveRight = Translate(vec3(0.1, 0, 0));
 
     // Metode a implementar
     switch ( event->key() )
@@ -447,7 +443,7 @@ void GLWidget::mouBola()
         tauler->aplicaTGCentrat(transformacions);
 
         // Decrementem la velocitat de la bola segons el temps que fa que esta en moviment.
-        GLfloat delta = 0.00005;
+        GLfloat delta = 0.0005;
         if (bola->speed.z > 0)
         {
             delta *= -1;
@@ -503,7 +499,7 @@ void GLWidget::keyReleaseEvent(QKeyEvent *event)
                 return;
             }
 
-            bola->speed = vec3(0,0, total * -0.003);
+            bola->speed = vec3(0,0, total * -0.03);
             timer->start(16);
         }
         else
@@ -562,9 +558,6 @@ void GLWidget::newPlaBase()
     //Enviem l'objecte a la gpu amb la seva textura.
     plaBase->toGPU(program, *(textures.end() - 1));
 
-    //Adaptem l'objecte al tamany de l'escena actual.
-    adaptaObjecteTamanyWidget(plaBase);
-
     //Obtenim el tauler per assignar aquest objecte com a fill de tauler (servira per rotar-lo quan el tauler giri).
     Objecte* tauler = esc->getObjecte(TAULER);
     if (!tauler) {
@@ -577,11 +570,11 @@ void GLWidget::newPlaBase()
         vec3 tamanyTauler((tauler->capsa.pmax.x - tauler->capsa.pmin.x), 1, (tauler->capsa.pmax.z - tauler->capsa.pmin.z));
 
         //Ens serveix per adaptar el tamany del tapete a la taula de billar i quedi be
-        vec3 escalatReal(tamanyTauler.x / 2.34, 1, tamanyTauler.z / 2.16);
+        vec3 escalatReal(tamanyTauler.x / 23.4, 1, tamanyTauler.z / 21.6);
 
         // Apliquem les transformacions adients en el tapete per rotarlo i ajustar-lo per quedi visualment consistent
         plaBase->aplicaTGCentrat(Scale(escalatReal) * RotateY(180));
-        plaBase->aplicaTG(Translate(tauler->capsa.center.x + 0.005, tauler->capsa.center.y+0.08, tauler->capsa.center.z));
+        plaBase->aplicaTG(Translate(tauler->capsa.center.x + 0.05, tauler->capsa.center.y+0.8, tauler->capsa.center.z));
 
         //Afegim al tapete com a fill de la taula.
         tauler->addChild(plaBase);
@@ -595,7 +588,6 @@ void GLWidget::newObj(QString fichero)
 
     obj = new TaulaBillar(fichero);
     newObjecte(obj);
-    adaptaObjecteTamanyWidget(obj);
 }
 
 void GLWidget::newBola()
@@ -616,18 +608,16 @@ void GLWidget::newBola()
     else
     {
         //Pensem que la bola te una relacio 6 amb la taula
-        const GLfloat ballTableRelation = 6;
-        //Obtenim el factor d'escalat de l'escena
-        vec3 scaleFactor = Common::scaleFactor();
+        const GLfloat ballTableRelation = 60;
         //Ample de la bola
         GLfloat w = (tauler->capsa.pmax.x - tauler->capsa.pmin.x) / ballTableRelation;
         //matriu d'escala de la bola
         mat4 scaleMatrix = Scale(w, w, w);
 
         //Movem la bola per posar-la a la taula.
-        bola->aplicaTG(Translate(tauler->capsa.center.x * scaleFactor.x,
-                                 1 + tauler->capsa.center.y * scaleFactor.y,
-                                 15 / ballTableRelation + tauler->capsa.center.z * scaleFactor.z));
+        bola->aplicaTG(Translate(tauler->capsa.center.x,
+                                 1 + tauler->capsa.center.y,
+                                 150 / ballTableRelation + tauler->capsa.center.z));
 
         //Calculem la seva capça 3d per si canviat
         bola->calculCapsa3D();
@@ -638,9 +628,6 @@ void GLWidget::newBola()
         //Afegim la bola com a filla de la taula.
         tauler->addChild(bola);
     }
-
-    //Adaptem el tamany de la bola al widget
-    adaptaObjecteTamanyWidget(bola);
 }
 
 /**
@@ -660,9 +647,6 @@ void GLWidget::newConjuntBoles()
         tauler->addChild((Objecte*)boles);
     }
 
-    for (int i = 0; i < 15; ++i) {
-        adaptaObjecteTamanyWidget(boles->getBola(i));
-    }
 }
 
 /**
@@ -680,10 +664,6 @@ void GLWidget::newSalaBillar()
     newConjuntBoles();
     //Afegim la bola blanca (la que controla l'usuari)
     newBola();
-
-    // Escalem l'escena perque es veigi una mica millor tot plegat
-    esc->aplicaTGCentrat(Scale(1.5, 1.5, 1.5));
-
 
     Objecte* tauler = esc->getObjecte(TAULER);
     PlaBase* plaBase = NULL;

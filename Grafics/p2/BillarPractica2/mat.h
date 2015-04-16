@@ -924,12 +924,25 @@ mat4 LookAt( const vec4& eye_, const vec4& at_, const vec4& up_ )
     vec3 at = vec3(at_.x, at_.y, at_.z);
     vec3 up = vec3(up_.x, up_.y, up_.z);
 
-    vec4 n = normalize(eye - at);
-    vec4 u = vec4(normalize(cross(up,n)), 0.0);
-    vec4 v = vec4(normalize(cross(n,u)), 0.0);
-    vec4 t = vec4(0.0, 0.0, 0.0, 1.0);
-    mat4 c = mat4(u, v, n, t);
-    return c * Translate( -eye_ );
+    vec4 f = vec4(normalize(at - eye));
+    vec4 s = vec4(normalize(cross(up,f)), 0.0);
+    vec4 u = vec4(cross(f,s), 0.0);
+
+    mat4 Result;
+    Result[0][0] = s.x;
+    Result[1][0] = s.y;
+    Result[2][0] = s.z;
+    Result[0][1] = u.x;
+    Result[1][1] = u.y;
+    Result[2][1] = u.z;
+    Result[0][2] = f.x;
+    Result[1][2] = f.y;
+    Result[2][2] = f.z;
+    Result[3][0] = -dot(s, eye);
+    Result[3][1] = -dot(u, eye);
+    Result[3][2] = -dot(f, eye);
+
+    return Result;
 }
 
 //----------------------------------------------------------------------------

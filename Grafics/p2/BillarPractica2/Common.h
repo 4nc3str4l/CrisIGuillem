@@ -94,7 +94,7 @@ namespace Common
     const GLfloat p = 20;
 
     const vec3 dimensions(a, h, p);
-    const vec3 scale(a/2, h/2, p/2);
+    const vec3 scale(2/a, 2/h, 2/p);
 
     unsigned int getWireframeView();
     void changeViewMode();

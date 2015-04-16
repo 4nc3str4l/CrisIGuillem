@@ -1,5 +1,6 @@
 #include "camera.h"
 #include <GL/glu.h>
+#include "Common.h"
 
 Camera::Camera(QGLShaderProgram* program)
 {
@@ -60,7 +61,7 @@ void Camera::CalculaMatriuModelView()
     std::cout << "VRP: "; for (int i = 0; i < 4; ++i) std::cout << vs.vrp[i] << "\t"; std::cout << std::endl;
     std::cout << "VUP: "; for (int i = 0; i < 4; ++i) std::cout << vs.vup[i] << "\t"; std::cout << std::endl;
 
-    modView = LookAt(vs.obs,vs.vrp,vs.vup);
+    modView = LookAt(vs.obs,vs.vrp,vs.vup) * Scale(Common::scaleFactor());
 }
 
 void Camera::CalculaMatriuProjection()
