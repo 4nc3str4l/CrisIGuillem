@@ -155,9 +155,7 @@ void Objecte::aplicaTGCentrat(mat4 m, Capsa3D* capsa)
 void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
 
     this->program = program;
-
     _texture = texture;
-
 
     glGenBuffers( 1, &buffer );
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
@@ -180,10 +178,6 @@ void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
     //Informem al shader de que existeix una array que conte les coordenades de la textura
     program->enableAttributeArray(coordTextureLocation);
 
-    //Linkeejem el programa amb la grafica
-    program->link();
-    program->bind();
-
     glEnable( GL_DEPTH_TEST );
     glEnable(GL_TEXTURE_2D);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -192,7 +186,6 @@ void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
 // Pintat en la GPU.
 void Objecte::draw()
 {
-
     //Indiquem la posicio del objecte a la GPU
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     program->setAttributeBuffer("vPosition", GL_FLOAT, 0, 4);
@@ -208,12 +201,8 @@ void Objecte::draw()
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    glEnableClientState(GL_VERTEX_ARRAY);
-
     glPolygonMode(GL_FRONT_AND_BACK, Common::getWireframeView());
     glDrawArrays( GL_TRIANGLES, 0, numPoints );
-
-    glDisableClientState(GL_VERTEX_ARRAY);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 

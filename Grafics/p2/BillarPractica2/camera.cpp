@@ -55,7 +55,7 @@ void Camera::toGPU(QGLShaderProgram *program)
 
 void Camera::CalculaMatriuModelView()
 {
-    modView = LookAt(vs.obs,vs.vrp,vs.vup);
+    //modView = LookAt(vs.obs,vs.vrp,vs.vup);
 }
 
 void Camera::CalculaMatriuProjection()
@@ -89,12 +89,19 @@ void Camera::setViewport(int x, int y, int a, int h)
 
 void Camera::setModelViewToGPU(QGLShaderProgram *program, mat4 m)
 {
-   glUniformMatrix4fv(model_view, 1, GL_TRUE, modView);
+    for (int i = 0; i < 4; ++i)
+    {
+        for (int j = 0; j < 4; ++j)
+            std::cout << m[i][j] << "\t";
+        std::cout << std::endl;
+    }
+
+    glUniformMatrix4fv(model_view, 1, GL_FALSE, &m[0][0]);
 }
 
 void Camera::setProjectionToGPU(QGLShaderProgram *program, mat4 p)
 {
-    glUniformMatrix4fv(projection, 1, GL_TRUE, proj);
+    glUniformMatrix4fv(projection, 1, GL_FALSE, &p[0][0]);
 }
 
 void  Camera::AmpliaWindow(double r)
