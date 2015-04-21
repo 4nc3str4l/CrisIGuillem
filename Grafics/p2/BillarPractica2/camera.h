@@ -74,6 +74,7 @@ public:
     void setProjectionToGPU(QGLShaderProgram *program, mat4 p);
     void toGPU(QGLShaderProgram *program);
 
+
     void rotate(Capsa3D c);
     void pan();
     void zoom();
@@ -107,6 +108,13 @@ public:
         return piram.d;
     }
 
+    mat4 getModelView(){
+        return this->modView;
+    }
+
+    void VertexCapsa3D(Capsa3D capsaMinima, vec4 vaux[8]);
+
+
     VisuSystem vs;      /* Sistema de visualitzacio  */
     PiramProj piram;    /* Piramide de visualitzacio */
     Capsa2D wd;	      /* Window                    */
@@ -114,7 +122,7 @@ public:
 
 
 private:
-    void VertexCapsa3D(Capsa3D capsaMinima, vec4 vaux[8]);
+
 
     mat4  modView; // Matriu model-view de la CPU
     mat4  proj;  // Matriu projection de la CPU

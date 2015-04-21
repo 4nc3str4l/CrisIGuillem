@@ -670,7 +670,29 @@ void GLWidget::newSalaBillar()
 
     if (tauler) {
         plaBase = (PlaBase*)tauler->getFill(PLA_BASE);
+
+        //calculem capsa 3d del tauler
         tauler->calculCapsa3D();
+        //declarem una array de vertex per poder guardar els vertex de la capça del tauler
+        vec4 vertex_capsa3d[8];
+        //Obtenim els vertex
+        camGeneral->VertexCapsa3D(tauler->capsa, vertex_capsa3d);
+        //multipliquem cada vertex per la model view per tenirlo en coordenades de camera
+        for(int i = 0;i<8; i++){
+            cout << "Abans : (" << vertex_capsa3d[i].x << ", " << vertex_capsa3d[i].y << ", "<< vertex_capsa3d[i].z << ")" << endl;
+            vertex_capsa3d[i] = camGeneral->getModelView() * vertex_capsa3d[i];
+            cout << "Despres :(" << vertex_capsa3d[i].x << ", " << vertex_capsa3d[i].y << ", "<< vertex_capsa3d[i].z << ")" << endl;
+        }
+        //Pasem de els punts 3d a punts 2d
+        Capsa2D window = camGeneral->CapsaMinCont2DXYVert(vertex_capsa3d, 8);
+        //Calculem la window
+        camGeneral->CalculWindow(window);
+
+        camGeneral->CalculaMatriuProjection();
+        camGeneral->toGPU(program);
+
+        cout << tauler->capsa.pmin.x <<  ", " <<tauler->capsa.pmin.y << "," <<tauler->capsa.pmin.z << endl;
+        cout << tauler->capsa.pmax.x <<  ", " <<tauler->capsa.pmax.y << "," <<tauler->capsa.pmax.z << endl;
     }
 
     if (!tauler || !plaBase) {

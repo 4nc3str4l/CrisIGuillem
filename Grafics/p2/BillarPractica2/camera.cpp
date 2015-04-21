@@ -61,14 +61,14 @@ void Camera::CalculaMatriuModelView()
     std::cout << "VRP: "; for (int i = 0; i < 4; ++i) std::cout << vs.vrp[i] << "\t"; std::cout << std::endl;
     std::cout << "VUP: "; for (int i = 0; i < 4; ++i) std::cout << vs.vup[i] << "\t"; std::cout << std::endl;
 
-    modView = LookAt(vs.obs,vs.vrp,vs.vup) * Scale(Common::scaleFactor());
+    modView = LookAt(vs.obs, vs.vrp, vs.vup);
 }
 
 void Camera::CalculaMatriuProjection()
 {
     // CODI A MODIFICAR DURANT LA PRACTICA 2
-    proj = Perspective(45.f, vp.a > vp.h ? (vp.a / vp.h) : (vp.h / vp.a), 0.1f, 100.0f);
-    //proj = Frustum()
+    //proj = Perspective(45.f, vp.a > vp.h ? (vp.a / vp.h) : (vp.h / vp.a), 0.1f, 100.0f);
+    proj = Frustum(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, 0.1, 10.0f);
 }
 
 //TODO: Intentar interpretar aquest metode.
@@ -76,11 +76,11 @@ void Camera::CalculWindow(Capsa2D c)
 {
    // CODI A MODIFICAR DURANT LA PRACTICA 2
     
-    wd.pmin.x = -1;
-    wd.pmin.y = -1;
+    wd.pmin.x = c.pmin.x;
+    wd.pmin.y = c.pmin.y;
     
-    wd.a = 2;
-    wd.h = 2;
+    wd.a = c.a;
+    wd.h = c.h;
     
     
 }
@@ -325,6 +325,7 @@ vec3 Camera::CalculVup(double angx, double angy, double angz)
 
 void Camera::VertexCapsa3D(Capsa3D capsaMinima, vec4 vaux[8])
 {
+
     vec3 ptfi;
 
     ptfi[0] = capsaMinima.pmin[0]+(capsaMinima.pmax.x - capsaMinima.pmin.x);

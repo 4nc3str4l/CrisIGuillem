@@ -10,13 +10,13 @@ Escena::Escena(vec3 dimensions, QGLShaderProgram* program)
     capsaMinima.pmin.x = -dimensions.x/2; capsaMinima.pmin.y =-dimensions.y/2; capsaMinima.pmin.z = -dimensions.z/2;
     capsaMinima.pmax.x = dimensions.x/2; capsaMinima.pmax.y = dimensions.y/2; capsaMinima.pmax.z = dimensions.z/2;
     //capsaMinima.a = 1; capsaMinima.h = 1; capsaMinima.p = 1;
-    scale = Scale(2/dimensions.x,2/dimensions.y,2/dimensions.z);
+    scale = Scale(2/dimensions.x, 2/dimensions.y, 2/dimensions.z);
 
     //Instanciate a canmera and modify it's atributes.
     camGeneral = new Camera(program);
     camGeneral->setVRP(vec4(0, 0, 0, 0));
-    camGeneral->setObs(vec4(10, 5, 0, 0));
-    camGeneral->setVUP(vec4(0, 1, 0, 0));
+    camGeneral->setObs(vec4(0, 5, 0, 0));
+    camGeneral->setVUP(vec4(0, 0, 1, 0));
     camGeneral->CalculaMatriuModelView();
     camGeneral->CalculaMatriuProjection();
     camGeneral->toGPU(program);

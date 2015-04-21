@@ -865,8 +865,8 @@ mat4 Ortho2D( const GLfloat left, const GLfloat right,
 
 inline
 mat4 Frustum( const GLfloat left, const GLfloat right,
-	      const GLfloat bottom, const GLfloat top,
-	      const GLfloat zNear, const GLfloat zFar )
+          const GLfloat bottom, const GLfloat top,
+          const GLfloat zNear, const GLfloat zFar )
 {
     mat4 c;
     c[0][0] = 2.0*zNear/(right - left);
@@ -879,10 +879,9 @@ mat4 Frustum( const GLfloat left, const GLfloat right,
     return c;
 }
 
-/*
 inline
 mat4 Perspective( const GLfloat fovy, const GLfloat aspect,
-		  const GLfloat zNear, const GLfloat zFar)
+          const GLfloat zNear, const GLfloat zFar)
 {
     GLfloat top   = tan(fovy*DegreesToRadians/2) * zNear;
     GLfloat right = top * aspect;
@@ -893,10 +892,11 @@ mat4 Perspective( const GLfloat fovy, const GLfloat aspect,
     c[2][2] = -(zFar + zNear)/(zFar - zNear);
     c[2][3] = -2.0*zFar*zNear/(zFar - zNear);
     c[3][2] = -1.0;
+
     return c;
 }
-*/
 
+/*
 inline
 mat4 Perspective( const GLfloat fovy, const GLfloat aspect,
           const GLfloat zNear, const GLfloat zFar)
@@ -911,7 +911,7 @@ mat4 Perspective( const GLfloat fovy, const GLfloat aspect,
     c[3][2] = -2.0f*zFar*zNear/(zFar - zNear);
     return c;
 }
-
+*/
 //----------------------------------------------------------------------------
 //
 //  Viewing transformation matrix generation
