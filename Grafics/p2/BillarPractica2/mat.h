@@ -567,139 +567,6 @@ mat4 transpose( const mat4& A ) {
 		 A[0][3], A[1][3], A[2][3], A[3][3] );
 }
 
-inline
-bool inverse(const mat4 m, mat4& invOut)
-{
-    mat4 inv;
-    double det;
-    int i;
-
-    inv[0][0] = m[1][1]  * m[2][2] * m[3][3] -
-             m[1][1]  * m[2][3] * m[3][2] -
-             m[2][1]  * m[1][2]  * m[3][3] +
-             m[2][1]  * m[1][3]  * m[3][2] +
-             m[3][1] * m[1][2]  * m[2][3] -
-             m[3][1] * m[1][3]  * m[2][2];
-
-    inv[1][0] = -m[1][0]  * m[2][2] * m[3][3] +
-              m[1][0]  * m[2][3] * m[3][2] +
-              m[2][0]  * m[1][2]  * m[3][3] -
-              m[2][0]  * m[1][3]  * m[3][2] -
-              m[3][0] * m[1][2]  * m[2][3] +
-              m[3][0] * m[1][3]  * m[2][2];
-
-    inv[2][0] = m[1][0]  * m[2][1] * m[3][3] -
-             m[1][0]  * m[2][3] * m[3][1] -
-             m[2][0]  * m[1][1] * m[3][3] +
-             m[2][0]  * m[1][3] * m[3][1] +
-             m[3][0] * m[1][1] * m[2][3] -
-             m[3][0] * m[1][3] * m[2][1];
-
-    inv[3][0] = -m[1][0]  * m[2][1] * m[3][2] +
-               m[1][0]  * m[2][2] * m[3][1] +
-               m[2][0]  * m[1][1] * m[3][2] -
-               m[2][0]  * m[1][2] * m[3][1] -
-               m[3][0] * m[1][1] * m[2][2] +
-               m[3][0] * m[1][2] * m[2][1];
-
-    inv[0][1] = -m[0][1]  * m[2][2] * m[3][3] +
-              m[0][1]  * m[2][3] * m[3][2] +
-              m[2][1]  * m[0][2] * m[3][3] -
-              m[2][1]  * m[0][3] * m[3][2] -
-              m[3][1] * m[0][2] * m[2][3] +
-              m[3][1] * m[0][3] * m[2][2];
-
-    inv[1][1] = m[0][0]  * m[2][2] * m[3][3] -
-             m[0][0]  * m[2][3] * m[3][2] -
-             m[2][0]  * m[0][2] * m[3][3] +
-             m[2][0]  * m[0][3] * m[3][2] +
-             m[3][0] * m[0][2] * m[2][3] -
-             m[3][0] * m[0][3] * m[2][2];
-
-    inv[2][1] = -m[0][0]  * m[2][1] * m[3][3] +
-              m[0][0]  * m[2][3] * m[3][1] +
-              m[2][0]  * m[0][1] * m[3][3] -
-              m[2][0]  * m[0][3] * m[3][1] -
-              m[3][0] * m[0][1] * m[2][3] +
-              m[3][0] * m[0][3] * m[2][1];
-
-    inv[3][1] = m[0][0]  * m[2][1] * m[3][2] -
-              m[0][0]  * m[2][2] * m[3][1] -
-              m[2][0]  * m[0][1] * m[3][2] +
-              m[2][0]  * m[0][2] * m[3][1] +
-              m[3][0] * m[0][1] * m[2][2] -
-              m[3][0] * m[0][2] * m[2][1];
-
-    inv[0][2] = m[0][1]  * m[1][2] * m[3][3] -
-             m[0][1]  * m[1][3] * m[3][2] -
-             m[1][1]  * m[0][2] * m[3][3] +
-             m[1][1]  * m[0][3] * m[3][2] +
-             m[3][1] * m[0][2] * m[1][3] -
-             m[3][1] * m[0][3] * m[1][2];
-
-    inv[1][2] = -m[0][0]  * m[1][2] * m[3][3] +
-              m[0][0]  * m[1][3] * m[3][2] +
-              m[1][0]  * m[0][2] * m[3][3] -
-              m[1][0]  * m[0][3] * m[3][2] -
-              m[3][0] * m[0][2] * m[1][3] +
-              m[3][0] * m[0][3] * m[1][2];
-
-    inv[2][2] = m[0][0]  * m[1][1] * m[3][3] -
-              m[0][0]  * m[1][3] * m[3][1] -
-              m[1][0]  * m[0][1] * m[3][3] +
-              m[1][0]  * m[0][3] * m[3][1] +
-              m[3][0] * m[0][1] * m[1][3] -
-              m[3][0] * m[0][3] * m[1][1];
-
-    inv[3][2] = -m[0][0]  * m[1][1] * m[3][2] +
-               m[0][0]  * m[1][2] * m[3][1] +
-               m[1][0]  * m[0][1] * m[3][2] -
-               m[1][0]  * m[0][2] * m[3][1] -
-               m[3][0] * m[0][1] * m[1][2] +
-               m[3][0] * m[0][2] * m[1][1];
-
-    inv[0][3] = -m[0][1] * m[1][2] * m[2][3] +
-              m[0][1] * m[1][3] * m[2][2] +
-              m[1][1] * m[0][2] * m[2][3] -
-              m[1][1] * m[0][3] * m[2][2] -
-              m[2][1] * m[0][2] * m[1][3] +
-              m[2][1] * m[0][3] * m[1][2];
-
-    inv[1][3] = m[0][0] * m[1][2] * m[2][3] -
-             m[0][0] * m[1][3] * m[2][2] -
-             m[1][0] * m[0][2] * m[2][3] +
-             m[1][0] * m[0][3] * m[2][2] +
-             m[2][0] * m[0][2] * m[1][3] -
-             m[2][0] * m[0][3] * m[1][2];
-
-    inv[2][3] = -m[0][0] * m[1][1] * m[2][3] +
-               m[0][0] * m[1][3] * m[2][1] +
-               m[1][0] * m[0][1] * m[2][3] -
-               m[1][0] * m[0][3] * m[2][1] -
-               m[2][0] * m[0][1] * m[1][3] +
-               m[2][0] * m[0][3] * m[1][1];
-
-    inv[3][3] = m[0][0] * m[1][1] * m[2][2] -
-              m[0][0] * m[1][2] * m[2][1] -
-              m[1][0] * m[0][1] * m[2][2] +
-              m[1][0] * m[0][2] * m[2][1] +
-              m[2][0] * m[0][1] * m[1][2] -
-              m[2][0] * m[0][2] * m[1][1];
-
-    det = m[0][0] * inv[0][0] + m[0][1] * inv[1][0] + m[0][2] * inv[2][0] + m[0][3] * inv[3][0];
-
-    if (det == 0)
-        return false;
-
-    det = 1.0 / det;
-
-    for (i = 0; i < 4; i++)
-      for (int j = 0; j < 4; j++)
-        invOut[i][j] = inv[i][j] * det;
-
-    return true;
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //
 //  Helpful Matrix Methods
@@ -865,8 +732,8 @@ mat4 Ortho2D( const GLfloat left, const GLfloat right,
 
 inline
 mat4 Frustum( const GLfloat left, const GLfloat right,
-          const GLfloat bottom, const GLfloat top,
-          const GLfloat zNear, const GLfloat zFar )
+	      const GLfloat bottom, const GLfloat top,
+	      const GLfloat zNear, const GLfloat zFar )
 {
     mat4 c;
     c[0][0] = 2.0*zNear/(right - left);
@@ -881,7 +748,7 @@ mat4 Frustum( const GLfloat left, const GLfloat right,
 
 inline
 mat4 Perspective( const GLfloat fovy, const GLfloat aspect,
-          const GLfloat zNear, const GLfloat zFar)
+		  const GLfloat zNear, const GLfloat zFar)
 {
     GLfloat top   = tan(fovy*DegreesToRadians/2) * zNear;
     GLfloat right = top * aspect;
@@ -892,57 +759,23 @@ mat4 Perspective( const GLfloat fovy, const GLfloat aspect,
     c[2][2] = -(zFar + zNear)/(zFar - zNear);
     c[2][3] = -2.0*zFar*zNear/(zFar - zNear);
     c[3][2] = -1.0;
-
     return c;
 }
 
-/*
-inline
-mat4 Perspective( const GLfloat fovy, const GLfloat aspect,
-          const GLfloat zNear, const GLfloat zFar)
-{
-    GLfloat tanHalfFovy = tan(fovy*DegreesToRadians/2);
-
-    mat4 c;
-    c[0][0] = 1.0f / (tanHalfFovy * aspect);
-    c[1][1] = 1.0f / tanHalfFovy;
-    c[2][2] = (zNear + zFar)/(zFar - zNear);
-    c[2][3] = 1.0f;
-    c[3][2] = -2.0f*zFar*zNear/(zFar - zNear);
-    return c;
-}
-*/
 //----------------------------------------------------------------------------
 //
 //  Viewing transformation matrix generation
 //
 
 inline
-mat4 LookAt( const vec4& eye_, const vec4& at_, const vec4& up_ )
+mat4 LookAt( const vec4& eye, const vec4& at, const vec4& up )
 {
-    vec3 eye = vec3(eye_.x, eye_.y, eye_.z);
-    vec3 at = vec3(at_.x, at_.y, at_.z);
-    vec3 up = vec3(up_.x, up_.y, up_.z);
-
-    vec4 f = vec4(normalize(at - eye));
-    vec4 s = vec4(normalize(cross(up,f)), 0.0);
-    vec4 u = vec4(cross(f,s), 0.0);
-
-    mat4 Result;
-    Result[0][0] = s.x;
-    Result[1][0] = s.y;
-    Result[2][0] = s.z;
-    Result[0][1] = u.x;
-    Result[1][1] = u.y;
-    Result[2][1] = u.z;
-    Result[0][2] = f.x;
-    Result[1][2] = f.y;
-    Result[2][2] = f.z;
-    Result[3][0] = -dot(s, eye);
-    Result[3][1] = -dot(u, eye);
-    Result[3][2] = -dot(f, eye);
-
-    return Result;
+    vec4 n = normalize(eye - at);
+    vec4 u = vec4(normalize(cross(up,n)), 0.0);
+    vec4 v = vec4(normalize(cross(n,u)), 0.0);
+    vec4 t = vec4(0.0, 0.0, 0.0, 1.0);
+    mat4 c = mat4(u, v, n, t);
+    return c * Translate( -eye );
 }
 
 //----------------------------------------------------------------------------
