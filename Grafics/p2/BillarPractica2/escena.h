@@ -53,7 +53,6 @@ public:
     }
 
     Objecte* getObjecte(TIPUS_OBJECTE tipus);
-private:
 
     void initCamera(bool camGeneral);
     void setAnglesCamera(Camera* camera,float angX, float angY, float angZ);

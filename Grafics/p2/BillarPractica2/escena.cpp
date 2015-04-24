@@ -14,13 +14,6 @@ Escena::Escena(vec3 dimensions, QGLShaderProgram* program)
 
     //Instanciate a canmera and modify it's atributes.
     camGeneral = new Camera(program);
-    vec4 vrp = vec4(0, 0, 0, 0);
-    camGeneral->setVRP(vrp);
-    camGeneral->setObs(camGeneral->CalculObs(vrp, 1, 0, 0));
-    camGeneral->setVUP(camGeneral->CalculVup(0, 0, 90));
-    camGeneral->CalculaMatriuModelView();
-    camGeneral->CalculaMatriuProjection();
-    camGeneral->toGPU(program);
 }
 
 
@@ -126,6 +119,8 @@ void Escena::setWindowCamera(Camera* camera, bool retallat, Capsa2D window)
         camera->CalculAngleOberturaVertical();
         camera->CalculWindowAmbRetallat();
     }
+
+    camGeneral->CalculaMatriuProjection();
 }
 
 

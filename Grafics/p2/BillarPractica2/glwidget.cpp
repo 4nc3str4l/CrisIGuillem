@@ -573,8 +573,8 @@ void GLWidget::newPlaBase()
         vec3 escalatReal(tamanyTauler.x / 23.4, 1, tamanyTauler.z / 21.6);
 
         // Apliquem les transformacions adients en el tapete per rotarlo i ajustar-lo per quedi visualment consistent
-        plaBase->aplicaTGCentrat(Scale(escalatReal) * RotateY(180));
-        plaBase->aplicaTG(Translate(tauler->capsa.center.x + 0.05, tauler->capsa.center.y+0.8, tauler->capsa.center.z));
+        plaBase->aplicaTGCentrat(Scale(escalatReal) * RotateZ(180));
+        plaBase->aplicaTG(Translate(tauler->capsa.center.x + 0.05, tauler->capsa.center.y + 0.9, tauler->capsa.center.z));
 
         //Afegim al tapete com a fill de la taula.
         tauler->addChild(plaBase);
@@ -673,22 +673,33 @@ void GLWidget::newSalaBillar()
 
         //calculem capsa 3d del tauler
         tauler->calculCapsa3D();
+
+        float d = 10.0f;
+        camGeneral->setVRP(tauler->capsa.center);
+        camGeneral->setD(d);
+        camGeneral->setObs(camGeneral->CalculObs(tauler->capsa.center, d, -90, 0));
+        camGeneral->setVUP(camGeneral->CalculVup(-90, 0, 0));
+        camGeneral->CalculaMatriuModelView();
+
         //declarem una array de vertex per poder guardar els vertex de la capça del tauler
         vec4 vertex_capsa3d[8];
+
         //Obtenim els vertex
         camGeneral->VertexCapsa3D(tauler->capsa, vertex_capsa3d);
+
         //multipliquem cada vertex per la model view per tenirlo en coordenades de camera
         for(int i = 0;i<8; i++){
-            cout << "Abans : (" << vertex_capsa3d[i].x << ", " << vertex_capsa3d[i].y << ", "<< vertex_capsa3d[i].z << ")" << endl;
+            //cout << "Abans : (" << vertex_capsa3d[i].x << ", " << vertex_capsa3d[i].y << ", "<< vertex_capsa3d[i].z << ")" << endl;
             vertex_capsa3d[i] = camGeneral->getModelView() * vertex_capsa3d[i];
-            cout << "Despres :(" << vertex_capsa3d[i].x << ", " << vertex_capsa3d[i].y << ", "<< vertex_capsa3d[i].z << ")" << endl;
+            //cout << "Despres :(" << vertex_capsa3d[i].x << ", " << vertex_capsa3d[i].y << ", "<< vertex_capsa3d[i].z << ")" << endl;
         }
+
         //Pasem de els punts 3d a punts 2d
         Capsa2D window = camGeneral->CapsaMinCont2DXYVert(vertex_capsa3d, 8);
-        //Calculem la window
-        camGeneral->CalculWindow(window);
 
-        camGeneral->CalculaMatriuProjection();
+        //Calculem la window
+        camGeneral->setProjectionType(PARALLELA);
+        esc->setWindowCamera(camGeneral, true, window);
         camGeneral->toGPU(program);
 
         cout << tauler->capsa.pmin.x <<  ", " <<tauler->capsa.pmin.y << "," <<tauler->capsa.pmin.z << endl;

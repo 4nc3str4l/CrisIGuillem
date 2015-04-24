@@ -79,6 +79,11 @@ public:
     void pan();
     void zoom();
 
+    inline void setProjectionType(TipProj tipus)
+    {
+        piram.proj = tipus;
+    }
+
     inline void setVRP(vec4 vrp)
     {
         vs.vrp = vrp;
@@ -109,7 +114,7 @@ public:
     }
 
     mat4 getModelView(){
-        return this->modView;
+        return transpose(this->modView);
     }
 
     void VertexCapsa3D(Capsa3D capsaMinima, vec4 vaux[8]);

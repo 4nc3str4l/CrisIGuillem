@@ -18,7 +18,7 @@ Camera::Camera(QGLShaderProgram* program)
     vp.pmin[0] = 0;
     vp.pmin[1] = 0;
 
-    piram.proj = PARALLELA;
+    piram.proj = PERSPECTIVA;
     piram.d = 100;
 
     //Asign the model view variable of the shader
@@ -67,8 +67,17 @@ void Camera::CalculaMatriuModelView()
 void Camera::CalculaMatriuProjection()
 {
     // CODI A MODIFICAR DURANT LA PRACTICA 2
-    //proj = Perspective(45.f, vp.a > vp.h ? (vp.a / vp.h) : (vp.h / vp.a), 0.1f, 100.0f);
-    proj = Frustum(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, 0.1f, 100.0f);
+    std::cout << "Window (" << wd.pmin.x << "," << wd.pmin.y << ") <" << wd.a << "x" << wd.h << std::endl;
+
+    if (piram.proj == PERSPECTIVA)
+    {
+        AjustaAspectRatioWd();
+        proj = Frustum(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, piram.d - 4.0f, piram.d + 4.0f);
+    }
+    else
+    {
+        proj = Ortho(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, piram.d - 5.0f, piram.d + 5.0f);
+    }
 }
 
 //TODO: Intentar interpretar aquest metode.
@@ -81,8 +90,6 @@ void Camera::CalculWindow(Capsa2D c)
     
     wd.a = c.a;
     wd.h = c.h;
-    
-    
 }
 
 void Camera::setViewport(int x, int y, int a, int h)
@@ -328,9 +335,9 @@ void Camera::VertexCapsa3D(Capsa3D capsaMinima, vec4 vaux[8])
 
     vec3 ptfi;
 
-    ptfi[0] = capsaMinima.pmin[0]+(capsaMinima.pmax.x - capsaMinima.pmin.x);
-    ptfi[1] = capsaMinima.pmin[1]+(capsaMinima.pmax.y - capsaMinima.pmin.y);
-    ptfi[2] = capsaMinima.pmin[2]+(capsaMinima.pmax.z - capsaMinima.pmin.z);
+    ptfi[0] = capsaMinima.pmax[0];
+    ptfi[1] = capsaMinima.pmax[1];
+    ptfi[2] = capsaMinima.pmax[2];
 
     vaux[0] = vec4(capsaMinima.pmin[0], capsaMinima.pmin[1], capsaMinima.pmin[2], 1.0);
     vaux[1] = vec4(capsaMinima.pmin[0], capsaMinima.pmin[1], ptfi[2], 1.0);
