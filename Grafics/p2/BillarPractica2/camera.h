@@ -77,7 +77,6 @@ public:
 
     void rotate(Capsa3D c);
     void pan();
-    void zoom();
 
     inline void setProjectionType(TipProj tipus)
     {
@@ -113,6 +112,27 @@ public:
         return piram.d;
     }
 
+    inline void zoom(int val)
+    {
+        cameraZoom += val;
+        wd.pmin.x -= val / 4.0f;
+        wd.pmin.y -= val / 4.0f;
+        wd.a += val / 2.0f;
+        wd.h += val / 2.0f;
+
+        CalculaMatriuProjection();
+    }
+
+    inline void zoom()
+    {
+        wd.pmin.x -= cameraZoom / 4.0f;
+        wd.pmin.y -= cameraZoom / 4.0f;
+        wd.a += cameraZoom / 2.0f;
+        wd.h += cameraZoom / 2.0f;
+
+        CalculaMatriuProjection();
+    }
+
     mat4 getModelView(){
         return transpose(this->modView);
     }
@@ -128,7 +148,7 @@ public:
 
 private:
 
-
+    int cameraZoom;
     mat4  modView; // Matriu model-view de la CPU
     mat4  proj;  // Matriu projection de la CPU
     GLuint  model_view;  // model-view matrix uniform shader variable (GPU)

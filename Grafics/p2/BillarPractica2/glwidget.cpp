@@ -232,7 +232,6 @@ void GLWidget::resizeGL(int width, int height)
     int side = qMin(width, height);
     glViewport((width - side) / 2, (height - side) / 2, side, side);
 
-    esc->setSize(width, height);
     camGeneral->setViewport((width - side) / 2, (height - side) / 2, side, side);
 }
 
@@ -261,16 +260,6 @@ void GLWidget::Pan(int dx, int dy)
 
 }
 
-void GLWidget::Zoom(int positiu)
-{
-    this->camGeneral->wd.pmin.x -= positiu / 4.0f;
-    this->camGeneral->wd.pmin.y -= positiu / 4.0f;
-    this->camGeneral->wd.a += positiu / 2.0f;
-    this->camGeneral->wd.h += positiu / 2.0f;
-    this->camGeneral->CalculaMatriuProjection();
-    this->camGeneral->toGPU(program);
-}
-
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
     //declarem el objectes que usarem.
@@ -281,12 +270,14 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
     if(event->key() == Qt::Key_Plus)
     {
-        Zoom(-1);
+        camGeneral->zoom(-1);
+        camGeneral->toGPU(program);
     }
 
     if(event->key() == Qt::Key_Minus)
     {
-        Zoom(1);
+        camGeneral->zoom(1);
+        camGeneral->toGPU(program);
     }
 
     //si s'han pulsat algunes de les tecles de moviment
@@ -311,8 +302,8 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     }
 
     //Son matrius de translació precalculades
-    static mat4 moveUp = Translate(vec3(0, 0, -0.1));
-    static mat4 moveDown = Translate(vec3(0, 0, 0.1));
+    static mat4 moveUp = Translate(vec3(0, 0, 0.1));
+    static mat4 moveDown = Translate(vec3(0, 0, -0.1));
     static mat4 moveLeft = Translate(vec3(-0.1, 0, 0));
     static mat4 moveRight = Translate(vec3(0.1, 0, 0));
 
@@ -327,7 +318,9 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
                        !conjuntBoles->collides(bola->capsa.pmin + vec3(0,0,0.01), bola->capsa.pmax))
         {
             //Movem la bola i la rotem sobre si mateixa en la direcció adient
-            bola->aplicaTGCentrat(moveDown*RotateX(-30));
+            bola->aplicaTGCentrat(RotateX(-30));
+            bola->aplicaTG(moveDown);
+            bola->calculCapsa3D();
         }
 
         break;
@@ -338,7 +331,9 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         if (intersects(bola->capsa.pmin, bola->capsa.pmax  + vec3(0,0,-0.02), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
                 !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax  + vec3(0,0,-0.01)))
         {
-            bola->aplicaTGCentrat(moveUp*RotateX(30));
+            bola->aplicaTGCentrat(RotateX(30));
+            bola->aplicaTG(moveUp);
+            bola->calculCapsa3D();
         }
 
         break;
@@ -349,7 +344,9 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         if (intersects(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.02,0,0), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
                        !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.01,0,0)))
         {
-            bola->aplicaTGCentrat(moveLeft*RotateZ(-30));
+            bola->aplicaTGCentrat(RotateZ(-30));
+            bola->aplicaTG(moveLeft);
+            bola->calculCapsa3D();
         }
 
         break;
@@ -360,7 +357,9 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         if (intersects(bola->capsa.pmin+ vec3(0.02,0,0), bola->capsa.pmax , plaBase->capsa.pmin, plaBase->capsa.pmax) &&
                         !conjuntBoles->collides(bola->capsa.pmin+ vec3(0.01,0,0), bola->capsa.pmax))
         {
-            bola->aplicaTGCentrat(moveRight*RotateZ(30));
+            bola->aplicaTGCentrat(RotateZ(-30));
+            bola->aplicaTG(moveRight);
+            bola->calculCapsa3D();
         }
 
         break;

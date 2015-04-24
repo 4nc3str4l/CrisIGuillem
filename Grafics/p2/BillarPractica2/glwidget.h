@@ -31,7 +31,6 @@ public:
     void setYRotation(int angle);
     void setZRotation(int angle);
     void Pan(int dx, int dy);
-    void Zoom (int positiu);
 
 public slots:
     void newPlaBase();
