@@ -51,7 +51,7 @@ void PlaBase::aplicaTG(mat4 m)
     if (_guarda)
     {
         transformacions = m * transformacions;
-        inverse(transformacions, inversa);
+        //inverse(transformacions, inversa);
     }
     Objecte::aplicaTG(m);
 }

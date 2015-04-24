@@ -14,9 +14,10 @@ Escena::Escena(vec3 dimensions, QGLShaderProgram* program)
 
     //Instanciate a canmera and modify it's atributes.
     camGeneral = new Camera(program);
-    camGeneral->setVRP(vec4(0, 0, 0, 0));
-    camGeneral->setObs(vec4(0, 5, 0, 0));
-    camGeneral->setVUP(vec4(0, 0, 1, 0));
+    vec4 vrp = vec4(0, 0, 0, 0);
+    camGeneral->setVRP(vrp);
+    camGeneral->setObs(camGeneral->CalculObs(vrp, 1, 0, 0));
+    camGeneral->setVUP(camGeneral->CalculVup(0, 0, 90));
     camGeneral->CalculaMatriuModelView();
     camGeneral->CalculaMatriuProjection();
     camGeneral->toGPU(program);

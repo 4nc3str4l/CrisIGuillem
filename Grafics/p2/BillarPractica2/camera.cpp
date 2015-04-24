@@ -68,7 +68,7 @@ void Camera::CalculaMatriuProjection()
 {
     // CODI A MODIFICAR DURANT LA PRACTICA 2
     //proj = Perspective(45.f, vp.a > vp.h ? (vp.a / vp.h) : (vp.h / vp.a), 0.1f, 100.0f);
-    proj = Frustum(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, 0.1, 10.0f);
+    proj = Frustum(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, 0.1f, 100.0f);
 }
 
 //TODO: Intentar interpretar aquest metode.
@@ -99,11 +99,11 @@ void Camera::setModelViewToGPU(QGLShaderProgram *program, mat4 m)
     for (int i = 0; i < 4; ++i)
     {
         for (int j = 0; j < 4; ++j)
-            std::cout << m[i][j] << "\t";
+            std::cout << m[j][i] << "\t";
         std::cout << std::endl;
     }
 
-    glUniformMatrix4fv(model_view, 1, GL_FALSE, &m[0][0]);
+    glUniformMatrix4fv(model_view, 1, GL_TRUE, &m[0][0]);
 }
 
 void Camera::setProjectionToGPU(QGLShaderProgram *program, mat4 p)
@@ -112,11 +112,11 @@ void Camera::setProjectionToGPU(QGLShaderProgram *program, mat4 p)
     for (int i = 0; i < 4; ++i)
     {
         for (int j = 0; j < 4; ++j)
-            std::cout << p[i][j] << "\t";
+            std::cout << p[j][i] << "\t";
         std::cout << std::endl;
     }
 
-    glUniformMatrix4fv(projection, 1, GL_FALSE, &p[0][0]);
+    glUniformMatrix4fv(projection, 1, GL_TRUE, &p[0][0]);
 }
 
 void  Camera::AmpliaWindow(double r)
