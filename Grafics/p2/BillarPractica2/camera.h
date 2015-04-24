@@ -121,6 +121,11 @@ public:
         return transpose(this->modView);
     }
 
+    inline vec2 getAngles()
+    {
+        return vec2(vs.angx, vs.angy);
+    }
+
     void VertexCapsa3D(Capsa3D capsaMinima, vec4 vaux[8]);
 
 
@@ -143,7 +148,7 @@ private:
 
 inline void Camera::zoom(int val)
 {
-    if (cameraZoom + val > 0)
+    if (cameraZoom + val > -piram.d)
     {
         std::cout << "CAMERA: " << cameraZoom << std::endl;
 

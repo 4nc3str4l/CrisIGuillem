@@ -191,6 +191,8 @@ void GLWidget::initializeGL()
     esc = new Escena(Common::sceneDimensions(), program);
     //Obtenim la camera general
     this->camGeneral = esc->getCamaraGeneral();
+    this->camFP = esc->getCamaraPrimeraPersona();
+    camActual = camGeneral;
 
     glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -233,6 +235,7 @@ void GLWidget::resizeGL(int width, int height)
     glViewport((width - side) / 2, (height - side) / 2, side, side);
 
     camGeneral->setViewport((width - side) / 2, (height - side) / 2, side, side);
+    camFP->setViewport((width - side) / 2, (height - side) / 2, side, side);
 }
 
 
@@ -246,12 +249,29 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     int dx = event->x() - lastPos.x();
     int dy = event->y() - lastPos.y();
 
-    if (event->buttons() & Qt::LeftButton) {
-        setXRotation(xRot + 8 * dy);
-    } else if (event->buttons() & Qt::RightButton) {
-        setXRotation(xRot + 8 * dy);
-        setZRotation(zRot + 8 * dx);
+    if (event->buttons() & Qt::LeftButton && camActual == camGeneral)
+    {
+        vec2 angles = camGeneral->getAngles();
+        vec4 obs;
+
+        if(lastPos.y()!= event->y() && lastPos.x()!= event->x()) {
+            // Moure convenientment la càmera en angle X i/o en angle Y
+            obs = camGeneral->CalculObs(camGeneral->getVRP(), camGeneral->getD(), angles.x + dy, angles.y + dx);
+        } else if(lastPos.y()!= event->y()) {
+            // Moure convenientment la càmera en angle X i/o en angle Y
+            obs = camGeneral->CalculObs(camGeneral->getVRP(), camGeneral->getD(), angles.x + dy, angles.y);
+        } else if (lastPos.x()!= event->x()) {
+            // Moure convenientment la càmera en angle X i/o en angle Y
+            obs = camGeneral->CalculObs(camGeneral->getVRP(), camGeneral->getD(), angles.x, angles.y + dx);
+        }
+
+        camGeneral->setObs(obs);
+        camGeneral->setVUP(camGeneral->CalculVup(angles.x + dy, angles.y + dx, 0));
+        camGeneral->CalculaMatriuModelView();
+        camGeneral->toGPU(program);
+        updateGL();
     }
+
     lastPos = event->pos();
 }
 
@@ -268,16 +288,19 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     ConjuntBoles* conjuntBoles = NULL;
     PlaBase* plaBase = NULL;
 
-    if(event->key() == Qt::Key_Plus)
+    if (camActual == camGeneral)
     {
-        camGeneral->zoom(-1);
-        camGeneral->toGPU(program);
-    }
+        if(event->key() == Qt::Key_Plus)
+        {
+            camGeneral->zoom(-1);
+            camGeneral->toGPU(program);
+        }
 
-    if(event->key() == Qt::Key_Minus)
-    {
-        camGeneral->zoom(1);
-        camGeneral->toGPU(program);
+        if(event->key() == Qt::Key_Minus)
+        {
+            camGeneral->zoom(1);
+            camGeneral->toGPU(program);
+        }
     }
 
     //si s'han pulsat algunes de les tecles de moviment
@@ -341,7 +364,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     //Analog al cas anterior
     case Qt::Key_Left:
 
-        if (event->modifiers() & Qt::AltModifier)
+        if (event->modifiers() & Qt::AltModifier && camActual == camGeneral)
         {
             camGeneral->pan(0.05);
             camGeneral->toGPU(program);
@@ -362,7 +385,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     //Analog al cas anterior
     case Qt::Key_Right:
 
-        if (event->modifiers() & Qt::AltModifier)
+        if (event->modifiers() & Qt::AltModifier && camActual == camGeneral)
         {
             camGeneral->pan(-0.05);
             camGeneral->toGPU(program);
@@ -713,9 +736,38 @@ void GLWidget::newSalaBillar()
         Capsa2D window = camGeneral->CapsaMinCont2DXYVert(vertex_capsa3d, 8);
 
         //Calculem la window
-        camGeneral->setProjectionType(PARALLELA);
+        camGeneral->setProjectionType(PERSPECTIVA);
         esc->setWindowCamera(camGeneral, true, window);
         camGeneral->toGPU(program);
+
+        Objecte* conjunt = tauler->getFill(CONJUNT_BOLES);
+        Objecte* bola = tauler->getFill(BOLA_BLANCA);
+        if (conjunt && bola)
+        {
+            vec4 dir = conjunt->capsa.center - bola->capsa.center;
+            vec4 obs = bola->capsa.center - normalize(dir); obs.w = 1;
+            //camFP->setObs(obs + dir);
+
+            camFP->setVRP(conjunt->capsa.center);
+            camFP->setObs(obs);
+            camFP->setVUP(vec4(0, 1, 0, 0));
+            camFP->CalculaMatriuProjection();
+
+            camFP->VertexCapsa3D(tauler->capsa, vertex_capsa3d);
+
+            //multipliquem cada vertex per la model view per tenirlo en coordenades de camera
+            for(int i = 0;i<8; i++){
+                vertex_capsa3d[i] = camFP->getModelView() * vertex_capsa3d[i];
+            }
+
+            //Pasem de els punts 3d a punts 2d
+            window = camFP->CapsaMinCont2DXYVert(vertex_capsa3d, 8);
+
+
+            camFP->setProjectionType(PARALLELA);
+            esc->setWindowCamera(camFP, true, window);
+            camFP->toGPU(program);
+        }
 
         cout << tauler->capsa.pmin.x <<  ", " <<tauler->capsa.pmin.y << "," <<tauler->capsa.pmin.z << endl;
         cout << tauler->capsa.pmax.x <<  ", " <<tauler->capsa.pmax.y << "," <<tauler->capsa.pmax.z << endl;

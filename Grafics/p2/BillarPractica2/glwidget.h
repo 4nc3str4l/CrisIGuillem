@@ -90,6 +90,8 @@ private:
     void initTexture(GLenum texture, std::string path);
 
     Camera* camGeneral;
+    Camera* camFP;
+    Camera* camActual;
 
 private slots:
     void mouBola();

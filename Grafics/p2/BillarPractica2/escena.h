@@ -37,6 +37,7 @@ public:
     void CapsaMinCont3DEscena();
 
     Camera* getCamaraGeneral();
+    Camera* getCamaraPrimeraPersona();
 
     inline Capsa3D getCapsaMinima(){
         return capsaMinima;
@@ -67,6 +68,7 @@ private:
     Capsa3D capsaMinima;
     mat4 scale;
     Camera* camGeneral;
+    Camera* camFP;
 
     int width;
     int height;

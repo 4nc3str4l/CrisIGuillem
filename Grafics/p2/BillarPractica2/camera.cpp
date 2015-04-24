@@ -293,8 +293,10 @@ vec4 Camera::CalculObs(vec4 vrp, double d, double angx, double angy)
  vec3 v;
  double norma;
 
- /* Calcul del vector de visio a partir dels angles */
+ vs.angx = angx;
+ vs.angy = angy;
 
+ /* Calcul del vector de visio a partir dels angles */
  v[0] = sin(PI * angy / 180.) * cos(PI * angx / 180.);
  v[2] = cos(PI * angy / 180.) * cos(PI * angx / 180.);
  v[1]= - sin(PI * angx / 180.);

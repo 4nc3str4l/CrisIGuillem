@@ -14,6 +14,7 @@ Escena::Escena(vec3 dimensions, QGLShaderProgram* program)
 
     //Instanciate a canmera and modify it's atributes.
     camGeneral = new Camera(program);
+    camFP = new Camera(program);
 }
 
 
@@ -91,8 +92,8 @@ Objecte* Escena::getObjecte(TIPUS_OBJECTE tipus)
 void Escena::initCamera(bool camGeneral){
     if(camGeneral)
         this->camGeneral->ini(width, height, this->capsaMinima);
-    // else
-        //this->camera2
+    else
+        this->camFP->ini(width, height, capsaMinima);
 }
 
 void Escena::setAnglesCamera(Camera* camera,float angX, float angY, float angZ)
@@ -134,4 +135,9 @@ void Escena::setDCamera(Camera* camera, float d)
 Camera* Escena::getCamaraGeneral()
 {
     return camGeneral;
+}
+
+Camera* Escena::getCamaraPrimeraPersona()
+{
+    return camFP;
 }
