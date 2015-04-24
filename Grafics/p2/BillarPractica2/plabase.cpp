@@ -5,9 +5,7 @@
  * @brief PlaBase::PlaBase
  */
 PlaBase::PlaBase():
-    Objecte(6),
-    _guarda(false),
-    transformacions()
+    Objecte(6)
 {
     setTipus(PLA_BASE);
     tam = 1;
@@ -44,14 +42,4 @@ PlaBase::PlaBase():
 PlaBase::~PlaBase()
 {
 
-}
-
-void PlaBase::aplicaTG(mat4 m)
-{
-    if (_guarda)
-    {
-        transformacions = m * transformacions;
-        //inverse(transformacions, inversa);
-    }
-    Objecte::aplicaTG(m);
 }

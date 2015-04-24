@@ -279,9 +279,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     ConjuntBoles* conjuntBoles = NULL;
     PlaBase* plaBase = NULL;
 
-    mat4 transformacions;
-    mat4 inversa;
-
     if(event->key() == Qt::Key_Plus)
     {
         Zoom(-1);
@@ -311,12 +308,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
             QMessageBox::warning(NULL, "Atencio", "No tens una taula amb tots els elements.\nPer jugar, tanca, torna a obrir i afegeix sala de billar.");
             return;
         }
-
-        //Obtenim les rotacions acumulades durant l'execució del programa
-        transformacions = plaBase->getTransformacions();
-
-        //Agafem la matriu inversa (nomes la calculem quan hi han noves rotacions)
-        inversa = plaBase->getInversa();
     }
 
     //Son matrius de translació precalculades
@@ -330,8 +321,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     {
     //si apretem la tecla up
     case Qt::Key_Up:
-        //Aplicant la rotacio inversa tornem a posar la taula en la posicio inicial
-        tauler->aplicaTGCentrat(inversa);
+
         //si la bola no esta xocant amb res
         if (intersects(bola->capsa.pmin + vec3(0,0,0.02), bola->capsa.pmax, plaBase->capsa.pmin, plaBase->capsa.pmax) &&
                        !conjuntBoles->collides(bola->capsa.pmin + vec3(0,0,0.01), bola->capsa.pmax))
@@ -339,41 +329,40 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
             //Movem la bola i la rotem sobre si mateixa en la direcció adient
             bola->aplicaTGCentrat(moveDown*RotateX(-30));
         }
-        //Tornem el tauler la seva rotació actual.
-        tauler->aplicaTGCentrat(transformacions);
+
         break;
 
     //Analog al cas anterior
     case Qt::Key_Down:
-        tauler->aplicaTGCentrat(inversa);
+
         if (intersects(bola->capsa.pmin, bola->capsa.pmax  + vec3(0,0,-0.02), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
                 !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax  + vec3(0,0,-0.01)))
         {
             bola->aplicaTGCentrat(moveUp*RotateX(30));
         }
-        tauler->aplicaTGCentrat(transformacions);
+
         break;
 
     //Analog al cas anterior
     case Qt::Key_Left:
-        tauler->aplicaTGCentrat(inversa);
+
         if (intersects(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.02,0,0), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
                        !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.01,0,0)))
         {
             bola->aplicaTGCentrat(moveLeft*RotateZ(-30));
         }
-        tauler->aplicaTGCentrat(transformacions);
+
         break;
 
     //Analog al cas anterior
     case Qt::Key_Right:
-        tauler->aplicaTGCentrat(inversa);
+
         if (intersects(bola->capsa.pmin+ vec3(0.02,0,0), bola->capsa.pmax , plaBase->capsa.pmin, plaBase->capsa.pmax) &&
                         !conjuntBoles->collides(bola->capsa.pmin+ vec3(0.01,0,0), bola->capsa.pmax))
         {
             bola->aplicaTGCentrat(moveRight*RotateZ(30));
         }
-        tauler->aplicaTGCentrat(transformacions);
+
         break;
 
     //Ens serveix per crear l'efecte de tirar una bola
@@ -395,7 +384,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         break;
     }
 
-
     rotar = false;
 
     //Actualitzem l'escena i la pantalla.
@@ -409,9 +397,6 @@ void GLWidget::mouBola()
     Objecte* bola = NULL;
     ConjuntBoles* conjuntBoles = NULL;
     PlaBase* plaBase = NULL;
-
-    mat4 transformacions;
-    mat4 inversa;
 
     tauler = esc->getObjecte(TAULER);
 
@@ -428,11 +413,6 @@ void GLWidget::mouBola()
         return;
     }
 
-    //Obtenim les rotacions acumulades durant l'execucio del programa
-    transformacions = plaBase->getTransformacions();
-    // Obtenim la matriu inversa a aquestes rotacions (per poder desfer-les totes de cara a simplicar la gestio del moviment la bola)
-    inversa = plaBase->getInversa();
-
     //Si la velocitat de la bola es 0 parem el timer
     if (bola->speed.z == 0)
     {
@@ -447,8 +427,6 @@ void GLWidget::mouBola()
             sign = 1;
         }
 
-        //Com abans tornem tota l'escena a les rotacions inicials
-        tauler->aplicaTGCentrat(inversa);
         //si la bola no xoca amb res
         if (intersects(bola->capsa.pmin + vec3(0,0,0.02), bola->capsa.pmax + vec3(0,0,-0.02), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
                 !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax + bola->speed))
@@ -463,8 +441,6 @@ void GLWidget::mouBola()
             //la movem
             bola->aplicaTGCentrat(Translate(bola->speed)*RotateX(sign*30));
         }
-        //tornem a recuperar les rotacions actuals
-        tauler->aplicaTGCentrat(transformacions);
 
         // Decrementem la velocitat de la bola segons el temps que fa que esta en moviment.
         GLfloat delta = 0.0005;
@@ -733,9 +709,6 @@ void GLWidget::newSalaBillar()
     if (!tauler || !plaBase) {
         QMessageBox::warning(NULL, "Atencio", "Algo no ha funcionat be.");
     }
-
-    //A partir d'aquest punt començem a guardar totes les rotacions que es faran a l'escena de cara a poder moure la bola d'un mode mes senzill.
-    plaBase->guardaTransformacions();
 }
 
 // Metode per iniciar la dinàmica del joc
