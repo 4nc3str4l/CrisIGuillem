@@ -341,12 +341,20 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     //Analog al cas anterior
     case Qt::Key_Left:
 
-        if (intersects(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.02,0,0), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
-                       !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.01,0,0)))
+        if (event->modifiers() & Qt::AltModifier)
         {
-            bola->aplicaTGCentrat(RotateZ(-30));
-            bola->aplicaTG(moveLeft);
-            bola->calculCapsa3D();
+            camGeneral->pan(0.05);
+            camGeneral->toGPU(program);
+        }
+        else
+        {
+            if (intersects(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.02,0,0), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
+                           !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.01,0,0)))
+            {
+                bola->aplicaTGCentrat(RotateZ(-30));
+                bola->aplicaTG(moveLeft);
+                bola->calculCapsa3D();
+            }
         }
 
         break;
@@ -354,12 +362,20 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     //Analog al cas anterior
     case Qt::Key_Right:
 
-        if (intersects(bola->capsa.pmin+ vec3(0.02,0,0), bola->capsa.pmax , plaBase->capsa.pmin, plaBase->capsa.pmax) &&
-                        !conjuntBoles->collides(bola->capsa.pmin+ vec3(0.01,0,0), bola->capsa.pmax))
+        if (event->modifiers() & Qt::AltModifier)
         {
-            bola->aplicaTGCentrat(RotateZ(-30));
-            bola->aplicaTG(moveRight);
-            bola->calculCapsa3D();
+            camGeneral->pan(-0.05);
+            camGeneral->toGPU(program);
+        }
+        else
+        {
+            if (intersects(bola->capsa.pmin+ vec3(0.02,0,0), bola->capsa.pmax , plaBase->capsa.pmin, plaBase->capsa.pmax) &&
+                            !conjuntBoles->collides(bola->capsa.pmin+ vec3(0.01,0,0), bola->capsa.pmax))
+            {
+                bola->aplicaTGCentrat(RotateZ(-30));
+                bola->aplicaTG(moveRight);
+                bola->calculCapsa3D();
+            }
         }
 
         break;

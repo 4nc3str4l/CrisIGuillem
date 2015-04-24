@@ -58,17 +58,20 @@ void Camera::toGPU(QGLShaderProgram *program)
 
 void Camera::CalculaMatriuModelView()
 {
+#ifdef DEBUG_COUT
     std::cout << "OBS: "; for (int i = 0; i < 4; ++i) std::cout << vs.obs[i] << "\t"; std::cout << std::endl;
     std::cout << "VRP: "; for (int i = 0; i < 4; ++i) std::cout << vs.vrp[i] << "\t"; std::cout << std::endl;
     std::cout << "VUP: "; for (int i = 0; i < 4; ++i) std::cout << vs.vup[i] << "\t"; std::cout << std::endl;
+#endif
 
     modView = LookAt(vs.obs, vs.vrp, vs.vup);
 }
 
 void Camera::CalculaMatriuProjection()
 {
-    // CODI A MODIFICAR DURANT LA PRACTICA 2
+#ifdef DEBUG_COUT
     std::cout << "Window (" << wd.pmin.x << "," << wd.pmin.y << ") <" << wd.a << "x" << wd.h << std::endl;
+#endif
 
     if (piram.proj == PERSPECTIVA)
     {
@@ -102,6 +105,7 @@ void Camera::setViewport(int x, int y, int a, int h)
 
 void Camera::setModelViewToGPU(QGLShaderProgram *program, mat4 m)
 {
+#ifdef DEBUG_COUT
     std::cout << "Model" << std::endl;
     for (int i = 0; i < 4; ++i)
     {
@@ -109,12 +113,14 @@ void Camera::setModelViewToGPU(QGLShaderProgram *program, mat4 m)
             std::cout << m[j][i] << "\t";
         std::cout << std::endl;
     }
+#endif
 
     glUniformMatrix4fv(model_view, 1, GL_TRUE, &m[0][0]);
 }
 
 void Camera::setProjectionToGPU(QGLShaderProgram *program, mat4 p)
 {
+#ifdef DEBUG_COUT
     std::cout << "Perspective" << std::endl;
     for (int i = 0; i < 4; ++i)
     {
@@ -122,6 +128,7 @@ void Camera::setProjectionToGPU(QGLShaderProgram *program, mat4 p)
             std::cout << p[j][i] << "\t";
         std::cout << std::endl;
     }
+#endif
 
     glUniformMatrix4fv(projection, 1, GL_TRUE, &p[0][0]);
 }
