@@ -71,7 +71,6 @@ void Camera::CalculaMatriuProjection()
 
     if (piram.proj == PERSPECTIVA)
     {
-        AjustaAspectRatioWd();
         proj = Frustum(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, piram.d - 4.0f, piram.d + 4.0f);
     }
     else

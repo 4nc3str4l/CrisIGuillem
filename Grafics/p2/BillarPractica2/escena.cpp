@@ -120,6 +120,7 @@ void Escena::setWindowCamera(Camera* camera, bool retallat, Capsa2D window)
         camera->CalculWindowAmbRetallat();
     }
 
+    camGeneral->AjustaAspectRatioWd();
     camGeneral->CalculaMatriuProjection();
 }
 

@@ -263,10 +263,10 @@ void GLWidget::Pan(int dx, int dy)
 
 void GLWidget::Zoom(int positiu)
 {
-    this->camGeneral->wd.a =+ positiu / 2;
-    this->camGeneral->wd.h =+ positiu / 2;
-    this->camGeneral->wd.pmin.x -= positiu / 2;
-    this->camGeneral->wd.pmin.y -= positiu / 2;
+    this->camGeneral->wd.a += positiu / 2.0f;
+    this->camGeneral->wd.h += positiu / 2.0f;
+    this->camGeneral->wd.pmin.x -= positiu / 2.0f;
+    this->camGeneral->wd.pmin.y -= positiu / 2.0f;
     this->camGeneral->CalculaMatriuProjection();
     this->camGeneral->toGPU(program);
 }
