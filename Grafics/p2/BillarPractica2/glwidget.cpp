@@ -256,14 +256,15 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     lastPos = event->pos();
 }
 
-void Pan(int dx, int dy)
+void GLWidget::Pan(int dx, int dy)
 {
 
 }
 
-void Zoom(int positiu)
+void GLWidget::Zoom(int positiu)
 {
-
+    this->camGeneral->wd.a =+ positiu;
+    this->camGeneral->wd.h =+ positiu;
 }
 
 void GLWidget::keyPressEvent(QKeyEvent *event)
