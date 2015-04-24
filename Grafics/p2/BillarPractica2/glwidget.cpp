@@ -263,10 +263,10 @@ void GLWidget::Pan(int dx, int dy)
 
 void GLWidget::Zoom(int positiu)
 {
+    this->camGeneral->wd.pmin.x -= positiu / 4.0f;
+    this->camGeneral->wd.pmin.y -= positiu / 4.0f;
     this->camGeneral->wd.a += positiu / 2.0f;
     this->camGeneral->wd.h += positiu / 2.0f;
-    this->camGeneral->wd.pmin.x -= positiu / 2.0f;
-    this->camGeneral->wd.pmin.y -= positiu / 2.0f;
     this->camGeneral->CalculaMatriuProjection();
     this->camGeneral->toGPU(program);
 }
@@ -284,12 +284,12 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
     if(event->key() == Qt::Key_Plus)
     {
-        Zoom(1);
+        Zoom(-1);
     }
 
     if(event->key() == Qt::Key_Minus)
     {
-        Zoom(-1);
+        Zoom(1);
     }
 
     //si s'han pulsat algunes de les tecles de moviment
