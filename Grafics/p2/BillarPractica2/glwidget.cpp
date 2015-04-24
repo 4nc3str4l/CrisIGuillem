@@ -256,6 +256,15 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     lastPos = event->pos();
 }
 
+void Pan(int dx, int dy)
+{
+
+}
+
+void Zoom(int positiu)
+{
+
+}
 
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
@@ -267,6 +276,16 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
     mat4 transformacions;
     mat4 inversa;
+
+    if(event->key() == Qt::Key_Plus)
+    {
+        Zoom(1);
+    }
+
+    if(event->key() == Qt::Key_Minus)
+    {
+        Zoom(-1);
+    }
 
     //si s'han pulsat algunes de les tecles de moviment
     if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down ||
