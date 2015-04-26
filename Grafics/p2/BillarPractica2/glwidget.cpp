@@ -36,6 +36,13 @@ GLWidget::GLWidget(QWidget *parent)
 
     //si cal rotar els objectes de l'escena al apretar una tecla o mouse.
     rotar = true;
+
+    timer_camera = new QTimer(this);
+    connect(timer_camera, SIGNAL(timeout()), this, SLOT(cameraTransition()));
+
+    this->camera_advance = new vec4();
+    this->camera_moves = -1;
+
 }
 
 /**
@@ -47,6 +54,7 @@ GLWidget::~GLWidget()
     makeCurrent();
     delete esc;
     delete timer;
+    delete timer_camera;
 
     if (program)
     {
@@ -305,16 +313,17 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
     if (event->key() == Qt::Key_B)
     {
-      this->camActual = this->camFP;
-      this->camActual->toGPU(program);
-      this->updateGL();
+
+      timer_camera->start(2);
     }
 
     if (event->key() == Qt::Key_T)
     {
-      this->camActual = this->camGeneral;
-      this->camActual->toGPU(program);
-      this->updateGL();
+       this->camActual = this->camGeneral;
+       this->camActual->CalculaMatriuModelView();
+       this->camActual->CalculaMatriuProjection();
+       this->camActual->toGPU(program);
+       this->updateGL();
     }
 
 
@@ -449,12 +458,55 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         camFP->setObs(camFP->CalculObs(bola->capsa.center, camFP->getD(), -5, 0));
         camFP->CalculaMatriuModelView();
         camFP->CalculaMatriuProjection();
+
         if(this->camActual == camFP)
             camFP->toGPU(program);
     }
 
     //Actualitzem l'escena i la pantalla.
     updateGL();
+}
+
+void GLWidget::cameraTransition(){
+
+    this->camera_moves++;
+
+    //calculates what is the advance vector to move betwen cameras
+    if(this->camera_moves == 0)
+    {
+        //save the camGeneral
+        this->auxCamObs = new vec4(this->camGeneral->getObs().x, this->camGeneral->getObs().y, this->camGeneral->getObs().z,this->camGeneral->getObs().z);
+        *camera_advance = (this->camFP->getObs() - this->camGeneral->getObs()) / 100;
+        std::cout << "Origen (" << this->camGeneral->getObs().x << "," << this->camGeneral->getObs().y <<","
+                << this->camGeneral->getObs().z << "," << this->camGeneral->getObs().w << ")" << std::endl;
+        std::cout << "Desti (" << this->camFP->getObs().x << "," << this->camFP->getObs().y <<","
+                << this->camFP->getObs().z << "," << this->camFP->getObs().w << ")" << std::endl;
+        std::cout << "Vector que s'anira sumant ' (" << camera_advance->x << "," << camera_advance->y <<","
+                << camera_advance->z << "," << camera_advance->w << ")" << std::endl;
+
+    }
+
+    else if(this->camera_moves > 0 && this->camera_moves < 100){
+        this->camActual->setObs(this->camActual->getObs() + *camera_advance);
+        std::cout << "Observador (" << this->camActual->getObs().x << "," << this->camActual->getObs().y <<","
+                << this->camActual->getObs().z << "," << this->camActual->getObs().w << ")" << std::endl;
+        this->camActual->setD(this->camFP->getD());
+        this->camActual->CalculaMatriuModelView();
+        this->camActual->CalculaMatriuProjection();
+        this->camActual->toGPU(program);
+    }
+    else
+    {
+
+        this->camGeneral->setObs(*this->auxCamObs);
+        this->camActual = this->camFP;
+        this->camActual->toGPU(program);
+
+        this->camera_moves = -1;
+        this->timer_camera->stop();
+    }
+    this->updateGL();
+    std::cout << "moving between cameras" << std::endl;
 }
 
 void GLWidget::mouBola()
@@ -773,12 +825,8 @@ void GLWidget::newSalaBillar()
         Objecte* bola = tauler->getFill(BOLA_BLANCA);
         if (conjunt && bola)
         {
-            vec4 dir = conjunt->capsa.center - bola->capsa.center;
+            vec4 dir = bola->capsa.center;
             vec4 obs = bola->capsa.center - normalize(dir); obs.w = 1;
-            //camFP->setObs(obs + dir);
-
-
-            float d = 100.0f;
 
             camFP->setVRP(bola->capsa.center);
             camFP->setD(d);
@@ -800,7 +848,6 @@ void GLWidget::newSalaBillar()
 
             camFP->setProjectionType(PERSPECTIVA);
             esc->setWindowCamera(camFP, true, window);
-            camFP->zoom(-10);
             camFP->toGPU(program);
         }
 

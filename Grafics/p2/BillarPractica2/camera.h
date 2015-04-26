@@ -98,6 +98,12 @@ public:
         vs.obs = obs;
     }
 
+    inline void setAngles(vec2 angles)
+    {
+        this->vs.angx = angles.x;
+        this->vs.angy = angles.y;
+    }
+
     inline void setVUP(vec4 vup){
         vs.vup = vup;
     }
@@ -115,6 +121,10 @@ public:
     inline float getD()
     {
         return piram.d;
+    }
+
+    inline vec4 getObs(){
+        return this->vs.obs;
     }
 
     mat4 getModelView(){

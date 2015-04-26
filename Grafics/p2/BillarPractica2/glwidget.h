@@ -55,6 +55,7 @@ protected:
 private:
     Escena *esc;
     QTimer* timer;
+    QTimer* timer_camera;
     quint64 _startTime;
 
     bool rotar;
@@ -89,12 +90,18 @@ private:
     void adaptaObjecteTamanyWidget(Objecte *obj);
     void initTexture(GLenum texture, std::string path);
 
+
     Camera* camGeneral;
     Camera* camFP;
     Camera* camActual;
 
+    int camera_moves;
+    vec4* camera_advance;
+    vec4* auxCamObs;
+
 private slots:
     void mouBola();
+    void cameraTransition();
 
 };
 
