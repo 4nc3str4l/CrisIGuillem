@@ -305,14 +305,16 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
     if (event->key() == Qt::Key_B)
     {
-           this->camActual = this->camFP;
-           this->updateGL();
+      this->camActual = this->camFP;
+      this->camActual->toGPU(program);
+      this->updateGL();
     }
 
     if (event->key() == Qt::Key_P)
     {
-             this->camActual = this->camGeneral;
-             this->updateGL();
+      this->camActual = this->camGeneral;
+      this->camActual->toGPU(program);
+      this->updateGL();
     }
 
 

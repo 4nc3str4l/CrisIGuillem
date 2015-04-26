@@ -93,7 +93,7 @@ void Escena::initCamera(bool camGeneral){
     if(camGeneral)
         this->camGeneral->ini(width, height, this->capsaMinima);
     else
-        this->camFP->ini(width, height, capsaMinima);
+        this->camFP->ini(width, height, this->capsaMinima);
 }
 
 void Escena::setAnglesCamera(Camera* camera,float angX, float angY, float angZ)
@@ -121,8 +121,8 @@ void Escena::setWindowCamera(Camera* camera, bool retallat, Capsa2D window)
         camera->CalculWindowAmbRetallat();
     }
 
-    camGeneral->AjustaAspectRatioWd();
-    camGeneral->CalculaMatriuProjection();
+    camera->AjustaAspectRatioWd();
+    camera->CalculaMatriuProjection();
 }
 
 
