@@ -69,7 +69,7 @@ GLWidget::~GLWidget()
 // Create a GLSL program object from vertex and fragment shader files
 void
 GLWidget::InitShader(const char* vShaderFile, const char* fShaderFile)
-{           
+{
 
     QGLShader *vshader = new QGLShader(QGLShader::Vertex, this);
     QGLShader *fshader = new QGLShader(QGLShader::Fragment, this);
@@ -302,6 +302,19 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
             camGeneral->toGPU(program);
         }
     }
+
+    if (event->key() == Qt::Key_B)
+    {
+           this->camActual = this->camFP;
+           this->updateGL();
+    }
+
+    if (event->key() == Qt::Key_P)
+    {
+             this->camActual = this->camGeneral;
+             this->updateGL();
+    }
+
 
     //si s'han pulsat algunes de les tecles de moviment
     if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down ||
