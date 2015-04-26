@@ -192,7 +192,7 @@ void GLWidget::initializeGL()
     //Obtenim la camera general
     this->camGeneral = esc->getCamaraGeneral();
     this->camFP = esc->getCamaraPrimeraPersona();
-    camActual = camGeneral;
+    camActual = camFP;
 
     glClearColor(clearColor.redF(), clearColor.greenF(), clearColor.blueF(), clearColor.alphaF());
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -310,7 +310,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
       this->updateGL();
     }
 
-    if (event->key() == Qt::Key_P)
+    if (event->key() == Qt::Key_T)
     {
       this->camActual = this->camGeneral;
       this->camActual->toGPU(program);
@@ -344,6 +344,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     static mat4 moveDown = Translate(vec3(0, 0, -0.1));
     static mat4 moveLeft = Translate(vec3(-0.1, 0, 0));
     static mat4 moveRight = Translate(vec3(0.1, 0, 0));
+    bool moved = false;
 
     // Metode a implementar
     switch ( event->key() )
@@ -359,6 +360,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
             bola->aplicaTGCentrat(RotateX(-30));
             bola->aplicaTG(moveDown);
             bola->calculCapsa3D();
+            moved = true;
         }
 
         break;
@@ -372,6 +374,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
             bola->aplicaTGCentrat(RotateX(30));
             bola->aplicaTG(moveUp);
             bola->calculCapsa3D();
+            moved = true;
         }
 
         break;
@@ -389,9 +392,10 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
             if (intersects(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.02,0,0), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
                            !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.01,0,0)))
             {
-                bola->aplicaTGCentrat(RotateZ(-30));
+                bola->aplicaTGCentrat(RotateZ(30));
                 bola->aplicaTG(moveLeft);
                 bola->calculCapsa3D();
+                moved = true;
             }
         }
 
@@ -413,11 +417,11 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
                 bola->aplicaTGCentrat(RotateZ(-30));
                 bola->aplicaTG(moveRight);
                 bola->calculCapsa3D();
+                moved = true;
             }
         }
 
         break;
-
     //Ens serveix per crear l'efecte de tirar una bola
     case Qt::Key_Space:
     {
@@ -438,6 +442,16 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     }
 
     rotar = false;
+
+    if(moved)
+    {
+        camFP->setVRP(bola->capsa.center);
+        camFP->setObs(camFP->CalculObs(bola->capsa.center, camFP->getD(), -5, 0));
+        camFP->CalculaMatriuModelView();
+        camFP->CalculaMatriuProjection();
+        if(this->camActual == camFP)
+            camFP->toGPU(program);
+    }
 
     //Actualitzem l'escena i la pantalla.
     updateGL();
@@ -763,10 +777,15 @@ void GLWidget::newSalaBillar()
             vec4 obs = bola->capsa.center - normalize(dir); obs.w = 1;
             //camFP->setObs(obs + dir);
 
-            camFP->setVRP(conjunt->capsa.center);
-            camFP->setObs(obs);
-            camFP->setVUP(vec4(0, 1, 0, 0));
-            camFP->CalculaMatriuProjection();
+
+            float d = 100.0f;
+
+            camFP->setVRP(bola->capsa.center);
+            camFP->setD(d);
+            camFP->setObs(camFP->CalculObs(bola->capsa.center, d, -5, 0));
+            camFP->setVUP(camFP->CalculVup(0, 90, 0));
+            camFP->CalculaMatriuModelView();
+
 
             camFP->VertexCapsa3D(tauler->capsa, vertex_capsa3d);
 
@@ -779,8 +798,9 @@ void GLWidget::newSalaBillar()
             window = camFP->CapsaMinCont2DXYVert(vertex_capsa3d, 8);
 
 
-            camFP->setProjectionType(PARALLELA);
+            camFP->setProjectionType(PERSPECTIVA);
             esc->setWindowCamera(camFP, true, window);
+            camFP->zoom(-10);
             camFP->toGPU(program);
         }
 
