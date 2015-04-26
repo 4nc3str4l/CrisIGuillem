@@ -110,6 +110,23 @@ void Escena::setVRPCamera(Camera* camera, point4 vrp)
     camera->CalculAngleOberturaHoritzontal();
 }
 
+void Escena::setWindowCamera(Camera* camera, Capsa3D capsa)
+{
+    vec4 vertex_capsa3d[8];
+
+    //Obtenim els vertex
+    camera->VertexCapsa3D(capsa, vertex_capsa3d);
+
+    //multipliquem cada vertex per la model view per tenirlo en coordenades de camera
+    for(int i = 0;i<8; i++){
+        vertex_capsa3d[i] = camera->getModelView() * vertex_capsa3d[i];
+    }
+
+    //Pasem de els punts 3d a punts 2d
+    Capsa2D window = camGeneral->CapsaMinCont2DXYVert(vertex_capsa3d, 8);
+    setWindowCamera(camera, true, window);
+}
+
 void Escena::setWindowCamera(Camera* camera, bool retallat, Capsa2D window)
 {
     camera->CalculWindow(window);

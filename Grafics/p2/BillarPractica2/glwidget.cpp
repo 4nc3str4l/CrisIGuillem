@@ -311,19 +311,18 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         }
     }
 
-    if (event->key() == Qt::Key_B)
+    if (event->key() == Qt::Key_B && camActual == camGeneral)
     {
-
-      timer_camera->start(2);
+        timer_camera->start(2);
     }
 
-    if (event->key() == Qt::Key_T)
+    if (event->key() == Qt::Key_T && camActual == camFP)
     {
-       this->camActual = this->camGeneral;
-       this->camActual->CalculaMatriuModelView();
-       this->camActual->CalculaMatriuProjection();
-       this->camActual->toGPU(program);
-       this->updateGL();
+        this->camActual = this->camGeneral;
+        this->camActual->CalculaMatriuModelView();
+        this->camActual->CalculaMatriuProjection();
+        this->camActual->toGPU(program);
+        this->updateGL();
     }
 
 
@@ -452,12 +451,23 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
     rotar = false;
 
-    if(moved)
+    if(moved && conjuntBoles && bola)
     {
-        camFP->setVRP(bola->capsa.center);
-        camFP->setObs(camFP->CalculObs(bola->capsa.center, camFP->getD(), -5, 0));
+        const vec4& dir = normalize(bola->capsa.center - tauler->capsa.center);
+        float angle = 0;
+        if (dir != 0)
+        {
+            angle = atan(dir.x / dir.z) * 180.0f / PI;
+        }
+
+        std::cout << "ANGLE " << angle << std::endl;
+
+        //camFP->setVRP(conjuntBoles->capsa.center);
+        camFP->setObs(camFP->CalculObs(bola->capsa.center, camFP->getD(), -5, angle));
+        camFP->setVUP(camFP->CalculVup(-5, angle, 0));
+        camFP->CalculVup(-0.5, 0, 0);
         camFP->CalculaMatriuModelView();
-        camFP->CalculaMatriuProjection();
+        esc->setWindowCamera(camFP, bola->capsa);
 
         if(this->camActual == camFP)
             camFP->toGPU(program);
@@ -800,54 +810,27 @@ void GLWidget::newSalaBillar()
         camGeneral->setVUP(camGeneral->CalculVup(-90, 0, 0));
         camGeneral->CalculaMatriuModelView();
 
-        //declarem una array de vertex per poder guardar els vertex de la capça del tauler
-        vec4 vertex_capsa3d[8];
-
-        //Obtenim els vertex
-        camGeneral->VertexCapsa3D(tauler->capsa, vertex_capsa3d);
-
-        //multipliquem cada vertex per la model view per tenirlo en coordenades de camera
-        for(int i = 0;i<8; i++){
-            //cout << "Abans : (" << vertex_capsa3d[i].x << ", " << vertex_capsa3d[i].y << ", "<< vertex_capsa3d[i].z << ")" << endl;
-            vertex_capsa3d[i] = camGeneral->getModelView() * vertex_capsa3d[i];
-            //cout << "Despres :(" << vertex_capsa3d[i].x << ", " << vertex_capsa3d[i].y << ", "<< vertex_capsa3d[i].z << ")" << endl;
-        }
-
-        //Pasem de els punts 3d a punts 2d
-        Capsa2D window = camGeneral->CapsaMinCont2DXYVert(vertex_capsa3d, 8);
-
         //Calculem la window
         camGeneral->setProjectionType(PERSPECTIVA);
-        esc->setWindowCamera(camGeneral, true, window);
+        esc->setWindowCamera(camGeneral, tauler->capsa);
         camGeneral->toGPU(program);
 
         Objecte* conjunt = tauler->getFill(CONJUNT_BOLES);
         Objecte* bola = tauler->getFill(BOLA_BLANCA);
         if (conjunt && bola)
         {
-            vec4 dir = bola->capsa.center;
-            vec4 obs = bola->capsa.center - normalize(dir); obs.w = 1;
+            d = 10.0f;
 
-            camFP->setVRP(bola->capsa.center);
+            std::cout << "CENTER: " << conjunt->capsa.center.x << "," << conjunt->capsa.center.y << "," << conjunt->capsa.center.z << std::endl;
+
+            camFP->setVRP(conjunt->capsa.center);
             camFP->setD(d);
             camFP->setObs(camFP->CalculObs(bola->capsa.center, d, -5, 0));
-            camFP->setVUP(camFP->CalculVup(0, 90, 0));
+            camFP->setVUP(camFP->CalculVup(0, -5, 0));
             camFP->CalculaMatriuModelView();
 
-
-            camFP->VertexCapsa3D(tauler->capsa, vertex_capsa3d);
-
-            //multipliquem cada vertex per la model view per tenirlo en coordenades de camera
-            for(int i = 0;i<8; i++){
-                vertex_capsa3d[i] = camFP->getModelView() * vertex_capsa3d[i];
-            }
-
-            //Pasem de els punts 3d a punts 2d
-            window = camFP->CapsaMinCont2DXYVert(vertex_capsa3d, 8);
-
-
             camFP->setProjectionType(PERSPECTIVA);
-            esc->setWindowCamera(camFP, true, window);
+            esc->setWindowCamera(camFP, bola->capsa);
             camFP->toGPU(program);
         }
 

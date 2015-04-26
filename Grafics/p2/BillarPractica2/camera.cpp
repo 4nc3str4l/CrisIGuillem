@@ -73,13 +73,15 @@ void Camera::CalculaMatriuProjection()
     std::cout << "Window (" << wd.pmin.x << "," << wd.pmin.y << ") <" << wd.a << "x" << wd.h << std::endl;
 #endif
 
+    const float deltaNear = 4.0f >= piram.d ? piram.d - 0.1 : 4.0f;
+
     if (piram.proj == PERSPECTIVA)
     {
-        proj = Frustum(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, piram.d - 4.0f, piram.d + 10.0f);
+        proj = Frustum(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, piram.d - deltaNear, piram.d + 10.0f);
     }
     else
     {
-        proj = Ortho(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, piram.d - 5.0f, piram.d + 5.0f);
+        proj = Ortho(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, piram.d - deltaNear, piram.d + 5.0f);
     }
 }
 

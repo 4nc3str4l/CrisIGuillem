@@ -473,6 +473,18 @@ vec3 cross(const vec4& a, const vec4& b )
 		 a.x * b.y - a.y * b.x );
 }
 
+inline
+vec3 abs(const vec3& a)
+{
+    return vec3(std::fabs(a.x), std::fabs(a.y), std::fabs(a.z));
+}
+
+inline
+vec4 abs(const vec4& a)
+{
+    return vec4(std::fabs(a.x), std::fabs(a.y), std::fabs(a.z), std::fabs(a.w));
+}
+
 //----------------------------------------------------------------------------
 
 }  // namespace Angel
