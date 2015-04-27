@@ -95,6 +95,8 @@ public:
     // Aplica una TG centrada en el punt central de la capsa de l'objecte a un objecte
     void aplicaTGCentrat(mat4 m, Capsa3D* capsa = NULL);
 
+    virtual bool intersects(Objecte* obj, vec4 delta);
+
     // Tipus
     TIPUS_OBJECTE getTipus() {
         return _tipus;

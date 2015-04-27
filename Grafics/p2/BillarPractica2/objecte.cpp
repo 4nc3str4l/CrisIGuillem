@@ -271,6 +271,13 @@ Objecte* Objecte::getFill(TIPUS_OBJECTE tipus)
     }
 }
 
+bool Objecte::intersects(Objecte* obj, vec4 delta)
+{
+    return capsa.pmin.x + delta.x < obj->capsa.pmax.x &&
+            capsa.pmax.x + delta.x > obj->capsa.pmin.x &&
+            capsa.pmin.z + delta.z < obj->capsa.pmax.z &&
+            capsa.pmax.z + delta.z > obj->capsa.pmin.z;
+}
 
 // Llegeix un fitxer .obj
 //  Si el fitxer referencia fitxers de materials (.mtl), encara no es llegeixen

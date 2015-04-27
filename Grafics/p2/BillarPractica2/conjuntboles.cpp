@@ -103,11 +103,13 @@ void ConjuntBoles::aplicaTGPoints(mat4 m)
     }
 }
 
-bool ConjuntBoles::collides(vec3 pmin, vec3 pmax)
+bool ConjuntBoles::intersects(Objecte* obj, vec4 delta)
 {
+    int i = 0;
     for (std::vector<Objecte*>::iterator it = boles.begin(); it != boles.end(); ++it)
     {
-        if(intersects(pmin, pmax, (*it)->capsa.pmin, (*it)->capsa.pmax))
+        Bola* bola = (Bola*)*it;
+        if(obj->intersects(bola, delta))
         {
             return true;
         }

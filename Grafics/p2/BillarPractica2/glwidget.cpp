@@ -362,8 +362,8 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     case Qt::Key_Up:
 
         //si la bola no esta xocant amb res
-        if (intersects(bola->capsa.pmin + vec3(0,0,0.02), bola->capsa.pmax, plaBase->capsa.pmin, plaBase->capsa.pmax) &&
-                       !conjuntBoles->collides(bola->capsa.pmin + vec3(0,0,0.01), bola->capsa.pmax))
+        if (bola->intersects(plaBase, vec4(0, 0, -0.35, 0)) &&
+                !conjuntBoles->intersects(bola, vec4(0, 0, -0.11, 0)))
         {
             //Movem la bola i la rotem sobre si mateixa en la direcció adient
             bola->aplicaTGCentrat(RotateX(-30));
@@ -377,8 +377,8 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     //Analog al cas anterior
     case Qt::Key_Down:
 
-        if (intersects(bola->capsa.pmin, bola->capsa.pmax  + vec3(0,0,-0.02), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
-                !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax  + vec3(0,0,-0.01)))
+        if (bola->intersects(plaBase, vec4(0, 0, 0.35, 0)) &&
+            !conjuntBoles->intersects(bola, vec4(0, 0, 0.11, 0)))
         {
             bola->aplicaTGCentrat(RotateX(30));
             bola->aplicaTG(moveUp);
@@ -398,8 +398,8 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         }
         else
         {
-            if (intersects(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.02,0,0), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
-                           !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax + vec3(-0.01,0,0)))
+            if (bola->intersects(plaBase, vec4(-0.35, 0, 0, 0)) &&
+                !conjuntBoles->intersects(bola, vec4(-0.11, 0, 0, 0)))
             {
                 bola->aplicaTGCentrat(RotateZ(30));
                 bola->aplicaTG(moveLeft);
@@ -420,8 +420,8 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         }
         else
         {
-            if (intersects(bola->capsa.pmin+ vec3(0.02,0,0), bola->capsa.pmax , plaBase->capsa.pmin, plaBase->capsa.pmax) &&
-                            !conjuntBoles->collides(bola->capsa.pmin+ vec3(0.01,0,0), bola->capsa.pmax))
+            if (bola->intersects(plaBase, vec4(0.35, 0, 0, 0)) &&
+                !conjuntBoles->intersects(bola, vec4(0.11, 0, 0, 0)))
             {
                 bola->aplicaTGCentrat(RotateZ(-30));
                 bola->aplicaTG(moveRight);
@@ -463,8 +463,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         float angle = 0;
         angle = atan2(dir.x, dir.z) * 180.0f / PI;
         ((Bola*)bola)->setAngle(angle);
-        std::cout << "DIR " << dir.x << "," << dir.y << "," << dir.z << std::endl;
-        std::cout << "ANGLE " << angle << ", DIST: " << dist << std::endl;
 
         camFP->setProjectionType(PERSPECTIVA);
         camFP->setVRP(vrp);
@@ -595,8 +593,9 @@ void GLWidget::mouBola()
     else
     {
         //si la bola no xoca amb res
-        if (intersects(bola->capsa.pmin + vec3(0,0,0.02), bola->capsa.pmax + vec3(0,0,-0.02), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
-                !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax + bola->speed))
+        vec3 marge = vec3(0.35 * (bola->speed.x > 0 ? 1 : -1), 0, 0.35 * (bola->speed.z > 0 ? 1 : -1));
+        if (bola->intersects(plaBase, vec4(bola->speed + marge, 0)) &&
+            !conjuntBoles->intersects(bola, vec4(bola->speed * 1.01, 0)))
         {
             //la movem
             vec2 angles = vec2(rotAngle.x * 500 * bola->speed.z, rotAngle.y * 500 * bola->speed.x);
@@ -621,8 +620,6 @@ void GLWidget::mouBola()
         float angle = 0;
         angle = atan2(dir.x, dir.z) * 180.0f / PI;
         ((Bola*)bola)->setAngle(angle);
-        std::cout << "DIR " << dir.x << "," << dir.y << "," << dir.z << std::endl;
-        std::cout << "ANGLE " << angle << ", DIST: " << dist << std::endl;
 
         camFP->setProjectionType(PERSPECTIVA);
         camFP->setVRP(vrp);
@@ -893,9 +890,6 @@ void GLWidget::newSalaBillar()
 
             float angle = 0;
             angle = atan2(dir.x, dir.z) * 180.0f / PI;
-
-            std::cout << "DIR " << dir.x << "," << dir.y << "," << dir.z << std::endl;
-            std::cout << "ANGLE " << angle << ", DIST: " << dist << std::endl;
 
             camFP->setProjectionType(PERSPECTIVA);
             camFP->setVRP(vrp);
