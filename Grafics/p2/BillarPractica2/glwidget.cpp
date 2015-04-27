@@ -453,19 +453,22 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
     if(moved && conjuntBoles && bola)
     {
-        const vec4& dir = normalize(bola->capsa.center - tauler->capsa.center);
+        const vec4& vrp = ((ConjuntBoles*)conjuntBoles)->getBola(8)->capsa.center;
+        const vec4& obs = bola->capsa.center;
+
+        const vec4& dir = obs - vrp;
+        const float dist = sqrt(pow(obs.x - vrp.x, 2) + pow(obs.z - vrp.z, 2));
+
         float angle = 0;
-        if (dir != 0)
-        {
-            angle = atan(dir.x / dir.z) * 180.0f / PI;
-        }
+        angle =  atan2(dir.x, dir.z) * 180.0f / PI;
 
-        std::cout << "ANGLE " << angle << std::endl;
+        std::cout << "DIR " << dir.x << "," << dir.y << "," << dir.z << std::endl;
+        std::cout << "ANGLE " << angle << ", DIST: " << dist << std::endl;
 
-        //camFP->setVRP(conjuntBoles->capsa.center);
-        camFP->setObs(camFP->CalculObs(bola->capsa.center, camFP->getD(), -5, angle));
+        camFP->setProjectionType(PERSPECTIVA);
+        camFP->setVRP(vrp);
+        camFP->setObs(camFP->CalculObs(vrp, dist + camFP->getD(), -5, angle));
         camFP->setVUP(camFP->CalculVup(-5, angle, 0));
-        camFP->CalculVup(-0.5, 0, 0);
         camFP->CalculaMatriuModelView();
         esc->setWindowCamera(camFP, bola->capsa);
 

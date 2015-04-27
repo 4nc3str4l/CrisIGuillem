@@ -123,7 +123,7 @@ void Escena::setWindowCamera(Camera* camera, Capsa3D capsa)
     }
 
     //Pasem de els punts 3d a punts 2d
-    Capsa2D window = camGeneral->CapsaMinCont2DXYVert(vertex_capsa3d, 8);
+    Capsa2D window = camera->CapsaMinCont2DXYVert(vertex_capsa3d, 8);
     setWindowCamera(camera, true, window);
 }
 
