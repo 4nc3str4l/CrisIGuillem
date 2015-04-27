@@ -95,6 +95,9 @@ private:
     Camera* camFP;
     Camera* camActual;
 
+    vec3 deltaSpeed;
+    vec2 rotAngle;
+
     int camera_moves;
     vec4 camera_advance;
     vec4 auxCamObs;

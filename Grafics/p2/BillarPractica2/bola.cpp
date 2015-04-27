@@ -87,6 +87,17 @@ Bola::Bola(vec3 color):
     this->setTipus(BOLA);
 }
 
+
+void Bola::setAngle(float angle)
+{
+    this->angle = angle;
+}
+
+float Bola::getAngle()
+{
+    return this->angle;
+}
+
 Bola::~Bola()
 {
 

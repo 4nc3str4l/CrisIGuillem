@@ -120,8 +120,9 @@ void GLWidget::initShadersGPU()
    initTexture(GL_TEXTURE12,"://resources/Bola12.jpg");
    initTexture(GL_TEXTURE13,"://resources/Bola13.jpg");
    initTexture(GL_TEXTURE14,"://resources/Bola14.jpg");
+   initTexture(GL_TEXTURE15,"://resources/Bola15.jpg");
    initTexture(GL_TEXTURE0,"://resources/Bola0.jpg");
-   initTexture(GL_TEXTURE15,"://resources/Fabric_Green_L.jpg");
+   initTexture(GL_TEXTURE16,"://resources/Fabric_Green_L.jpg");
 
 }
 
@@ -461,7 +462,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
         float angle = 0;
         angle = atan2(dir.x, dir.z) * 180.0f / PI;
-
+        ((Bola*)bola)->setAngle(angle);
         std::cout << "DIR " << dir.x << "," << dir.y << "," << dir.z << std::endl;
         std::cout << "ANGLE " << angle << ", DIST: " << dist << std::endl;
 
@@ -586,54 +587,67 @@ void GLWidget::mouBola()
     }
 
     //Si la velocitat de la bola es 0 parem el timer
-    if (bola->speed.z == 0)
+    if (length(bola->speed) == 0)
     {
         timer->stop();
     }
     //sino incrementem o decrementem la velocitat de la bola aproximant-la a 0.
     else
     {
-        char sign = -1;
-        if (bola->speed.z < 0)
-        {
-            sign = 1;
-        }
-
         //si la bola no xoca amb res
         if (intersects(bola->capsa.pmin + vec3(0,0,0.02), bola->capsa.pmax + vec3(0,0,-0.02), plaBase->capsa.pmin, plaBase->capsa.pmax) &&
                 !conjuntBoles->collides(bola->capsa.pmin, bola->capsa.pmax + bola->speed))
         {
             //la movem
-            bola->aplicaTGCentrat(Translate(bola->speed)*RotateX(sign*30));
+            vec2 angles = vec2(rotAngle.x * 500 * bola->speed.z, rotAngle.y * 500 * bola->speed.x);
+            bola->aplicaTGCentrat(Translate(bola->speed) * RotateX(angles.x) * RotateZ(angles.y));
         }
         else
         {
             //canviem el sentit de la seva velocitat
             bola->speed = -bola->speed;
+            deltaSpeed = -deltaSpeed;
+
             //la movem
-            bola->aplicaTGCentrat(Translate(bola->speed)*RotateX(sign*30));
+            bola->aplicaTG(Translate(bola->speed));
         }
+
+        const vec4& vrp = conjuntBoles->capsa.center;
+        const vec4& obs = bola->capsa.center;
+
+        const vec4& dir = obs - vrp;
+        const float dist = sqrt(pow(obs.x - vrp.x, 2) + pow(obs.z - vrp.z, 2));
+
+        float angle = 0;
+        angle = atan2(dir.x, dir.z) * 180.0f / PI;
+        ((Bola*)bola)->setAngle(angle);
+        std::cout << "DIR " << dir.x << "," << dir.y << "," << dir.z << std::endl;
+        std::cout << "ANGLE " << angle << ", DIST: " << dist << std::endl;
+
+        camFP->setProjectionType(PERSPECTIVA);
+        camFP->setVRP(vrp);
+        camFP->setObs(camFP->CalculObs(vrp, dist + camFP->getD(), -5, angle));
+        camFP->setVUP(camFP->CalculVup(-5, angle, 0));
+        camFP->CalculaMatriuModelView();
+        esc->setWindowCamera(camFP, bola->capsa);
+
+        if(this->camActual == camFP)
+            camFP->toGPU(program);
 
         // Decrementem la velocitat de la bola segons el temps que fa que esta en moviment.
-        GLfloat delta = 0.0005;
-        if (bola->speed.z > 0)
+        if (length(bola->speed + deltaSpeed) < 0.01)
         {
-            delta *= -1;
-        }
-
-        if ((delta < 0 && bola->speed.z + delta < 0) ||
-                (delta > 0 && bola->speed.z + delta > 0))
-        {
-            bola->speed.z = 0;
+            bola->speed = 0;
         }
         else
         {
-            bola->speed.z += delta;
+            bola->speed += deltaSpeed;
         }
 
         rotar = false;
 
         //actualitzem l'escena i la pantalla.
+        bola->calculCapsa3D();
         updateGL();
     }
 }
@@ -658,12 +672,12 @@ void GLWidget::keyReleaseEvent(QKeyEvent *event)
         if (!event->isAutoRepeat())
         {
             Objecte* tauler = NULL;
-            Objecte* bola = NULL;
+            Bola* bola = NULL;
 
             tauler = esc->getObjecte(TAULER);
 
             if (tauler) {
-                bola = tauler->getFill(BOLA_BLANCA);
+                bola =(Bola*)tauler->getFill(BOLA_BLANCA);
             }
 
             if (!bola || !tauler) {
@@ -671,7 +685,13 @@ void GLWidget::keyReleaseEvent(QKeyEvent *event)
                 return;
             }
 
-            bola->speed = vec3(0,0, total * -0.03);
+            GLfloat delta = 0.0005;
+            float baseSpeed = total * -0.03;
+
+            bola->speed = vec3(baseSpeed * sin(bola->getAngle() * PI / 180.0f),0, baseSpeed * cos(bola->getAngle() * PI / 180.0f));
+            deltaSpeed = vec3(delta * sin(bola->getAngle() * PI / 180.0f),0, delta * cos(bola->getAngle() * PI / 180.0f));
+            rotAngle = vec2(cos(bola->getAngle() * PI / 180.0f), sin(bola->getAngle() * PI / 180.0f));
+
             timer->start(16);
         }
         else
