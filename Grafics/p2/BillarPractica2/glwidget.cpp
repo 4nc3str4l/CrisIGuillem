@@ -40,7 +40,7 @@ GLWidget::GLWidget(QWidget *parent)
     timer_camera = new QTimer(this);
     connect(timer_camera, SIGNAL(timeout()), this, SLOT(cameraTransition()));
 
-    this->camera_advance = new vec4();
+    this->camera_advance = vec4();
     this->camera_moves = -1;
 
 }
@@ -453,14 +453,14 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
     if(moved && conjuntBoles && bola)
     {
-        const vec4& vrp = ((ConjuntBoles*)conjuntBoles)->getBola(8)->capsa.center;
+        const vec4& vrp = conjuntBoles->capsa.center;
         const vec4& obs = bola->capsa.center;
 
         const vec4& dir = obs - vrp;
         const float dist = sqrt(pow(obs.x - vrp.x, 2) + pow(obs.z - vrp.z, 2));
 
         float angle = 0;
-        angle =  atan2(dir.x, dir.z) * 180.0f / PI;
+        angle = atan2(dir.x, dir.z) * 180.0f / PI;
 
         std::cout << "DIR " << dir.x << "," << dir.y << "," << dir.z << std::endl;
         std::cout << "ANGLE " << angle << ", DIST: " << dist << std::endl;
@@ -488,19 +488,21 @@ void GLWidget::cameraTransition(){
     if(this->camera_moves == 0)
     {
         //save the camGeneral
-        this->auxCamObs = new vec4(this->camGeneral->getObs().x, this->camGeneral->getObs().y, this->camGeneral->getObs().z,this->camGeneral->getObs().z);
-        *camera_advance = (this->camFP->getObs() - this->camGeneral->getObs()) / 100;
+        this->auxCamObs = this->camGeneral->getObs();
+        this->auxCamVRP = this->camGeneral->getVRP();
+
+        camera_advance = (this->camFP->getObs() - this->camGeneral->getObs()) / 100;
         std::cout << "Origen (" << this->camGeneral->getObs().x << "," << this->camGeneral->getObs().y <<","
                 << this->camGeneral->getObs().z << "," << this->camGeneral->getObs().w << ")" << std::endl;
         std::cout << "Desti (" << this->camFP->getObs().x << "," << this->camFP->getObs().y <<","
                 << this->camFP->getObs().z << "," << this->camFP->getObs().w << ")" << std::endl;
-        std::cout << "Vector que s'anira sumant ' (" << camera_advance->x << "," << camera_advance->y <<","
-                << camera_advance->z << "," << camera_advance->w << ")" << std::endl;
+        std::cout << "Vector que s'anira sumant ' (" << camera_advance.x << "," << camera_advance.y <<","
+                << camera_advance.z << "," << camera_advance.w << ")" << std::endl;
 
     }
 
     else if(this->camera_moves > 0 && this->camera_moves < 100){
-        this->camActual->setObs(this->camActual->getObs() + *camera_advance);
+        this->camActual->setObs(this->camActual->getObs() + camera_advance);
         std::cout << "Observador (" << this->camActual->getObs().x << "," << this->camActual->getObs().y <<","
                 << this->camActual->getObs().z << "," << this->camActual->getObs().w << ")" << std::endl;
         this->camActual->setD(this->camFP->getD());
@@ -508,12 +510,50 @@ void GLWidget::cameraTransition(){
         this->camActual->CalculaMatriuProjection();
         this->camActual->toGPU(program);
     }
+    else if (camera_moves == 100)
+    {
+        Objecte* tauler = NULL;
+        Objecte* conjunt = NULL;
+        Objecte* bola = NULL;
+
+        if ((tauler = esc->getObjecte(TAULER)) != NULL)
+        {
+            conjunt = tauler->getFill(CONJUNT_BOLES);
+
+            if (conjunt)
+            {
+                camActual->setVRP(conjunt->capsa.center);
+                camActual->CalculaMatriuModelView();
+
+                const Capsa2D actual = camActual->getWindow();
+                const Capsa2D final = camFP->getWindow();
+
+                camera_advance = vec4(final.a - actual.a, final.h - actual.h, final.pmin.x - actual.pmin.x, final.pmin.y - actual.pmin.y) / 50;
+            }
+        }
+    }
+    else if (camera_moves < 150)
+    {
+        camActual->wd.a += camera_advance.x;
+        camActual->wd.h += camera_advance.y;
+        camActual->wd.pmin.x += camera_advance.z;
+        camActual->wd.pmin.y += camera_advance.w;
+        camActual->CalculaMatriuProjection();
+
+        this->camActual->toGPU(program);
+    }
     else
     {
+        Objecte* tauler = NULL;
 
-        this->camGeneral->setObs(*this->auxCamObs);
-        this->camActual = this->camFP;
-        this->camActual->toGPU(program);
+        if ((tauler = esc->getObjecte(TAULER)) != NULL)
+        {
+            this->camGeneral->setObs(this->auxCamObs);
+            this->camGeneral->setVRP(this->auxCamVRP);
+            esc->setWindowCamera(camGeneral, tauler->capsa);
+            this->camActual = this->camFP;
+            this->camActual->toGPU(program);
+        }
 
         this->camera_moves = -1;
         this->timer_camera->stop();
@@ -757,6 +797,9 @@ void GLWidget::newBola()
         //Escalem la bola despres de haver-la mogut
         bola->aplicaTGCentrat(scaleMatrix);
 
+        //Calculem la seva capça 3d per si canviat
+        bola->calculCapsa3D();
+
         //Afegim la bola com a filla de la taula.
         tauler->addChild(bola);
     }
@@ -822,17 +865,24 @@ void GLWidget::newSalaBillar()
         Objecte* bola = tauler->getFill(BOLA_BLANCA);
         if (conjunt && bola)
         {
-            d = 10.0f;
+            const vec4& vrp = conjunt->capsa.center;
+            const vec4& obs = bola->capsa.center;
 
-            std::cout << "CENTER: " << conjunt->capsa.center.x << "," << conjunt->capsa.center.y << "," << conjunt->capsa.center.z << std::endl;
+            const vec4& dir = obs - vrp;
+            const float dist = sqrt(pow(obs.x - vrp.x, 2) + pow(obs.z - vrp.z, 2));
 
-            camFP->setVRP(conjunt->capsa.center);
-            camFP->setD(d);
-            camFP->setObs(camFP->CalculObs(bola->capsa.center, d, -5, 0));
-            camFP->setVUP(camFP->CalculVup(0, -5, 0));
-            camFP->CalculaMatriuModelView();
+            float angle = 0;
+            angle = atan2(dir.x, dir.z) * 180.0f / PI;
+
+            std::cout << "DIR " << dir.x << "," << dir.y << "," << dir.z << std::endl;
+            std::cout << "ANGLE " << angle << ", DIST: " << dist << std::endl;
 
             camFP->setProjectionType(PERSPECTIVA);
+            camFP->setVRP(vrp);
+            camFP->setD(d);
+            camFP->setObs(camFP->CalculObs(vrp, dist + camFP->getD(), -5, angle));
+            camFP->setVUP(camFP->CalculVup(-5, angle, 0));
+            camFP->CalculaMatriuModelView();
             esc->setWindowCamera(camFP, bola->capsa);
             camFP->toGPU(program);
         }

@@ -44,8 +44,12 @@ typedef struct
 /* =                                 = */
 /* =================================== */
 
+class GLWidget;
+
 class Camera
 {
+    friend class GLWidget;
+
 public:
     explicit Camera(QGLShaderProgram* program);
     ~Camera() {}
@@ -76,7 +80,7 @@ public:
 
 
     void rotate(Capsa3D c);
-    inline void zoom(int val);
+    inline void zoom(float val);
     inline void zoom();
 
     inline void pan(float val);
@@ -127,6 +131,11 @@ public:
         return this->vs.obs;
     }
 
+    inline Capsa2D getWindow()
+    {
+        return wd;
+    }
+
     mat4 getModelView(){
         return transpose(this->modView);
     }
@@ -146,8 +155,9 @@ public:
 
 
 private:
+    inline void zoom_i(float val);
 
-    int cameraZoom;
+    float cameraZoom;
     float cameraPan;
     mat4  modView; // Matriu model-view de la CPU
     mat4  proj;  // Matriu projection de la CPU
@@ -156,20 +166,25 @@ private:
 };
 
 
-inline void Camera::zoom(int val)
+inline void Camera::zoom(float val)
 {
     if (cameraZoom + val > -piram.d)
     {
-        std::cout << "CAMERA: " << cameraZoom << std::endl;
-
-        cameraZoom += val;
-        wd.pmin.x -= val / 4.0f;
-        wd.pmin.y -= val / 4.0f;
-        wd.a += val / 2.0f;
-        wd.h += val / 2.0f;
-
-        CalculaMatriuProjection();
+        zoom_i(val);
     }
+}
+
+inline void Camera::zoom_i(float val)
+{
+    std::cout << "CAMERA: " << cameraZoom << std::endl;
+
+    cameraZoom += val;
+    wd.pmin.x -= val / 4.0f;
+    wd.pmin.y -= val / 4.0f;
+    wd.a += val / 2.0f;
+    wd.h += val / 2.0f;
+
+    CalculaMatriuProjection();
 }
 
 inline void Camera::zoom()

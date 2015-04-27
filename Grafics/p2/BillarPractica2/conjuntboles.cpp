@@ -64,9 +64,7 @@ ConjuntBoles::ConjuntBoles(QGLShaderProgram* program, Objecte* tauler, std::vect
         z -= dist;
     }
 
-    capsa.center = vec3(capsa.center.x,
-                        1 + capsa.center.y,
-                        (-100 - dist * 2) / ballTableRelation + capsa.center.z);
+    capsa = getBola(4)->capsa;
 
     this->setTipus(CONJUNT_BOLES);
 }

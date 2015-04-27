@@ -96,8 +96,9 @@ private:
     Camera* camActual;
 
     int camera_moves;
-    vec4* camera_advance;
-    vec4* auxCamObs;
+    vec4 camera_advance;
+    vec4 auxCamObs;
+    vec4 auxCamVRP;
 
 private slots:
     void mouBola();
