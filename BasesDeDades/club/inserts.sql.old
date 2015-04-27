@@ -1,0 +1,11 @@
+\i 'comarca\\inserts.sql'
+\i 'ciutat\\inserts.sql'
+\i 'persona\\inserts.sql'
+\i 'mails\\inserts.sql'
+\i 'coneix\\inserts.sql'
+\i 'soci\\inserts.sql'
+\i 'treballador\\inserts.sql'
+\i 'esport\\inserts.sql'
+\i 'fa\\inserts.sql'
+\i 'nomines\\inserts.sql'
+

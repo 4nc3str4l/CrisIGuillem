@@ -1,0 +1,15 @@
+\echo ---------- inserts taula comarca
+
+INSERT INTO comarca VALUES
+('Barcelonès'),
+('Alt Empordà'),
+('Baix Llobregat'),
+('Val d''Aran'),
+('Osona'),
+('Garraf'),
+('Segrià'),
+('Montsià'),
+('Maresme'),
+('Tarragonès');
+
+

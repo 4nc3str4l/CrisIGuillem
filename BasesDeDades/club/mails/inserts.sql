@@ -1,0 +1,27 @@
+\echo ---------- inserts taula mails
+
+INSERT INTO mails VALUES
+('27673812M','carmep@ionos.cat'),
+('27673812M','carmenperalta@gmail.com'),
+('05CK02337','jmgodard@ille.fr'),
+('05CK02337','jean.marie.godard@ille.up.fr'),
+('05CK02337','jmgodard@yahoo.com'),
+('C01X01TN','rrrietto@gamil.com'),
+('19891898A','robertor@dptia.udr.edu'),
+('38223890Y','jparmalat@uab.edu  '),
+('38223890Y','jordiparmalat@gmail.com  '),
+('38223890Y','jordiparmalat@yahoo.com'),
+('Y3439185D','rexstan12@gmail.com'),
+('Y4394950D','hepe@esportespot.cat '),
+('37228901C','sefo@esportespot.cat '),
+('29874567M','leso@esportespot.cat '),
+('05CK02337','jema@esportespot.cat '),
+('C00021549','mibr@esportespot.cat '),
+('36940559Y','mapi@esportespot.cat '),
+('51234329N','mima@esportespot.cat '),
+('45847558W','jogo@esportespot.cat '),
+('48377283A','dago@esportespot.cat '),
+('37866969E','cafe@esportespot.cat '),
+('27827228B','soco@esportespot.cat '),
+('X4534332C','gaco@esportespot.cat '),
+('Y3439185D','bosa@esportespot.cat ');
