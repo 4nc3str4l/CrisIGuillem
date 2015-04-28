@@ -705,8 +705,6 @@ void GLWidget::keyReleaseEvent(QKeyEvent *event)
                 x = -x;
             }
 
-            std::cout << "Angle: " << angle << std::endl;
-
             rotAngle = vec2(x, y);
 
             timer->start(16);
