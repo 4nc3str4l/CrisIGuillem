@@ -12,16 +12,11 @@ public:
     ~ConjuntBoles();
 
     void draw();
-    void aplicaTG(mat4 m);
-    void aplicaTGPoints(mat4 m);
     virtual bool intersects(Objecte* obj, vec4 delta);
 
     Objecte* getBola(int i) {
-        return boles[i];
+        return fills[i];
     }
-
-private:
-    std::vector<Objecte*> boles;
 };
 
 #endif // CONJUNTBOLES_H

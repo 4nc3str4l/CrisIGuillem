@@ -176,8 +176,6 @@ inline void Camera::zoom(float val)
 
 inline void Camera::zoom_i(float val)
 {
-    std::cout << "CAMERA: " << cameraZoom << std::endl;
-
     cameraZoom += val;
     wd.pmin.x -= val / 4.0f;
     wd.pmin.y -= val / 4.0f;
@@ -208,7 +206,7 @@ inline void Camera::pan(float val)
 
 inline void Camera::pan()
 {
-    wd.pmin.x -= cameraPan;
+    wd.pmin.x += cameraPan;
 
     CalculaMatriuProjection();
 }

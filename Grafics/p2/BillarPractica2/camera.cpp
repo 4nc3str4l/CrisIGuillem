@@ -5,6 +5,7 @@
 Camera::Camera(QGLShaderProgram* program)
 {
     cameraZoom = 0;
+    cameraPan = 0;
 
     vs.vrp = vec4(0.0, 0.0, 0.0, 1.0);
     vs.vup = vec4(0.0, 1.0, 0.0, 0.0);

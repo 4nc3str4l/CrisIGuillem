@@ -24,6 +24,7 @@ ConjuntBoles::ConjuntBoles(QGLShaderProgram* program, Objecte* tauler, std::vect
 
     };
 
+    numPoints = 0;
     int k = 1;
     GLfloat z = -100;
 
@@ -56,7 +57,7 @@ ConjuntBoles::ConjuntBoles(QGLShaderProgram* program, Objecte* tauler, std::vect
             bola->calculCapsa3D();
             bola->toGPU(program, textures[i]);
 
-            boles.push_back(bola);
+            fills.push_back(bola);
             x += dist;
         }
 
@@ -71,42 +72,21 @@ ConjuntBoles::ConjuntBoles(QGLShaderProgram* program, Objecte* tauler, std::vect
 
 ConjuntBoles::~ConjuntBoles()
 {
-    for (std::vector<Objecte*>::iterator it = boles.begin(); it != boles.end(); ++it)
-    {
-        delete *it;
-    }
 }
 
 void ConjuntBoles::draw()
 {
-    for (std::vector<Objecte*>::iterator it = boles.begin(); it != boles.end(); ++it)
+    //Dibuxem els fills del objecte.
+    for (std::vector<Objecte*>::iterator it = fills.begin(); it != fills.end(); ++it)
     {
         (*it)->draw();
-    }
-}
-
-
-void ConjuntBoles::aplicaTG(mat4 m)
-{
-    for (std::vector<Objecte*>::iterator it = boles.begin(); it != boles.end(); ++it)
-    {
-        (*it)->aplicaTG(m);
-        (*it)->calculCapsa3D();
-    }
-}
-
-void ConjuntBoles::aplicaTGPoints(mat4 m)
-{
-    for (std::vector<Objecte*>::iterator it = boles.begin(); it != boles.end(); ++it)
-    {
-        (*it)->aplicaTGPoints(m);
     }
 }
 
 bool ConjuntBoles::intersects(Objecte* obj, vec4 delta)
 {
     int i = 0;
-    for (std::vector<Objecte*>::iterator it = boles.begin(); it != boles.end(); ++it)
+    for (std::vector<Objecte*>::iterator it = fills.begin(); it != fills.end(); ++it)
     {
         Bola* bola = (Bola*)*it;
         if(obj->intersects(bola, delta))

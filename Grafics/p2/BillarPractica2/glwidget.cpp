@@ -540,6 +540,7 @@ void GLWidget::cameraTransition(){
             this->camGeneral->setObs(this->auxCamObs);
             this->camGeneral->setVRP(this->auxCamVRP);
             esc->setWindowCamera(camGeneral, tauler->capsa);
+
             this->camActual = this->camFP;
             this->camActual->toGPU(program);
         }

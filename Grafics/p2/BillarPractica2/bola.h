@@ -11,7 +11,7 @@ public:
 
     void triangle(vec3 a, vec3 b, vec3 c);
     void divide_triangle(vec3 a, vec3 b, vec3 c, int n);
-    void generar(int n);
+    void make();
     void setAngle(float angle);
     float getAngle();
 private:

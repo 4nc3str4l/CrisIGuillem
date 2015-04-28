@@ -59,7 +59,7 @@ void Escena::aplicaTG(mat4 m) {
 void Escena::aplicaTGCentrat(mat4 m) {
     for (std::vector<Objecte*>::iterator it = objectes.begin(); it != objectes.end(); ++it)
     {
-        (*it)->aplicaTGCentrat(m);
+        (*it)->aplicaTGCentrat(m, &capsaMinima);
     }
 }
 

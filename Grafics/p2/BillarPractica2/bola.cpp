@@ -1,5 +1,7 @@
 #include "bola.h"
 
+const int num_iter = 5;
+
 //coordenades inicials de la bola
 vec3 v[4] = {
     vec3(0.0, 0.0, 1.0),
@@ -7,6 +9,11 @@ vec3 v[4] = {
     vec3(-0.816497, -0.471405, -0.333333),
     vec3(0.816497, -0.471405, -0.333333)
 };
+
+inline vec2 calculaTexCoord(vec3 p)
+{
+    return vec2(0.5 + std::atan2(p.y, p.x) / (2 * M_PI), 0.5 - std::asin(p.z) / M_PI);
+}
 
 /*Genera un triagle a partir de 3 vectors, en aquest moment aprofitant que iterem per cada un dels
 * punt associem també les textures.
@@ -16,9 +23,9 @@ void Bola::triangle(vec3 a, vec3 b, vec3 c)
     points[k] = vec4(a);
     points[k+1] = vec4(b);
     points[k+2] = vec4(c);
-    textures[k] = vec2(0.5 + std::atan2(a.y,a.x) / (2 * M_PI), 0.5 - std::asin(a.z) / M_PI);
-    textures[k+1] = vec2(0.5 + std::atan2(b.y, b.x) / (2 * M_PI), 0.5 - std::asin(b.z) / M_PI);
-    textures[k+2] = vec2(0.5 + std::atan2(c.y, c.x) / (2 * M_PI), 0.5 - std::asin(c.z) / M_PI);
+    textures[k] = calculaTexCoord(a);
+    textures[k+1] = calculaTexCoord(b);
+    textures[k+2] = calculaTexCoord(c);
     k += 3;
 }
 
@@ -45,16 +52,15 @@ void Bola::divide_triangle(vec3 a, vec3 b, vec3 c, int n)
 /*
  * El mètode que crida al mètode recursiu de generar els subtriangles, aquí és on especifiquem el nombre de iteracions (n)
  * */
-void Bola::generar(int n)
+void Bola::make()
 {
-    divide_triangle(v[0], v[1], v[2], n);
-    divide_triangle(v[3], v[2], v[1], n);
-    divide_triangle(v[0], v[3], v[1], n);
-    divide_triangle(v[0], v[2], v[3], n);
+    divide_triangle(v[0], v[1], v[2], num_iter);
+    divide_triangle(v[3], v[2], v[1], num_iter);
+    divide_triangle(v[0], v[3], v[1], num_iter);
+    divide_triangle(v[0], v[2], v[3], num_iter);
 }
 
-const unsigned int iter = 5;
-const unsigned int len = (int)std::pow(4, iter + 1) * 3;
+const unsigned int len = (int)std::pow(4, num_iter + 1) * 3;
 
 /*
  * Hereda d'objecte, pots pasar-li un color per defecte, es genera amb els codis abans esmetats
@@ -74,8 +80,7 @@ Bola::Bola(vec3 color):
     yRot = 0;
     zRot = 0;
 
-
-    generar(iter);
+    make();
 
     for (unsigned int i = 0; i <  len; ++i) {
         colors[i] = color;
