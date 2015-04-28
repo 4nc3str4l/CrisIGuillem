@@ -20,17 +20,13 @@
      <x>0</x>
      <y>0</y>
      <width>400</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuModels">
     <property name="title">
      <string>Models</string>
     </property>
-    <addaction name="action_Pla_Base"/>
-    <addaction name="action_Bola_Blanca"/>
-    <addaction name="action_15_Boles"/>
-    <addaction name="action_Obre_Fitxer"/>
     <addaction name="action_Sala_de_Billar"/>
     <addaction name="separator"/>
     <addaction name="action_Exit"/>
