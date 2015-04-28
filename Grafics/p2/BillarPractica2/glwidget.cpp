@@ -491,19 +491,9 @@ void GLWidget::cameraTransition(){
         this->auxCamVRP = this->camGeneral->getVRP();
 
         camera_advance = (this->camFP->getObs() - this->camGeneral->getObs()) / 100;
-        std::cout << "Origen (" << this->camGeneral->getObs().x << "," << this->camGeneral->getObs().y <<","
-                << this->camGeneral->getObs().z << "," << this->camGeneral->getObs().w << ")" << std::endl;
-        std::cout << "Desti (" << this->camFP->getObs().x << "," << this->camFP->getObs().y <<","
-                << this->camFP->getObs().z << "," << this->camFP->getObs().w << ")" << std::endl;
-        std::cout << "Vector que s'anira sumant ' (" << camera_advance.x << "," << camera_advance.y <<","
-                << camera_advance.z << "," << camera_advance.w << ")" << std::endl;
-
     }
-
     else if(this->camera_moves > 0 && this->camera_moves < 100){
         this->camActual->setObs(this->camActual->getObs() + camera_advance);
-        std::cout << "Observador (" << this->camActual->getObs().x << "," << this->camActual->getObs().y <<","
-                << this->camActual->getObs().z << "," << this->camActual->getObs().w << ")" << std::endl;
         this->camActual->setD(this->camFP->getD());
         this->camActual->CalculaMatriuModelView();
         this->camActual->CalculaMatriuProjection();
@@ -557,8 +547,8 @@ void GLWidget::cameraTransition(){
         this->camera_moves = -1;
         this->timer_camera->stop();
     }
+
     this->updateGL();
-    std::cout << "moving between cameras" << std::endl;
 }
 
 void GLWidget::mouBola()
@@ -687,7 +677,36 @@ void GLWidget::keyReleaseEvent(QKeyEvent *event)
 
             bola->speed = vec3(baseSpeed * sin(bola->getAngle() * PI / 180.0f),0, baseSpeed * cos(bola->getAngle() * PI / 180.0f));
             deltaSpeed = vec3(delta * sin(bola->getAngle() * PI / 180.0f),0, delta * cos(bola->getAngle() * PI / 180.0f));
-            rotAngle = vec2(cos(bola->getAngle() * PI / 180.0f), sin(bola->getAngle() * PI / 180.0f));
+
+            float angle = bola->getAngle() - 90.0f;
+
+            if (angle < 0)
+            {
+                angle = 360 + angle;
+            }
+
+            float x = -sin(angle * PI / 180.0f);
+            float y = cos(angle * PI / 180.0f);
+
+            if (angle >= 180 && angle < 270)
+            {}
+            else if (angle >= 270 && angle < 360)
+            {
+                y = -y;
+            }
+            else if (angle >= 0 && angle < 90)
+            {
+                x = -x;
+                y = -y;
+            }
+            else if (angle >= 90 && angle < 180)
+            {
+                x = -x;
+            }
+
+            std::cout << "Angle: " << angle << std::endl;
+
+            rotAngle = vec2(x, y);
 
             timer->start(16);
         }
@@ -900,9 +919,6 @@ void GLWidget::newSalaBillar()
             esc->setWindowCamera(camFP, bola->capsa);
             camFP->toGPU(program);
         }
-
-        cout << tauler->capsa.pmin.x <<  ", " <<tauler->capsa.pmin.y << "," <<tauler->capsa.pmin.z << endl;
-        cout << tauler->capsa.pmax.x <<  ", " <<tauler->capsa.pmax.y << "," <<tauler->capsa.pmax.z << endl;
     }
 
     if (!tauler || !plaBase) {

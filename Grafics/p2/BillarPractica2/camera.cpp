@@ -25,7 +25,6 @@ Camera::Camera(QGLShaderProgram* program)
     //Asign the model view variable of the shader
     model_view = program->uniformLocation("model_view");
     projection = program->uniformLocation("projection");
-    std::cout << model_view << " " << projection <<  std::endl;
 }
 
 void Camera::ini(int a, int h, Capsa3D capsaMinima)

@@ -99,6 +99,7 @@ void Escena::initCamera(bool camGeneral){
 void Escena::setAnglesCamera(Camera* camera,float angX, float angY, float angZ)
 {
     camera->setObs(camera->CalculObs(camera->getVRP(), camera->getD(), angX, angY));
+    camera->setVUP(camera->CalculVup(angX, angY, angZ));
     camera->CalculaMatriuModelView();
 }
 
