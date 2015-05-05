@@ -53,6 +53,7 @@ protected:
     int numPoints;
     int _textureID;
     point4 *points;
+    vec3 *normals;
     color4 *colors;
     vec2* textures;
 

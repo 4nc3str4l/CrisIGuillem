@@ -10,6 +10,7 @@ Objecte::Objecte(int npoints, QObject *parent) : numPoints(npoints) ,
     QObject(parent)
 {
     points = new point4[npoints];
+    normals = new vec3[npoints];
     colors = new color4[npoints];
     textures = new vec2[npoints];
 }
@@ -23,6 +24,7 @@ Objecte::Objecte(int npoints, QObject *parent) : numPoints(npoints) ,
 Objecte::Objecte(int npoints, QString n) : numPoints(npoints)
 {
     points = new point4[npoints];
+    normals = new vec3[npoints];
     colors = new color4[npoints];
     textures = new vec2[npoints];
 
@@ -44,6 +46,7 @@ Objecte::Objecte(QObject *parent):
     numPoints(0)
 {
     points = NULL;
+    normals = NULL;
     colors = NULL;
     textures = NULL;
 }
@@ -161,22 +164,25 @@ void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
 
     //reservem espai per els punts, colors i textures.
-    glBufferData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints, NULL, GL_STATIC_DRAW );
+    glBufferData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints + sizeof(vec3) * numPoints, NULL, GL_STATIC_DRAW );
 
     //Les enviem a la gpu.
     glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4) * numPoints, &points[0] );
     glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints, sizeof(color4) * numPoints, &colors[0] );
     glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints, sizeof(vec2) * numPoints, textures );
+    glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints, sizeof(vec3) * numPoints, normals );
 
     // Per a conservar el buffer
     int vertexLocation = program->attributeLocation("vPosition");
     int colorLocation = program->attributeLocation("vColor");
     int coordTextureLocation = program->attributeLocation("vCoordTexture");
+    int normalsLocation = program->attributeLocation("vNormals");
 
     program->enableAttributeArray(vertexLocation);
     program->enableAttributeArray(colorLocation);
     //Informem al shader de que existeix una array que conte les coordenades de la textura
     program->enableAttributeArray(coordTextureLocation);
+    program->enableAttributeArray(normalsLocation);
 
     glEnable( GL_DEPTH_TEST );
     glEnable(GL_TEXTURE_2D);
@@ -191,6 +197,7 @@ void Objecte::draw()
     program->setAttributeBuffer("vPosition", GL_FLOAT, 0, 4);
     program->setAttributeBuffer("vColor", GL_FLOAT, sizeof(point4) * numPoints, 4);
     program->setAttributeBuffer("vCoordTexture", GL_FLOAT, sizeof(vec4) * numPoints + sizeof(vec4) * numPoints, 2);
+    program->setAttributeBuffer("vNormals", GL_FLOAT, sizeof(vec4) * numPoints + sizeof(vec4) * numPoints + sizeof(vec2) * numPoints, 3);
 
     //SI hi ha textura li indiquem que utilitzi la textura, sino la desactivem.
     if (_texture)
@@ -236,6 +243,19 @@ void Objecte::make()
         for(unsigned int j=0; j<cares[i].idxVertices.size(); j++)
         {
             points[index] = vertexs[cares[i].idxVertices[j]];
+
+            if (index > 0 && index % 3 == 0)
+            {
+                vec4 U_ = points[index - 1] - points[index - 2];
+                vec4 V_ = points[index] - points[index - 2];
+
+                vec3 U = vec3(U_.x, U_.y, U_.z);
+                vec3 V = vec3(V_.x, V_.y, V_.z);
+
+                normals[index] = cross(U, V);
+                normals[index - 1] = normals[index];
+                normals[index - 2] = normals[index];
+            }
 
             if (cares[i].idxColors.size() > j) {
                 colors[index] = vertexColors[cares[i].idxColors[j]];

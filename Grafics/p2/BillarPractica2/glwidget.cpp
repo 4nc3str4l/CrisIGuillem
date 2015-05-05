@@ -92,6 +92,7 @@ GLWidget::InitShader(const char* vShaderFile, const char* fShaderFile)
 
     program->bindAttributeLocation("vPosition", PROGRAM_VERTEX_ATTRIBUTE);
     program->bindAttributeLocation("vColor", PROGRAM_COLOR_ATTRIBUTE);
+    program->bindAttributeLocation("vNormals", 3);
 
     // muntatge del shader en el pipeline gràfic per a ser usat
     program->link();
@@ -198,6 +199,9 @@ void GLWidget::initializeGL()
 
     //Construim l'escena utilitzant el tamanys del common.
     esc = new Escena(Common::sceneDimensions(), program);
+    esc->setLlumAmbient(vec3(0.5, 0.5, 0.5));
+    esc->setAmbientToGPU(program);
+
     //Obtenim la camera general
     this->camGeneral = esc->getCamaraGeneral();
     this->camFP = esc->getCamaraPrimeraPersona();

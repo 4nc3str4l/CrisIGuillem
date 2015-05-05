@@ -1,5 +1,6 @@
 #include "escena.h"
 #include "camera.h"
+#include "llum.h"
 
 /*
  * Permet pasar el tamany de l'ecena com a parametre,
@@ -15,6 +16,14 @@ Escena::Escena(vec3 dimensions, QGLShaderProgram* program)
     //Instanciate a canmera and modify it's atributes.
     camGeneral = new Camera(program);
     camFP = new Camera(program);
+
+    // Crear llum
+    pointLight = new Llum(program);
+    // Set ewewr
+    pointLight->toGPU(program);
+
+    // Carregar localitzacio
+    ambient = program->uniformLocation("llumAmbient");
 }
 
 
@@ -87,6 +96,11 @@ Objecte* Escena::getObjecte(TIPUS_OBJECTE tipus)
     }
 
     return NULL;
+}
+
+void Escena::setAmbientToGPU(QGLShaderProgram* program)
+{
+    glUniform3fv(ambient, 1, llumAmbient);
 }
 
 void Escena::initCamera(bool camGeneral){

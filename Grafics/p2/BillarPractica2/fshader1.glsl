@@ -6,15 +6,12 @@
 #define OUT out
 #endif
 
-IN vec4 color;
+IN vec4 intensitat;
 IN vec2 v_texcoord;
 
 uniform sampler2D texMap;
 
 void main()
 {
-   //gl_FragColor = 0.5*color + 0.8*texture2D(texMap, v_texcoord);
-   gl_FragColor = texture2D(texMap, v_texcoord);
-
+    gl_FragColor = intensitat * texture2D(texMap, v_texcoord);
 }
-

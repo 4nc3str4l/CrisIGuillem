@@ -23,9 +23,18 @@ void Bola::triangle(vec3 a, vec3 b, vec3 c)
     points[k] = vec4(a);
     points[k+1] = vec4(b);
     points[k+2] = vec4(c);
+
+    vec3 U = b - a;
+    vec3 V = c - a;
+
+    normals[k] = cross(U, V);
+    normals[k+1] = normals[k];
+    normals[k+2] = normals[k];
+
     textures[k] = calculaTexCoord(a);
     textures[k+1] = calculaTexCoord(b);
     textures[k+2] = calculaTexCoord(c);
+
     k += 3;
 }
 

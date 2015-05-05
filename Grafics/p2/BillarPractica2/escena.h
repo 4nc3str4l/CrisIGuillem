@@ -16,8 +16,9 @@
 #include <taulabillar.h>
 #include <plabase.h>
 
-//forward declaration of camera
+// Forward declarations
 class Camera;
+class Llum;
 
 using namespace std;
 
@@ -38,6 +39,13 @@ public:
 
     Camera* getCamaraGeneral();
     Camera* getCamaraPrimeraPersona();
+
+    void setAmbientToGPU(QGLShaderProgram* program);
+
+    void setLlumAmbient(vec3 intensitat)
+    {
+        llumAmbient = intensitat;
+    }
 
     inline Capsa3D getCapsaMinima(){
         return capsaMinima;
@@ -63,13 +71,16 @@ public:
     void setDCamera(Camera* camera, float d);
 
 private:
-
     std::vector<Objecte*> objectes;
     // Capsa contenedora de l'escena
     Capsa3D capsaMinima;
     mat4 scale;
     Camera* camGeneral;
     Camera* camFP;
+
+    GLuint ambient;
+    vec3 llumAmbient;
+    Llum* pointLight;
 
     int width;
     int height;
