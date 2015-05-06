@@ -178,6 +178,10 @@ void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
     int coordTextureLocation = program->attributeLocation("vCoordTexture");
     int normalsLocation = program->attributeLocation("vNormals");
 
+    std::cout << getTipus() << std::endl;
+    vec3 nn = normalize(normals[0]);
+    std::cout << nn.x << " " << nn.y << " " << nn.z << std::endl;
+
     program->enableAttributeArray(vertexLocation);
     program->enableAttributeArray(colorLocation);
     //Informem al shader de que existeix una array que conte les coordenades de la textura
@@ -246,13 +250,13 @@ void Objecte::make()
 
             if (index > 0 && index % 3 == 0)
             {
-                vec4 U_ = points[index - 1] - points[index - 2];
-                vec4 V_ = points[index] - points[index - 2];
+                vec4 U_ = points[index - 1] - points[index];
+                vec4 V_ = points[index - 2] - points[index];
 
                 vec3 U = vec3(U_.x, U_.y, U_.z);
                 vec3 V = vec3(V_.x, V_.y, V_.z);
 
-                normals[index] = cross(U, V);
+                normals[index] = normalize(cross(V, U));
                 normals[index - 1] = normals[index];
                 normals[index - 2] = normals[index];
             }

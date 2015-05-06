@@ -199,7 +199,7 @@ void GLWidget::initializeGL()
 
     //Construim l'escena utilitzant el tamanys del common.
     esc = new Escena(Common::sceneDimensions(), program);
-    esc->setLlumAmbient(vec3(0.5, 0.5, 0.5));
+    esc->setLlumAmbient(vec3(0.2, 0.2, 0.2));
     esc->setAmbientToGPU(program);
 
     //Obtenim la camera general

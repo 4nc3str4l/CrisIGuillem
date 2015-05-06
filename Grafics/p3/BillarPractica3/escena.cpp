@@ -19,17 +19,18 @@ Escena::Escena(vec3 dimensions, QGLShaderProgram* program)
 
     // Crear llum
     pointLight = new Llum(program);
-    pointLight->setCoefA(1);
-    pointLight->setCoefB(0);
-    pointLight->setCoefC(0);
-    pointLight->setDifusa(vec3(0.1, 0.1, 0.1));
-    pointLight->setPosicioLlum(vec4(1, 4, 0,1));
+    pointLight->setCoefA(0.1);
+    pointLight->setCoefB(0.1);
+    pointLight->setCoefC(0.1);
+    pointLight->setDifusa(vec3(0.8, 0.8, 0.8));
+    pointLight->setPosicioLlum(vec4(-2,4,0,1));
 
     // Set ewewr
     pointLight->toGPU(program);
 
     // Carregar localitzacio
     ambient = program->uniformLocation("llumAmbient");
+    std::cout << "AMBIENT: " << ambient << std::endl;
 }
 
 

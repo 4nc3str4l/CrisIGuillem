@@ -5,10 +5,16 @@
 Llum::Llum(QGLShaderProgram* program)
 {
     gl_ldLlum.posicio = program->uniformLocation("light.LightPosition");
-    gl_ldLlum.ld = program->uniformLocation("light.ld");
-    gl_ldLlum.a =  program->uniformLocation("light.a");
-    gl_ldLlum.b =  program->uniformLocation("light.b");
-    gl_ldLlum.c =  program->uniformLocation("light.c");
+    gl_ldLlum.ld = program->uniformLocation("light.Ld");
+    gl_ldLlum.a =  program->uniformLocation("light.coef_a");
+    gl_ldLlum.b =  program->uniformLocation("light.coef_b");
+    gl_ldLlum.c =  program->uniformLocation("light.coef_c");
+
+    std::cout << gl_ldLlum.posicio << " "
+              << gl_ldLlum.ld << " "
+              << gl_ldLlum.a << " "
+              << gl_ldLlum.b << " "
+              << gl_ldLlum.c << std::endl;
 }
 
 Llum::~Llum()
