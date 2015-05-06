@@ -468,6 +468,27 @@ vec4 abs(const vec4& a)
     return vec4(std::fabs(a.x), std::fabs(a.y), std::fabs(a.z), std::fabs(a.w));
 }
 
+inline
+vec3 normalAt(const vec4& a, const vec4& b, const vec4& c)
+{
+    vec4 U_ = b - a;
+    vec4 V_ = c - a;
+
+    vec3 U = vec3(U_.x, U_.y, U_.z);
+    vec3 V = vec3(V_.x, V_.y, V_.z);
+
+    return normalize(cross(U, V));
+}
+
+inline
+vec3 normalAt(const vec3& a, const vec3& b, const vec3& c)
+{
+    vec3 U = b - a;
+    vec3 V = c - a;
+
+    return normalize(cross(U, V));
+}
+
 //----------------------------------------------------------------------------
 
 }  // namespace Angel

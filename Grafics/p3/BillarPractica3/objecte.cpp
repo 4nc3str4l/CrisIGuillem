@@ -117,6 +117,7 @@ void Objecte::aplicaTG(mat4 m)
     // Actualitzacio del vertex array per a preparar per pintar
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4) * numPoints, &points[0] );
+    glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints, sizeof(vec3) * numPoints, normals );
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -124,6 +125,13 @@ void Objecte::aplicaTGPoints(mat4 m)
 {
     for ( int i = 0; i < numPoints; ++i ) {
         points[i] = m * points[i];
+
+        if (i > 0 && (i + 1) % 3 == 0)
+        {
+            normals[i] = normalAt(points[i - 2], points[i - 1], points[i]);
+            normals[i - 1] = normals[i];
+            normals[i - 2] = normals[i];
+        }
     }
 }
 
@@ -177,10 +185,6 @@ void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
     int colorLocation = program->attributeLocation("vColor");
     int coordTextureLocation = program->attributeLocation("vCoordTexture");
     int normalsLocation = program->attributeLocation("vNormals");
-
-    std::cout << getTipus() << std::endl;
-    vec3 nn = normalize(normals[0]);
-    std::cout << nn.x << " " << nn.y << " " << nn.z << std::endl;
 
     program->enableAttributeArray(vertexLocation);
     program->enableAttributeArray(colorLocation);
@@ -248,15 +252,9 @@ void Objecte::make()
         {
             points[index] = vertexs[cares[i].idxVertices[j]];
 
-            if (index > 0 && index % 3 == 0)
+            if (index > 0 && (index + 1) % 3 == 0)
             {
-                vec4 U_ = points[index - 1] - points[index];
-                vec4 V_ = points[index - 2] - points[index];
-
-                vec3 U = vec3(U_.x, U_.y, U_.z);
-                vec3 V = vec3(V_.x, V_.y, V_.z);
-
-                normals[index] = normalize(cross(V, U));
+                normals[index] = normalAt(points[index - 2], points[index - 1], points[index]);
                 normals[index - 1] = normals[index];
                 normals[index - 2] = normals[index];
             }

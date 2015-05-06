@@ -24,10 +24,7 @@ void Bola::triangle(vec3 a, vec3 b, vec3 c)
     points[k+1] = vec4(b);
     points[k+2] = vec4(c);
 
-    vec3 U = b - a;
-    vec3 V = c - a;
-
-    normals[k] = normalize(cross(U, V));
+    normals[k] = normalAt(a, b, c);
     normals[k+1] = normals[k];
     normals[k+2] = normals[k];
 
