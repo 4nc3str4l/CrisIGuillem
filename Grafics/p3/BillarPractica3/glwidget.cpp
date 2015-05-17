@@ -301,19 +301,16 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     ConjuntBoles* conjuntBoles = NULL;
     PlaBase* plaBase = NULL;
 
-    if (camActual == camGeneral)
+    if(event->key() == Qt::Key_Plus)
     {
-        if(event->key() == Qt::Key_Plus)
-        {
-            camGeneral->zoom(-1);
-            camGeneral->toGPU(program);
-        }
+        camActual->zoom(-1);
+        camActual->toGPU(program);
+    }
 
-        if(event->key() == Qt::Key_Minus)
-        {
-            camGeneral->zoom(1);
-            camGeneral->toGPU(program);
-        }
+    if(event->key() == Qt::Key_Minus)
+    {
+        camActual->zoom(1);
+        camActual->toGPU(program);
     }
 
     if (event->key() == Qt::Key_B && camActual == camGeneral)
@@ -323,11 +320,11 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
     if (event->key() == Qt::Key_T && camActual == camFP)
     {
-        this->camActual = this->camGeneral;
-        this->camActual->CalculaMatriuModelView();
-        this->camActual->CalculaMatriuProjection();
-        this->camActual->toGPU(program);
-        this->updateGL();
+        camActual = camGeneral;
+        camActual->CalculaMatriuModelView();
+        camActual->CalculaMatriuProjection();
+        camActual->toGPU(program);
+        updateGL();
     }
 
 

@@ -29,17 +29,20 @@ IN vec2 vCoordTexture;
 
 OUT vec4 intensitat;
 OUT vec2 v_texcoord;
-OUT vec4 asd;
 
 void main()
 {
     gl_Position = projection * model_view * vPosition;
+    //gl_Position /= gl_Position.w;
     //color = vColor * vec4(llumAmbient, 1);
 
     float d = distance(vPosition, light.LightPosition);
+    vec4 L = light.LightPosition - vPosition;
 
-
-    intensitat = vec4(llumAmbient + 1.0 / (light.coef_a + light.coef_b * d + light.coef_c * pow(d,2)) * light.Ld * dot(vNormals, light.LightPosition), 1.0);
+    intensitat = vec4(
+        llumAmbient +  // Ambient Global
+        1.0 / (light.coef_a + light.coef_b * d + light.coef_c * pow(d,2)) * light.Ld * dot(vNormals, L.xyz) // Difusa
+    , 1.0);
 
     // Pas de les coordenades de textura al fragment shader
     // El valor del color i les coordenades de textura s'interpolaran automaticament
