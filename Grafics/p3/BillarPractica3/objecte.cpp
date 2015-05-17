@@ -1,4 +1,5 @@
 #include "objecte.h"
+#include "material.h"
 
 /**
  * Creem les arrays per guardar punts, colors i textures
@@ -9,6 +10,8 @@
 Objecte::Objecte(int npoints, QObject *parent) : numPoints(npoints) ,
     QObject(parent)
 {
+    material = NULL;
+
     points = new point4[npoints];
     normals = new vec3[npoints];
     colors = new color4[npoints];
@@ -23,6 +26,8 @@ Objecte::Objecte(int npoints, QObject *parent) : numPoints(npoints) ,
  */
 Objecte::Objecte(int npoints, QString n) : numPoints(npoints)
 {
+    material = NULL;
+
     points = new point4[npoints];
     normals = new vec3[npoints];
     colors = new color4[npoints];
@@ -45,6 +50,8 @@ Objecte::Objecte(int npoints, QString n) : numPoints(npoints)
 Objecte::Objecte(QObject *parent):
     numPoints(0)
 {
+    material = NULL;
+
     points = NULL;
     normals = NULL;
     colors = NULL;
@@ -64,11 +71,21 @@ Objecte::~Objecte()
         delete [] textures;
     }
 
+    if (material)
+    {
+        delete material;
+    }
+
     //LLiberem la memoria de tots els fills del objecte
     for (std::vector<Objecte*>::iterator it = fills.begin(); it != fills.end(); ++it)
     {
         delete *it;
     }
+}
+
+void Objecte::setMaterial(QGLShaderProgram* program, float ka, float kd, float ks, float shinesess)
+{
+    material = new Material(program, ka, kd, ks, shinesess);
 }
 
 /**
@@ -126,12 +143,8 @@ void Objecte::aplicaTGPoints(mat4 m)
     for ( int i = 0; i < numPoints; ++i ) {
         points[i] = m * points[i];
 
-        if (i > 0 && (i + 1) % 3 == 0)
-        {
-            normals[i] = normalAt(points[i - 2], points[i - 1], points[i]);
-            normals[i - 1] = normals[i];
-            normals[i - 2] = normals[i];
-        }
+        vec4 t = m * vec4(normals[i], 0);
+        normals[i] = normalize(vec3(t.x, t.y, t.z));
     }
 }
 
@@ -167,6 +180,11 @@ void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
 
     this->program = program;
     _texture = texture;
+
+    if (material)
+    {
+        material->toGPU(program);
+    }
 
     glGenBuffers( 1, &buffer );
     glBindBuffer( GL_ARRAY_BUFFER, buffer );

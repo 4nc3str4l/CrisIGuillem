@@ -8,7 +8,10 @@
 struct LdLlum
 {
     GLuint posicio;
+
     GLuint ld;
+    GLuint ls;
+    GLuint la;
 
     GLuint a;
     GLuint b;
@@ -17,8 +20,12 @@ struct LdLlum
 
 class Llum
 {
-public:
+    // Evitar que la classe sigui instanciada (cal fer-ho a traves
+    // de les subclasses Puntual, Direccional o Spotlight)
+protected:
     Llum(QGLShaderProgram* program);
+
+public:
     ~Llum();
 
     void toGPU(QGLShaderProgram* program);
@@ -31,25 +38,30 @@ public:
         this->difusa = difusa;
     }
 
-    inline void setCoefA(float a){
+    inline void setEspecular(vec3 especular){
+        this->especular = especular;
+    }
+
+    inline void setAmbient(vec3 ambient){
+        this->ambient = ambient;
+    }
+
+    inline void setCoeficients(float a, float b, float c) {
         this->coefA = a;
-    }
-
-    inline void setCoefB(float b){
         this->coefB = b;
-    }
-
-    inline void setCoefC(float c){
         this->coefC = c;
     }
-
 
 
 private:
     LdLlum gl_ldLlum;
 
     vec4 posicioLlum;
+
     vec3 difusa;
+    vec3 especular;
+    vec3 ambient;
+
     float coefA;
     float coefB;
     float coefC;

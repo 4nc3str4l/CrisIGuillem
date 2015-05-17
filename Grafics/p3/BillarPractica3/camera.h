@@ -163,6 +163,7 @@ private:
     mat4  proj;  // Matriu projection de la CPU
     GLuint  model_view;  // model-view matrix uniform shader variable (GPU)
     GLuint  projection;  // projection matrix uniform shader variable (GPU)
+    GLuint cameraGPU;
 };
 
 

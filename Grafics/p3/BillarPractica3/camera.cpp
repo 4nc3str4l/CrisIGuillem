@@ -26,6 +26,7 @@ Camera::Camera(QGLShaderProgram* program)
     //Asign the model view variable of the shader
     model_view = program->uniformLocation("model_view");
     projection = program->uniformLocation("projection");
+    cameraGPU = program->uniformLocation("camera");
 }
 
 void Camera::ini(int a, int h, Capsa3D capsaMinima)
@@ -49,6 +50,8 @@ void Camera::toGPU(QGLShaderProgram *program)
 {
     setModelViewToGPU(program, modView);
     setProjectionToGPU(program, proj);
+
+    glUniform4fv(cameraGPU, 1, vs.obs);
 }
 
 

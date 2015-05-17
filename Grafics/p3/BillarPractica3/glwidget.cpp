@@ -762,6 +762,8 @@ void GLWidget::newPlaBase()
 {
     //Instanciem un objecte pla blase
     Objecte* plaBase = new PlaBase();
+    //plaBase->setMaterial(program, 0.4f, 0.6f, 0.0f, 0.0f);
+    plaBase->setMaterial(program, 0.0f, 0.0f, 0.0f, 0.0f);
 
     //Enviem l'objecte a la gpu amb la seva textura.
     plaBase->toGPU(program, *(textures.end() - 1));
@@ -795,6 +797,7 @@ void GLWidget::newObj(QString fichero)
     TaulaBillar *obj;
 
     obj = new TaulaBillar(fichero);
+    obj->setMaterial(program, 0.2, 0.6, 0.2, 1);
     newObjecte(obj);
 }
 
@@ -802,6 +805,7 @@ void GLWidget::newBola()
 {
     //Instanciem una bola de color blanc
     Objecte* bola = new Bola(vec3(1,1,1));
+    bola->setMaterial(program, 0.1, 0.5, 0.4, 1);
     bola->setTipus(BOLA_BLANCA);
 
     //Afegim la textura adient a la bola (eviant-la a la gpu amb el seu shader)

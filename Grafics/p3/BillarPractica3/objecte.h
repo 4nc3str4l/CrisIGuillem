@@ -12,10 +12,17 @@
 #include <QGLShaderProgram>
 #include <QOpenGLTexture>
 
+
 typedef Common::vec4  color4;
 typedef Common::vec4  point4;
 
 using namespace std;
+
+
+
+// Forward declaration
+class Material;
+
 
 enum TIPUS_OBJECTE
 {
@@ -60,6 +67,9 @@ protected:
     // Tipus d'objecte
     TIPUS_OBJECTE _tipus;
 
+    // Material
+    Material* material;
+
     // Llista de fills
     std::vector<Objecte*> fills;
 
@@ -97,6 +107,9 @@ public:
     void aplicaTGCentrat(mat4 m, Capsa3D* capsa = NULL);
 
     virtual bool intersects(Objecte* obj, vec4 delta);
+
+    // Material
+    void setMaterial(QGLShaderProgram* program, float ka, float kd, float ks, float shinesess);
 
     // Tipus
     TIPUS_OBJECTE getTipus() {

@@ -1,6 +1,6 @@
 #include "escena.h"
 #include "camera.h"
-#include "llum.h"
+#include "puntual.h"
 
 /*
  * Permet pasar el tamany de l'ecena com a parametre,
@@ -18,14 +18,16 @@ Escena::Escena(vec3 dimensions, QGLShaderProgram* program)
     camFP = new Camera(program);
 
     // Crear llum
-    pointLight = new Llum(program);
-    pointLight->setCoefA(0.1);
-    pointLight->setCoefB(0.1);
-    pointLight->setCoefC(0.1);
-    pointLight->setDifusa(vec3(0.8, 0.8, 0.8));
-    pointLight->setPosicioLlum(vec4(-2,4,0,1));
+    pointLight = new Puntual(program);
+    pointLight->setCoeficients(0.1, 0.1, 0.1);
 
-    // Set ewewr
+    pointLight->setDifusa(vec3(0.6, 0.6, 0.6));
+    pointLight->setEspecular(vec3(0.2, 0.2, 0.2));
+    pointLight->setAmbient(vec3(0.2, 0.2, 0.2));
+
+    pointLight->setPosicioLlum(vec4(0,0,0,1));
+
+    // Send to GPU
     pointLight->toGPU(program);
 
     // Carregar localitzacio
