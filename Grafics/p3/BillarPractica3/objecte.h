@@ -61,6 +61,7 @@ protected:
     int _textureID;
     point4 *points;
     vec3 *normals;
+    vec3 *gouraud;
     color4 *colors;
     vec2* textures;
 

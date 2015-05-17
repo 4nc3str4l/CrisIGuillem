@@ -14,6 +14,7 @@ Objecte::Objecte(int npoints, QObject *parent) : numPoints(npoints) ,
 
     points = new point4[npoints];
     normals = new vec3[npoints];
+    gouraud = new vec3[npoints];
     colors = new color4[npoints];
     textures = new vec2[npoints];
 }
@@ -30,6 +31,7 @@ Objecte::Objecte(int npoints, QString n) : numPoints(npoints)
 
     points = new point4[npoints];
     normals = new vec3[npoints];
+    gouraud = new vec3[npoints];
     colors = new color4[npoints];
     textures = new vec2[npoints];
 
@@ -54,6 +56,7 @@ Objecte::Objecte(QObject *parent):
 
     points = NULL;
     normals = NULL;
+    gouraud = NULL;
     colors = NULL;
     textures = NULL;
 }
@@ -67,6 +70,8 @@ Objecte::~Objecte()
     //Si tenim memoria allotjada la lliberem
     if(points){
         delete [] points;
+        delete [] normals;
+        delete [] gouraud;
         delete [] colors;
         delete [] textures;
     }
@@ -134,7 +139,7 @@ void Objecte::aplicaTG(mat4 m)
     // Actualitzacio del vertex array per a preparar per pintar
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4) * numPoints, &points[0] );
-    glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints, sizeof(vec3) * numPoints, normals );
+    glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints, sizeof(vec3) * numPoints, gouraud );
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -143,8 +148,8 @@ void Objecte::aplicaTGPoints(mat4 m)
     for ( int i = 0; i < numPoints; ++i ) {
         points[i] = m * points[i];
 
-        vec4 t = m * vec4(normals[i], 0);
-        normals[i] = normalize(vec3(t.x, t.y, t.z));
+        vec4 t = m * vec4(gouraud[i], 0);
+        gouraud[i] = normalize(vec3(t.x, t.y, t.z));
     }
 }
 
@@ -291,7 +296,8 @@ void Objecte::make()
         }
     }
 
-    // S'ha de dimensionar uniformement l'objecte a la capsa de l'escena i s'ha posicionar en el lloc corresponent
+    // TODO: Fer servir calcul i no tal qual
+    memcpy(gouraud, normals, index * sizeof(vec3));
 }
 
 /**
