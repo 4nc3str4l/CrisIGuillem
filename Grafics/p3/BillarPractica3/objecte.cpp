@@ -185,6 +185,7 @@ void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
 
     this->program = program;
     _texture = texture;
+    program->bind();
 
     if (material)
     {
@@ -223,6 +224,8 @@ void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
 // Pintat en la GPU.
 void Objecte::draw()
 {
+    program->bind();
+
     //Indiquem la posicio del objecte a la GPU
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     program->setAttributeBuffer("vPosition", GL_FLOAT, 0, 4);
