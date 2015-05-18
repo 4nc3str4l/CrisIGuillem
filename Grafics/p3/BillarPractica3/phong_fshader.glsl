@@ -56,22 +56,28 @@ uniform bool only_color;
 
 void main()
 {
-    float d = distance(position, light.LightPosition);
-    float atenuacio = light.coef_a + light.coef_b * d + light.coef_c * pow(d,2);
-
-    vec4 L = light.LightPosition - position;
-    vec4 V = camera - position;
-    vec4 H = normalize(normalize(L) + normalize(V));
-
     vec3 normal = normalize(normals);
+
+    vec3 sumatori = vec3(0, 0, 0);
+    for (int i = 0; i < 2; ++i)
+    {
+        float d = distance(position, puntual[i].LightPosition);
+        float atenuacio = puntual[i].coef_a + puntual[i].coef_b * d + puntual[i].coef_c * pow(d,2);
+
+        vec4 L = puntual[i].LightPosition - position;
+        vec4 V = camera - position;
+        vec4 H = normalize(normalize(L) + normalize(V));
+
+        sumatori += (1.0 / atenuacio) * (
+            material[matID].kd * puntual[i].Ld * max(dot(normal, L.xyz), 0) + // Difusa
+            material[matID].ks * puntual[i].Ls * pow(max(dot(normal, H.xyz), 0), material[matID].shineness * 128) + // Especular
+            material[matID].ka * puntual[i].La // Ambient
+        );
+    }
 
     vec4 intensitat = vec4(
             material[matID].ka * llumAmbient +  // Ambient Global
-            (1.0 / atenuacio) * (
-                material[matID].kd * light.Ld * max(dot(normal, L.xyz), 0) + // Difusa
-                material[matID].ks * light.Ls * pow(max(dot(normal, H.xyz), 0), material[matID].shineness * 128) + // Especular
-                material[matID].ka * light.La // Ambient
-            )
+            sumatori // Sumatori de llums
         , 1.0);
 
     if (only_color)

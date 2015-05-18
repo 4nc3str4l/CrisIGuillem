@@ -111,7 +111,7 @@ QGLShaderProgram* GLWidget::InitShader(const char* vShaderFile, const char* fSha
 void GLWidget::initShadersGPU()
 {
     // Carrega dels shaders i posa a punt per utilitzar els programes carregats a la GPU
-    //programs[Common::PHONG] = InitShader( "://phong_vshader.glsl", "://phong_fshader.glsl" );
+    programs[Common::PHONG] = InitShader( "://phong_vshader.glsl", "://phong_fshader.glsl" );
     programs[Common::TOON] = InitShader( "://toon_vshader.glsl", "://toon_fshader.glsl" );
 
     programs[Common::FLAT] = InitShader( "://vshader1.glsl", "://fshader1.glsl" );
@@ -814,7 +814,7 @@ void GLWidget::newPlaBase()
 {
     //Instanciem un objecte pla blase
     Objecte* plaBase = new PlaBase();
-    plaBase->setMaterial(programs[Common::getShadingMode()], 18, vec3(0.0f, 0.05f, 0.0f), vec3(0.4, 0.5, 0.4), vec3(0.04f, 0.7f, 0.04f), 0.078125f);
+    plaBase->setMaterial(programs[Common::getShadingMode()], 18, vec3(0.0f, 0.05f, 0.0f), vec3(0.4, 0.5, 0.4), vec3(0.04f, 0.04f, 0.04f), 0.078125f);
 
     //Enviem l'objecte a la gpu amb la seva textura.
     plaBase->toGPU(programs[Common::getShadingMode()], *(textures.end() - 1));

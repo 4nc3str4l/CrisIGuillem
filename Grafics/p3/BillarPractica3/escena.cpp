@@ -18,17 +18,22 @@ Escena::Escena(vec3 dimensions, QGLShaderProgram* program)
     camFP = new Camera(program);
 
     // Crear llum
-    pointLight = new Puntual(program, 0);
-    pointLight->setCoeficients(0.1, 0.1, 0.1);
+    for (int i = 0; i < 2; ++i)
+    {
+        Puntual* pointLight = new Puntual(program, i);
+        pointLight->setCoeficients(0.1, 0.1, 0.1);
 
-    pointLight->setDifusa(vec3(1.0, 1.0, 1.0));
-    pointLight->setEspecular(vec3(1.0, 1.0, 1.0));
-    pointLight->setAmbient(vec3(1.0, 1.0, 1.0));
+        pointLight->setDifusa(vec3(1.0, 1.0, 1.0));
+        pointLight->setEspecular(vec3(1.0, 1.0, 1.0));
+        pointLight->setAmbient(vec3(1.0, 1.0, 1.0));
 
-    pointLight->setPosicioLlum(vec4(0,0,0,1));
+        pointLight->setPosicioLlum(vec4(i*4, 0, 0, 1));
 
-    // Send to GPU
-    pointLight->toGPU(program);
+        // Send to GPU
+        pointLight->toGPU(program);
+
+        llums.push_back(pointLight);
+    }
 
     // Carregar localitzacio
     ambient = program->uniformLocation("llumAmbient");
@@ -61,7 +66,11 @@ void Escena::CapsaMinCont3DEscena()
 void Escena::toGPU(QGLShaderProgram* program)
 {
     setAmbientToGPU(program);
-    pointLight->toGPU(program);
+
+    for (std::vector<Llum*>::iterator it = llums.begin(); it != llums.end(); ++it)
+    {
+        (*it)->toGPU(program);
+    }
 
     for (std::vector<Objecte*>::iterator it = objectes.begin(); it != objectes.end(); ++it)
     {

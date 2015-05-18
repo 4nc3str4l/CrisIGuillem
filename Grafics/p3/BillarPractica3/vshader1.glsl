@@ -64,7 +64,7 @@ void main()
     //color = vColor * vec4(llumAmbient, 1);
 
     vec3 sumatori = vec3(0, 0, 0);
-    for (int i = 0; i < 1; ++i)
+    for (int i = 0; i < 2; ++i)
     {
         float d = distance(vPosition, puntual[i].LightPosition);
         float atenuacio = puntual[i].coef_a + puntual[i].coef_b * d + puntual[i].coef_c * pow(d,2);

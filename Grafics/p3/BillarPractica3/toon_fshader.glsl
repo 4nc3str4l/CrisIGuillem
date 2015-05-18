@@ -12,6 +12,8 @@
 struct tipusLlum
 {
     vec4 LightPosition;
+    vec4 LighDirection;
+    float angle;
 
     vec3 Ld;
     vec3 Ls;
@@ -39,7 +41,10 @@ IN vec2 v_texcoord;
 flat IN int matID;
 
 uniform vec3 llumAmbient;
-uniform tipusLlum light;
+
+uniform tipusLlum puntual[2];
+uniform tipusLlum direccional[2];
+uniform tipusLlum spot[2];
 
 uniform tipusMaterial material[19];
 
@@ -50,15 +55,17 @@ uniform bool only_color;
 
 void main()
 {
-    float d = distance(position, light.LightPosition);
-    float atenuacio = light.coef_a + light.coef_b * d + light.coef_c * pow(d,2);
+    float intensity = 0;
+    for (int i = 0; i < 2; ++i)
+    {
+        float d = distance(position, puntual[i].LightPosition);
+        float atenuacio = puntual[i].coef_a + puntual[i].coef_b * d + puntual[i].coef_c * pow(d,2);
 
-    vec4 L = light.LightPosition - position;
-    vec4 V = camera - position;
-    vec4 H = normalize(L + V);
+        vec4 L = puntual[i].LightPosition - position;
 
+        intensity += (1.0 / atenuacio) * dot(L.xyz, normals);
+    }
 
-    float intensity = (1.0 / atenuacio) * dot(L.xyz, normals);
     vec4 intensitat;
 
     if (intensity > 0.95)

@@ -82,7 +82,8 @@ private:
 
     GLuint ambient;
     vec3 llumAmbient;
-    Llum* pointLight;
+
+    std::vector<Llum*> llums;
 
     int width;
     int height;

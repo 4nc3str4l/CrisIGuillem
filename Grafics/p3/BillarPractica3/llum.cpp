@@ -21,13 +21,13 @@ void Llum::toGPU(QGLShaderProgram* program)
 {
     if (!locationsCached[Common::getShadingMode()])
     {
-        gl_ldLlum[Common::getShadingMode()].posicio = program->uniformLocation(QString("%1[%2].LightPosition").arg(tipus, id));
-        gl_ldLlum[Common::getShadingMode()].ld = program->uniformLocation(QString("%1[%2].Ld").arg(tipus, id));
-        gl_ldLlum[Common::getShadingMode()].ls = program->uniformLocation(QString("%1[%2].Ls").arg(tipus, id));
-        gl_ldLlum[Common::getShadingMode()].la = program->uniformLocation(QString("%1[%2].La").arg(tipus, id));
-        gl_ldLlum[Common::getShadingMode()].a =  program->uniformLocation(QString("%1[%2].coef_a").arg(tipus, id));
-        gl_ldLlum[Common::getShadingMode()].b =  program->uniformLocation(QString("%1[%2].coef_b").arg(tipus, id));
-        gl_ldLlum[Common::getShadingMode()].c =  program->uniformLocation(QString("%1[%2].coef_c").arg(tipus, id));
+        gl_ldLlum[Common::getShadingMode()].posicio = program->uniformLocation(QString("%1[%2].LightPosition").arg(tipus).arg(id));
+        gl_ldLlum[Common::getShadingMode()].ld = program->uniformLocation(QString("%1[%2].Ld").arg(tipus).arg(id));
+        gl_ldLlum[Common::getShadingMode()].ls = program->uniformLocation(QString("%1[%2].Ls").arg(tipus).arg(id));
+        gl_ldLlum[Common::getShadingMode()].la = program->uniformLocation(QString("%1[%2].La").arg(tipus).arg(id));
+        gl_ldLlum[Common::getShadingMode()].a =  program->uniformLocation(QString("%1[%2].coef_a").arg(tipus).arg(id));
+        gl_ldLlum[Common::getShadingMode()].b =  program->uniformLocation(QString("%1[%2].coef_b").arg(tipus).arg(id));
+        gl_ldLlum[Common::getShadingMode()].c =  program->uniformLocation(QString("%1[%2].coef_c").arg(tipus).arg(id));
 
         locationsCached[Common::getShadingMode()] = true;
     }
