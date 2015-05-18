@@ -108,7 +108,9 @@ GLWidget::InitShader(const char* vShaderFile, const char* fShaderFile)
 void GLWidget::initShadersGPU()
 {
 // Carrega dels shaders i posa a punt per utilitzar els programes carregats a la GPU
-   InitShader( "://vshader1.glsl", "://fshader1.glsl" );
+    //InitShader( "://vshader1.glsl", "://fshader1.glsl" );
+    //InitShader( "://phong_vshader.glsl", "://phong_fshader.glsl" );
+    InitShader( "://toon_vshader.glsl", "://toon_fshader.glsl" );
 
    //Aprofitem per inicilitzar les textures
    initTexture(GL_TEXTURE1,"://resources/Bola1.jpg");
@@ -128,7 +130,6 @@ void GLWidget::initShadersGPU()
    initTexture(GL_TEXTURE15,"://resources/Bola15.jpg");
    initTexture(GL_TEXTURE0,"://resources/Bola0.jpg");
    initTexture(GL_TEXTURE16,"://resources/Fabric_Green_L.jpg");
-
 }
 
 void GLWidget::initTexture(GLenum id, std::string path){

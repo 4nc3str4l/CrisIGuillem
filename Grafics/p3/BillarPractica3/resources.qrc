@@ -23,5 +23,9 @@
         <file>resources/pal.obj</file>
         <file>resources/taula.mtl</file>
         <file>resources/taula.obj</file>
+        <file>phong_fshader.glsl</file>
+        <file>phong_vshader.glsl</file>
+        <file>toon_fshader.glsl</file>
+        <file>toon_vshader.glsl</file>
     </qresource>
 </RCC>

@@ -59,6 +59,12 @@ OTHER_FILES += \
 RESOURCES += \
     resources.qrc
 
+DISTFILES += \
+    phong_fshader.glsl \
+    phong_vshader.glsl \
+    toon_fshader.glsl \
+    toon_vshader.glsl
+
 
 
 
