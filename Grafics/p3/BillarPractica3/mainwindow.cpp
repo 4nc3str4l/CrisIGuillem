@@ -14,7 +14,6 @@ MainWindow::MainWindow(QWidget *parent) :
     setWindowTitle(tr("Billar Practica 1: GiVD 2014-2015"));
     resize(640, 640);
 
-
     glWidget = new GLWidget;
     setCentralWidget(glWidget);
 

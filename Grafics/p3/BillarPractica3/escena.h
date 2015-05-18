@@ -61,10 +61,18 @@ public:
         this->height = height;
     }
 
+    void modificaLlums(int i)
+    {
+        if (numLlums + i >= 0 && numLlums + i <= llums.size())
+        {
+            numLlums += i;
+        }
+    }
+
     Objecte* getObjecte(TIPUS_OBJECTE tipus);
 
     void initCamera(bool camGeneral);
-    void setAnglesCamera(Camera* camera,float angX, float angY, float angZ);
+    void setAnglesCamera(Camera* camera, float d, float angX, float angY, float angZ);
     void setVRPCamera(Camera* camera, point4 vrp);
     void setWindowCamera(Camera* camera, Capsa3D capsa, bool aplicaTransformacions = true);
     void setWindowCamera(Camera* camera, bool retallat, Capsa2D window, bool aplicaTransformacions = true);
@@ -80,8 +88,15 @@ private:
     Camera* camGeneral;
     Camera* camFP;
 
-    GLuint ambient;
+    struct GPULocations
+    {
+        GLuint ambient;
+        GLuint numLlums;
+    } locations[SHADING_MAX];
+    bool locationsCached[SHADING_MAX];
+
     vec3 llumAmbient;
+    int numLlums;
 
     std::vector<Llum*> llums;
 

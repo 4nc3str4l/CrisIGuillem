@@ -14,7 +14,6 @@
 
 GLWidget::GLWidget(QWidget *parent)
     : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
-
 {
     setFocusPolicy( Qt::StrongFocus );
 
@@ -220,17 +219,15 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 
         if(lastPos.y()!= event->y() && lastPos.x()!= event->x()) {
             // Moure convenientment la càmera en angle X i/o en angle Y
-            obs = camGeneral->CalculObs(camGeneral->getVRP(), camGeneral->getD(), angles.x + dy, angles.y + dx);
         } else if(lastPos.y()!= event->y()) {
             // Moure convenientment la càmera en angle X i/o en angle Y
-            obs = camGeneral->CalculObs(camGeneral->getVRP(), camGeneral->getD(), angles.x + dy, angles.y);
+            dx = 0;
         } else if (lastPos.x()!= event->x()) {
             // Moure convenientment la càmera en angle X i/o en angle Y
-            obs = camGeneral->CalculObs(camGeneral->getVRP(), camGeneral->getD(), angles.x, angles.y + dx);
+            dy = 0;
         }
 
-        camGeneral->setObs(obs);
-        camGeneral->setVUP(camGeneral->CalculVup(angles.x + dy, angles.y + dx, 0));
+        esc->setAnglesCamera(camGeneral, camGeneral->getD(), angles.x + dy, angles.y + dx, 0);
         camGeneral->CalculaMatriuModelView();
         camGeneral->toGPU(currentProgram());
         update();
@@ -315,12 +312,23 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_T && camActual == camFP)
     {
         camActual = camGeneral;
+        camActual->pan();
+        camActual->zoom();
         camActual->CalculaMatriuModelView();
         camActual->CalculaMatriuProjection();
         camActual->toGPU(currentProgram());
-        updateGL();
     }
 
+    if (event->key() == Qt::Key_I)
+    {
+        esc->modificaLlums(-1);
+        esc->setAmbientToGPU(currentProgram());
+    }
+    else if (event->key() == Qt::Key_O)
+    {
+        esc->modificaLlums(1);
+        esc->setAmbientToGPU(currentProgram());
+    }
 
     //si s'han pulsat algunes de les tecles de moviment
     if (event->key() == Qt::Key_Up || event->key() == Qt::Key_Down ||
@@ -457,12 +465,11 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         angle = atan2(dir.x, dir.z) * 180.0f / PI;
         ((Bola*)bola)->setAngle(angle);
 
-        camFP->setProjectionType(PERSPECTIVA);
-        camFP->setVRP(vrp);
-        camFP->setObs(camFP->CalculObs(vrp, dist + camFP->getD(), -5, angle));
-        camFP->setVUP(camFP->CalculVup(-5, angle, 0));
-        camFP->CalculaMatriuModelView();
+        esc->initCamera(false);
+        esc->setVRPCamera(camFP, vrp);
+        esc->setAnglesCamera(camFP, dist + camFP->getD(), -5, angle, 0);
         esc->setWindowCamera(camFP, bola->capsa);
+        camFP->CalculaMatriuModelView();
 
         if(this->camActual == camFP)
             camFP->toGPU(currentProgram());
@@ -486,17 +493,15 @@ void GLWidget::cameraTransition(){
         camera_advance = (this->camFP->getObs() - this->camGeneral->getObs()) / 100;
     }
     else if(this->camera_moves > 0 && this->camera_moves < 100){
-        this->camActual->setObs(this->camActual->getObs() + camera_advance);
-        this->camActual->setD(this->camFP->getD());
-        this->camActual->CalculaMatriuModelView();
-        this->camActual->CalculaMatriuProjection();
-        this->camActual->toGPU(currentProgram());
+        camActual->setObs(this->camActual->getObs() + camera_advance);
+        esc->setDCamera(camActual, camFP->getD());
+        camActual->CalculaMatriuModelView();
+        camActual->toGPU(currentProgram());
     }
     else if (camera_moves == 100)
     {
         Objecte* tauler = NULL;
         Objecte* conjunt = NULL;
-        Objecte* bola = NULL;
 
         if ((tauler = esc->getObjecte(TAULER)) != NULL)
         {
@@ -530,12 +535,12 @@ void GLWidget::cameraTransition(){
 
         if ((tauler = esc->getObjecte(TAULER)) != NULL)
         {
-            this->camGeneral->setObs(this->auxCamObs);
-            this->camGeneral->setVRP(this->auxCamVRP);
+            camGeneral->setObs(this->auxCamObs);
+            camGeneral->setVRP(this->auxCamVRP);
             esc->setWindowCamera(camGeneral, tauler->capsa, false);
 
-            this->camActual = this->camFP;
-            this->camActual->toGPU(currentProgram());
+            camActual = this->camFP;
+            camActual->toGPU(currentProgram());
         }
 
         this->camera_moves = -1;
@@ -880,15 +885,13 @@ void GLWidget::newSalaBillar()
         plaBase->calculCapsa3D();
 
         float d = 10.0f;
-        camGeneral->setVRP(tauler->capsa.center);
-        camGeneral->setD(d);
-        camGeneral->setObs(camGeneral->CalculObs(tauler->capsa.center, d, -90, 0));
-        camGeneral->setVUP(camGeneral->CalculVup(-90, 0, 0));
-        camGeneral->CalculaMatriuModelView();
-
-        //Calculem la window
-        camGeneral->setProjectionType(PERSPECTIVA);
+        esc->initCamera(true);
+        esc->setVRPCamera(camGeneral, tauler->capsa.center);
+        esc->setDCamera(camGeneral, d);
+        esc->setAnglesCamera(camGeneral, d, -90, 0, 0);
         esc->setWindowCamera(camGeneral, tauler->capsa);
+
+        camGeneral->CalculaMatriuModelView();
         camGeneral->toGPU(currentProgram());
 
         Objecte* conjunt = tauler->getFill(CONJUNT_BOLES);
@@ -904,13 +907,12 @@ void GLWidget::newSalaBillar()
             float angle = 0;
             angle = atan2(dir.x, dir.z) * 180.0f / PI;
 
-            camFP->setProjectionType(PERSPECTIVA);
-            camFP->setVRP(vrp);
-            camFP->setD(d);
-            camFP->setObs(camFP->CalculObs(vrp, dist + camFP->getD(), -5, angle));
-            camFP->setVUP(camFP->CalculVup(-5, angle, 0));
-            camFP->CalculaMatriuModelView();
+            esc->initCamera(false);
+            esc->setVRPCamera(camFP, vrp);
+            esc->setDCamera(camFP, d);
+            esc->setAnglesCamera(camFP, dist + camFP->getD(), -5, angle, 0);
             esc->setWindowCamera(camFP, bola->capsa);
+            camFP->CalculaMatriuModelView();
             camFP->toGPU(currentProgram());
         }
     }

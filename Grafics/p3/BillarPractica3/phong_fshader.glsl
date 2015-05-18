@@ -10,7 +10,7 @@
 
 #define PUNTUAL     0
 #define DIRECCIONAL 1
-#define SPOTLIGH    2
+#define SPOTLIGHT   2
 
 
 struct tipusLlum
@@ -48,7 +48,8 @@ flat IN int matID;
 
 uniform vec3 llumAmbient;
 
-uniform tipusLlum light[2];
+uniform int numLights;
+uniform tipusLlum light[3];
 
 uniform tipusMaterial material[19];
 
@@ -63,7 +64,7 @@ void main()
     vec3 normal = normalize(normals);
 
     vec3 sumatori = vec3(0, 0, 0);
-    for (int i = 0; i < 2; ++i)
+    for (int i = 0; i < numLights; ++i)
     {
         float d = distance(position, light[i].LightPosition);
         float atenuacio = light[i].coef_a + light[i].coef_b * d + light[i].coef_c * pow(d,2);
@@ -77,6 +78,11 @@ void main()
         if (light[i].tipus == DIRECCIONAL)
         {
             calculaLlum = dot((light[i].LightPosition - light[i].LightDirection).xyz, L.xyz) > 0;
+        }
+        else if (light[i].tipus == SPOTLIGHT)
+        {
+            calculaLlum = max(dot(normal, normalize(L.xyz)), 0.0) > 0;
+            calculaLlum = calculaLlum && acos(dot(normalize(light[i].LightDirection.xyz), normalize(-L.xyz))) < radians(light[i].angle);
         }
 
         if (calculaLlum)

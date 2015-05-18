@@ -9,7 +9,7 @@ enum TipusLlum
 {
     PUNTUAL,
     DIRECCIONAL,
-    SPOTLIGH
+    SPOTLIGHT
 };
 
 struct LdLlum

@@ -32,17 +32,7 @@ Camera::Camera(QGLShaderProgram* program)
 
 void Camera::ini(int a, int h, Capsa3D capsaMinima)
 {
-    // Calcul del vrp com el centre de la capsa minima contenedora 3D
-    // CAL IMPLEMENTAR
-    // CODI A MODIFICAR DURANT LA PRACTICA 2
-    
     vs.vrp = capsaMinima.center;
-   
-    vp.a = a;
-    vp.h = h;
-    vp.pmin[0] = 0;
-    vp.pmin[1] = 0;
-    
 }
 
 
@@ -85,16 +75,13 @@ void Camera::CalculaMatriuProjection()
 #ifdef DEBUG_COUT
     std::cout << "Window (" << wd.pmin.x << "," << wd.pmin.y << ") <" << wd.a << "x" << wd.h << std::endl;
 #endif
-
-    const float deltaNear = 4.0f >= piram.d ? piram.d - 0.1 : 4.0f;
-
     if (piram.proj == PERSPECTIVA)
     {
-        proj = Frustum(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, piram.d - deltaNear, piram.d + 10.0f);
+        proj = Frustum(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, piram.dant, piram.dpost);
     }
     else
     {
-        proj = Ortho(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, piram.d - deltaNear, piram.d + 5.0f);
+        proj = Ortho(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, piram.dant, piram.dpost);
     }
 }
 

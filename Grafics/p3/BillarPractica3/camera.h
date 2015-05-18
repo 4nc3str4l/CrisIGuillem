@@ -115,6 +115,8 @@ public:
     inline void setD(float d)
     {
         piram.d = d;
+        piram.dant = d - d / 2.0f;
+        piram.dpost = d + d * 3.0f;
     }
 
     inline vec4 getVRP()
@@ -150,8 +152,8 @@ public:
 
     VisuSystem vs;      /* Sistema de visualitzacio  */
     PiramProj piram;    /* Piramide de visualitzacio */
-    Capsa2D wd;	      /* Window                    */
-    Capsa2D vp;       /* Viewport                  */
+    Capsa2D wd;         /* Window                    */
+    Capsa2D vp;         /* Viewport                  */
 
 
 private:

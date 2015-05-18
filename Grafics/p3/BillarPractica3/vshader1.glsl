@@ -10,7 +10,7 @@
 
 #define PUNTUAL     0
 #define DIRECCIONAL 1
-#define SPOTLIGH    2
+#define SPOTLIGHT    2
 
 
 struct tipusLlum
@@ -46,14 +46,14 @@ uniform mat4 projection;
 
 uniform vec3 llumAmbient;
 
-uniform tipusLlum light[2];
+uniform int numLights;
+uniform tipusLlum light[3];
 
 uniform tipusMaterial material[19];
 
 uniform vec4 camera;
 
 IN vec4 vPosition;
-IN vec4 vColor;
 IN vec3 vNormals;
 IN vec2 vCoordTexture;
 IN int idMaterial;
@@ -65,17 +65,15 @@ OUT vec2 v_texcoord;
 void main()
 {
     gl_Position = projection * model_view * vPosition;
-    //gl_Position /= gl_Position.w;
-    //color = vColor * vec4(llumAmbient, 1);
 
     vec3 sumatori = vec3(0, 0, 0);
-    for (int i = 0; i < 2; ++i)
+    for (int i = 0; i < numLights; ++i)
     {
         float d = distance(vPosition, light[i].LightPosition);
         float atenuacio = light[i].coef_a + light[i].coef_b * d + light[i].coef_c * pow(d,2);
 
         vec4 L = light[i].LightPosition - vPosition;
-        vec4 V = camera - vPosition;
+            vec4 V = camera - vPosition;
         vec4 H = normalize(normalize(L) + normalize(V));
 
         bool calculaLlum = (light[i].tipus == PUNTUAL);
@@ -83,6 +81,11 @@ void main()
         if (light[i].tipus == DIRECCIONAL)
         {
             calculaLlum = dot((light[i].LightPosition - light[i].LightDirection).xyz, L.xyz) > 0;
+        }
+        else if (light[i].tipus == SPOTLIGHT)
+        {
+            calculaLlum = max(dot(vNormals, normalize(L.xyz)), 0.0) > 0;
+            calculaLlum = calculaLlum && acos(dot(normalize(light[i].LightDirection.xyz), normalize(-L.xyz))) < radians(light[i].angle);
         }
 
         if (calculaLlum)

@@ -17,6 +17,9 @@ Escena::Escena(vec3 dimensions, QGLShaderProgram* program)
     camGeneral = new Camera(program);
     camFP = new Camera(program);
 
+    // Per defecte totes les llums
+    numLlums = 3;
+
     // Crear llum1
     {
         Llum* llum = new Llum(program, 0, PUNTUAL);
@@ -53,8 +56,25 @@ Escena::Escena(vec3 dimensions, QGLShaderProgram* program)
         llums.push_back(llum);
     }
 
-    // Carregar localitzacio
-    ambient = program->uniformLocation("llumAmbient");
+    // Crear llum3
+    {
+        Llum* llum = new Llum(program, 2, SPOTLIGHT);
+        llum->setCoeficients(0.1, 0.1, 0.1);
+
+        llum->setDifusa(vec3(0.3, 0.3, 0.3));
+        llum->setEspecular(vec3(0.3, 0.3, 0.3));
+        llum->setAmbient(vec3(0.3, 0.3, 0.3));
+
+        llum->setPosicioLlum(vec4(2.5, 5, 3, 1));
+
+        llum->setDireccio(vec4(2.5, 0.5, 0, 1) - vec4(2.5, 5, 3, 1));
+        llum->setAngle(10.0f);
+
+        // Send to GPU
+        llum->toGPU(program);
+
+        llums.push_back(llum);
+    }
 }
 
 
@@ -146,29 +166,41 @@ Objecte* Escena::getObjecte(TIPUS_OBJECTE tipus)
 
 void Escena::setAmbientToGPU(QGLShaderProgram* program)
 {
-    glUniform3fv(ambient, 1, llumAmbient);
+    // Carregar localitzacio
+    if (!locationsCached[Common::getShadingMode()])
+    {
+        locations[Common::getShadingMode()].ambient = program->uniformLocation("llumAmbient");
+        locations[Common::getShadingMode()].numLlums = program->uniformLocation("numLights");
+
+        locationsCached[Common::getShadingMode()] = true;
+    }
+
+    glUniform3fv(locations[Common::getShadingMode()].ambient, 1, llumAmbient);
+    glUniform1i(locations[Common::getShadingMode()].numLlums, numLlums);
 }
 
 void Escena::initCamera(bool camGeneral){
     if(camGeneral)
+    {
+        this->camGeneral->setProjectionType(PERSPECTIVA);
         this->camGeneral->ini(width, height, this->capsaMinima);
+    }
     else
-        this->camFP->ini(width, height, this->capsaMinima);
+    {
+        camFP->setProjectionType(PERSPECTIVA);
+        camFP->ini(width, height, this->capsaMinima);
+    }
 }
 
-void Escena::setAnglesCamera(Camera* camera,float angX, float angY, float angZ)
+void Escena::setAnglesCamera(Camera* camera, float d, float angX, float angY, float angZ)
 {
-    camera->setObs(camera->CalculObs(camera->getVRP(), camera->getD(), angX, angY));
+    camera->setObs(camera->CalculObs(camera->getVRP(), d, angX, angY));
     camera->setVUP(camera->CalculVup(angX, angY, angZ));
-    camera->CalculaMatriuModelView();
 }
 
 void Escena::setVRPCamera(Camera* camera, point4 vrp)
 {
     camera->setVRP(vrp);
-    camera->CalculaMatriuModelView();
-    camera->CalculaMatriuProjection();
-    camera->CalculAngleOberturaHoritzontal();
 }
 
 void Escena::setWindowCamera(Camera* camera, Capsa3D capsa, bool aplicaTransformacions)
