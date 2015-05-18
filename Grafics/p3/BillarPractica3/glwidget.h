@@ -27,10 +27,7 @@ public:
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 
-    void setXRotation(int angle);
-    void setYRotation(int angle);
-    void setZRotation(int angle);
-    void Pan(int dx, int dy);
+    void Pan(float dx, float dy);
 
 public slots:
     void newPlaBase();

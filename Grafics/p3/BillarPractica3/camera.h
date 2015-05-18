@@ -83,7 +83,7 @@ public:
     inline void zoom(float val);
     inline void zoom();
 
-    inline void pan(float val);
+    inline void pan(float valx, float valy);
     inline void pan();
 
 
@@ -158,7 +158,9 @@ private:
     inline void zoom_i(float val);
 
     float cameraZoom;
-    float cameraPan;
+    float cameraPanX;
+    float cameraPanY;
+
     mat4  modView; // Matriu model-view de la CPU
     mat4  proj;  // Matriu projection de la CPU
 
@@ -204,17 +206,21 @@ inline void Camera::zoom()
 }
 
 
-inline void Camera::pan(float val)
+inline void Camera::pan(float xval, float yval)
 {
-    cameraPan += val;
-    wd.pmin.x += val;
+    cameraPanX += xval;
+    cameraPanY += yval;
+
+    wd.pmin.x += xval;
+    wd.pmin.y += yval;
 
     CalculaMatriuProjection();
 }
 
 inline void Camera::pan()
 {
-    wd.pmin.x += cameraPan;
+    wd.pmin.x += cameraPanX;
+    wd.pmin.y += cameraPanY;
 
     CalculaMatriuProjection();
 }

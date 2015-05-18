@@ -32,9 +32,6 @@ GLWidget::GLWidget(QWidget *parent)
     //Linkem el signal timeout amb el metode o slot mou bola.
     connect(timer, SIGNAL(timeout()), this, SLOT(mouBola()));
 
-    //si cal rotar els objectes de l'escena al apretar una tecla o mouse.
-    rotar = true;
-
     timer_camera = new QTimer(this);
     connect(timer_camera, SIGNAL(timeout()), this, SLOT(cameraTransition()));
 
@@ -165,41 +162,6 @@ QSize GLWidget::sizeHint() const
 }
 
 
-static void qNormalizeAngle(int &angle)
-{
-    while (angle < 0)
-        angle += 180;
-    while (angle > 360)
-        angle -= 180;
-}
-
-
-void GLWidget::setXRotation(int angle)
-{
-    if (angle != xRot) {
-        xRot = angle;
-        update();
-    }
-}
-
-
-void GLWidget::setYRotation(int angle)
-{
-    if (angle != yRot) {
-        yRot = angle;
-        update();
-    }
-}
-
-void GLWidget::setZRotation(int angle)
-{
-    if (angle != zRot) {
-        zRot = angle;
-        update();
-    }
-}
-
-
 void GLWidget::initializeGL()
 {
     glEnable(GL_DEPTH_TEST);
@@ -225,27 +187,6 @@ void GLWidget::initializeGL()
 void GLWidget::paintGL()
 {
    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-
-   //Si ha de rotar doncs, crida a aplica tgcentrat de l'escena que fa que girin tots els objectes de l'escena respecte al centre de la mateixa.
-   if (rotar)
-   {
-       qNormalizeAngle(xRot);
-       qNormalizeAngle(yRot);
-       qNormalizeAngle(zRot);
-
-       mat4 transform = ( RotateX( xRot / 16.0 ) *
-                           RotateY( yRot / 16.0 ) *
-                           RotateZ( zRot / 16.0 ) );
-
-       // A modificar si cal girar tots els objectes
-       esc->aplicaTGCentrat(transform);
-   }
-   //Si esta a false es posa a true per la seguent crida
-   else
-   {
-       rotar = true;
-   }
 
    //Mostra els canvis per pantalla.
    esc->draw();
@@ -298,9 +239,10 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     lastPos = event->pos();
 }
 
-void GLWidget::Pan(int dx, int dy)
+void GLWidget::Pan(float dx, float dy)
 {
-
+    camActual->pan(dx, dy);
+    camActual->toGPU(programs[Common::getShadingMode()]);
 }
 
 
@@ -414,8 +356,13 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     //si apretem la tecla up
     case Qt::Key_Up:
 
+
+        if (event->modifiers() & Qt::AltModifier)
+        {
+            Pan(0, -0.05);
+        }
         //si la bola no esta xocant amb res
-        if (bola->intersects(plaBase, vec4(0, 0, -0.35, 0)) &&
+        else if (bola->intersects(plaBase, vec4(0, 0, -0.35, 0)) &&
                 !conjuntBoles->intersects(bola, vec4(0, 0, -0.11, 0)))
         {
             //Movem la bola i la rotem sobre si mateixa en la direcció adient
@@ -430,7 +377,11 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     //Analog al cas anterior
     case Qt::Key_Down:
 
-        if (bola->intersects(plaBase, vec4(0, 0, 0.35, 0)) &&
+        if (event->modifiers() & Qt::AltModifier)
+        {
+            Pan(0, 0.05);
+        }
+        else if (bola->intersects(plaBase, vec4(0, 0, 0.35, 0)) &&
             !conjuntBoles->intersects(bola, vec4(0, 0, 0.11, 0)))
         {
             bola->aplicaTGCentrat(RotateX(30));
@@ -444,21 +395,17 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     //Analog al cas anterior
     case Qt::Key_Left:
 
-        if (event->modifiers() & Qt::AltModifier && camActual == camGeneral)
+        if (event->modifiers() & Qt::AltModifier)
         {
-            camGeneral->pan(0.05);
-            camGeneral->toGPU(programs[Common::getShadingMode()]);
+            Pan(0.05, 0);
         }
-        else
+        else if (bola->intersects(plaBase, vec4(-0.35, 0, 0, 0)) &&
+            !conjuntBoles->intersects(bola, vec4(-0.11, 0, 0, 0)))
         {
-            if (bola->intersects(plaBase, vec4(-0.35, 0, 0, 0)) &&
-                !conjuntBoles->intersects(bola, vec4(-0.11, 0, 0, 0)))
-            {
-                bola->aplicaTGCentrat(RotateZ(30));
-                bola->aplicaTG(moveLeft);
-                bola->calculCapsa3D();
-                moved = true;
-            }
+            bola->aplicaTGCentrat(RotateZ(30));
+            bola->aplicaTG(moveLeft);
+            bola->calculCapsa3D();
+            moved = true;
         }
 
         break;
@@ -466,21 +413,17 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     //Analog al cas anterior
     case Qt::Key_Right:
 
-        if (event->modifiers() & Qt::AltModifier && camActual == camGeneral)
+        if (event->modifiers() & Qt::AltModifier)
         {
-            camGeneral->pan(-0.05);
-            camGeneral->toGPU(programs[Common::getShadingMode()]);
+            Pan(-0.05, 0.0);
         }
-        else
+        else if (bola->intersects(plaBase, vec4(0.35, 0, 0, 0)) &&
+            !conjuntBoles->intersects(bola, vec4(0.11, 0, 0, 0)))
         {
-            if (bola->intersects(plaBase, vec4(0.35, 0, 0, 0)) &&
-                !conjuntBoles->intersects(bola, vec4(0.11, 0, 0, 0)))
-            {
-                bola->aplicaTGCentrat(RotateZ(-30));
-                bola->aplicaTG(moveRight);
-                bola->calculCapsa3D();
-                moved = true;
-            }
+            bola->aplicaTGCentrat(RotateZ(-30));
+            bola->aplicaTG(moveRight);
+            bola->calculCapsa3D();
+            moved = true;
         }
 
         break;
@@ -499,11 +442,8 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     //canviar mode de visualització entre wireframe i faces.
     case Qt::Key_V:
         Common::changeViewMode();
-        rotar = false;
         break;
     }
-
-    rotar = false;
 
     if(moved && conjuntBoles && bola)
     {
@@ -684,8 +624,6 @@ void GLWidget::mouBola()
         {
             bola->speed += deltaSpeed;
         }
-
-        rotar = false;
 
         //actualitzem l'escena i la pantalla.
         bola->calculCapsa3D();
