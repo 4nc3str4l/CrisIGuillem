@@ -48,7 +48,7 @@ Escena::Escena(vec3 dimensions, QGLShaderProgram* program)
 
         llum->setPosicioLlum(vec4(4.5, 0, 0, 1));
 
-        llum->setDireccio(vec4(0, 0, 0, 1));
+        llum->setDireccio(vec4(0, 0, 0, 1) - vec4(4.5, 0, 0, 1));
 
         // Send to GPU
         llum->toGPU(program);
