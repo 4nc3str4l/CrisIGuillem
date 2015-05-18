@@ -77,7 +77,8 @@ void main()
 
         if (light[i].tipus == DIRECCIONAL)
         {
-            calculaLlum = dot((light[i].LightPosition - light[i].LightDirection).xyz, L.xyz) > 0;
+            calculaLlum = max(dot(normal, normalize(L.xyz)), 0.0) > 0;
+            calculaLlum = calculaLlum && dot(normalize(light[i].LightDirection.xyz), normalize(-L.xyz)) > 0;
         }
         else if (light[i].tipus == SPOTLIGHT)
         {
