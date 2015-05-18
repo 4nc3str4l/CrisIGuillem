@@ -100,9 +100,9 @@ Objecte::~Objecte()
     }
 }
 
-void Objecte::setMaterial(QGLShaderProgram* program, int id, float ka, float kd, float ks, float shinesess)
+void Objecte::setMaterial(QGLShaderProgram* program, int id, vec3 ka, vec3 kd, vec3 ks, float shinesess, vec3 color)
 {
-    material = new Material(program, id, ka, kd, ks, shinesess);
+    material = new Material(program, id, ka, kd, ks, shinesess, vec4(color, 1));
 
     for (int i = 0; i < numPoints; ++i)
         idMaterial[i] = (GLint)id;

@@ -23,7 +23,7 @@ class Llum
     // Evitar que la classe sigui instanciada (cal fer-ho a traves
     // de les subclasses Puntual, Direccional o Spotlight)
 protected:
-    Llum(QGLShaderProgram* program);
+    Llum(QGLShaderProgram* program, int id_, char* tipus_);
 
 public:
     ~Llum();
@@ -52,9 +52,12 @@ public:
         this->coefC = c;
     }
 
-
 private:
-    LdLlum gl_ldLlum;
+    LdLlum gl_ldLlum[SHADING_MAX];
+    bool locationsCached[SHADING_MAX];
+
+    int id;
+    char* tipus;
 
     vec4 posicioLlum;
 

@@ -1,7 +1,7 @@
 #include "spotlight.h"
 
-Spotlight::Spotlight(QGLShaderProgram* program):
-    Direccional(program)
+Spotlight::Spotlight(QGLShaderProgram* program, int id):
+    Llum(program, id, "spot")
 {
 
 }

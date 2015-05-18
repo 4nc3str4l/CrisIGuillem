@@ -71,14 +71,14 @@ private:
     std::vector<QOpenGLTexture*> textures;
 
     // Programa de la GPU
-    QGLShaderProgram *program;
+    std::map<Common::ShadingMode, QGLShaderProgram*> programs;
 
 
     //  Metode per a carregar de fitxers el vertex i el fragment shader
-   void InitShader( const char* vertexShaderFile,
+    QGLShaderProgram* InitShader( const char* vertexShaderFile,
                     const char* fragmentShaderFile );
 
-   // Metode per inicialitzar els shaders de l'aplicacio
+    // Metode per inicialitzar els shaders de l'aplicacio
     void initShadersGPU();
 
 

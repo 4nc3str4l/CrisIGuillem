@@ -23,10 +23,10 @@ Camera::Camera(QGLShaderProgram* program)
     piram.proj = PERSPECTIVA;
     piram.d = 100;
 
-    //Asign the model view variable of the shader
-    model_view = program->uniformLocation("model_view");
-    projection = program->uniformLocation("projection");
-    cameraGPU = program->uniformLocation("camera");
+    for (int i = 0; i < SHADING_MAX; ++i)
+    {
+        locationCached[i] = false;
+    }
 }
 
 void Camera::ini(int a, int h, Capsa3D capsaMinima)
@@ -48,10 +48,19 @@ void Camera::ini(int a, int h, Capsa3D capsaMinima)
 
 void Camera::toGPU(QGLShaderProgram *program)
 {
+    if (!locationCached[Common::getShadingMode()])
+    {
+        locations[Common::getShadingMode()].model_view = program->uniformLocation("model_view");
+        locations[Common::getShadingMode()].projection = program->uniformLocation("projection");
+        locations[Common::getShadingMode()].cameraGPU = program->uniformLocation("camera");
+
+        locationCached[Common::getShadingMode()] = true;
+    }
+
     setModelViewToGPU(program, modView);
     setProjectionToGPU(program, proj);
 
-    glUniform4fv(cameraGPU, 1, vs.obs);
+    glUniform4fv(locations[Common::getShadingMode()].cameraGPU, 1, vs.obs);
 }
 
 
@@ -120,7 +129,7 @@ void Camera::setModelViewToGPU(QGLShaderProgram *program, mat4 m)
     }
 #endif
 
-    glUniformMatrix4fv(model_view, 1, GL_TRUE, &m[0][0]);
+    glUniformMatrix4fv(locations[Common::getShadingMode()].model_view, 1, GL_TRUE, &m[0][0]);
 }
 
 void Camera::setProjectionToGPU(QGLShaderProgram *program, mat4 p)
@@ -135,7 +144,7 @@ void Camera::setProjectionToGPU(QGLShaderProgram *program, mat4 p)
     }
 #endif
 
-    glUniformMatrix4fv(projection, 1, GL_TRUE, &p[0][0]);
+    glUniformMatrix4fv(locations[Common::getShadingMode()].projection, 1, GL_TRUE, &p[0][0]);
 }
 
 void  Camera::AmpliaWindow(double r)

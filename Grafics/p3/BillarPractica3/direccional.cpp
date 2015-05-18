@@ -1,7 +1,7 @@
 #include "direccional.h"
 
-Direccional::Direccional(QGLShaderProgram* program):
-    Llum(program)
+Direccional::Direccional(QGLShaderProgram* program, int id):
+    Llum(program, id, "direccional")
 {
 
 }

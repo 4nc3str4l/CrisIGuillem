@@ -8,24 +8,17 @@
 #include "objecte.h"
 #include "cara.h"
 
-struct cmpPoint {
-    bool operator()(const point4& a, const point4& b) const {
-        return a.x < b.x && a.z < b.z && a.z < b.z;
-    }
-};
 
 struct CaraEx
 {
     point4 a;
     point4 b;
-    point4 c;
     int norm;
 
-    CaraEx(point4 a_, point4 b_, point4 c_, int norm_)
+    CaraEx(point4 a_, point4 b_, int norm_)
     {
         a = a_;
         b = b_;
-        c = c_;
         norm = norm_;
     }
 };

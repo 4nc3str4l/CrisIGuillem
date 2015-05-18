@@ -25,10 +25,9 @@ void Bola::triangle(vec3 a, vec3 b, vec3 c)
     points[k+1] = vec4(b);
     points[k+2] = vec4(c);
 
-    CaraEx cara(a, b, c, k);
-    verts[a.x][a.y][a.z].push_back(std::make_pair(cara, k));
-    verts[b.x][b.y][b.z].push_back(std::make_pair(cara, k + 1));
-    verts[c.x][c.y][c.z].push_back(std::make_pair(cara, k + 2));
+    verts[a.x][a.y][a.z].push_back(std::make_pair(CaraEx(b, c, k), k));
+    verts[b.x][b.y][b.z].push_back(std::make_pair(CaraEx(a, c, k), k + 1));
+    verts[c.x][c.y][c.z].push_back(std::make_pair(CaraEx(a, b, k), k + 2));
 
     normals[k] = normalAt(a, b, c);
     normals[k+1] = normals[k];
@@ -97,16 +96,17 @@ void Bola::make()
                 {
                     // TODO: Evitar sumar X vegades el punt central
                     std::pair<CaraEx, int> p = ( std::pair<CaraEx, int> )*it0;
-                    suma += normals[p.first.norm];
+                    //suma += normals[p.first.norm];
                     suma += normals[p.first.norm + 1];
                     suma += normals[p.first.norm + 2];
                 }
-                //suma /= cares.size();
+
+                vec3 resultant = normalize(vec3(suma.x, suma.y, suma.z));
 
                 for (it0 = cares.begin(); it0 != cares.end(); ++it0)
                 {
                     std::pair<CaraEx, int> p = ( std::pair<CaraEx, int> )*it0;
-                    gouraud[p.second] = normalize(vec3(suma.x, suma.y, suma.z));
+                    gouraud[p.second] = resultant;
                 }
             }
         }

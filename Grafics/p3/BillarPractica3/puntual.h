@@ -6,7 +6,7 @@
 class Puntual : public Llum
 {
 public:
-    Puntual(QGLShaderProgram* program);
+    Puntual(QGLShaderProgram* program, int id);
 
 };
 

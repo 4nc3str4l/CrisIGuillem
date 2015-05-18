@@ -111,7 +111,7 @@ public:
     virtual bool intersects(Objecte* obj, vec4 delta);
 
     // Material
-    void setMaterial(QGLShaderProgram* program, int id, float ka, float kd, float ks, float shinesess);
+    void setMaterial(QGLShaderProgram* program, int id, vec3 ka, vec3 kd, vec3 ks, float shinesess, vec3 color = (0, 0, 1));
 
     // Tipus
     TIPUS_OBJECTE getTipus() {

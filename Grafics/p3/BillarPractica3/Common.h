@@ -101,8 +101,10 @@ namespace Common
         FLAT,
         GOURAUD,
         PHONG,
-        TOON
+        TOON,
     };
+
+    #define SHADING_MAX 5
 
     unsigned int getWireframeView();
     void changeViewMode();

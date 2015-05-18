@@ -161,9 +161,16 @@ private:
     float cameraPan;
     mat4  modView; // Matriu model-view de la CPU
     mat4  proj;  // Matriu projection de la CPU
-    GLuint  model_view;  // model-view matrix uniform shader variable (GPU)
-    GLuint  projection;  // projection matrix uniform shader variable (GPU)
-    GLuint cameraGPU;
+
+    struct GPULocations
+    {
+        GLuint  model_view;  // model-view matrix uniform shader variable (GPU)
+        GLuint  projection;  // projection matrix uniform shader variable (GPU)
+        GLuint cameraGPU;
+    };
+
+    GPULocations locations[SHADING_MAX];
+    bool locationCached[SHADING_MAX];
 };
 
 

@@ -6,7 +6,7 @@
 class Direccional : public Llum
 {
 public:
-    Direccional(QGLShaderProgram* program);
+    Direccional(QGLShaderProgram* program, int id);
 
 private:
     vec3 direccio;

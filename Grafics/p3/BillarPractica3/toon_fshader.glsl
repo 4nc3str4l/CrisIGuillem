@@ -24,9 +24,9 @@ struct tipusLlum
 
 struct tipusMaterial
 {
-    float ka;
-    float kd;
-    float ks;
+    vec3 ka;
+    vec3 kd;
+    vec3 ks;
 
     float shineness;
 
@@ -48,16 +48,6 @@ uniform vec4 camera;
 uniform sampler2D texMap;
 uniform bool only_color;
 
-#define THRESHOLD(v, e) \
-    if (v.e < 0.25) \
-        v.e = 0.25; \
-    else if (v.e < 0.5) \
-        v.e = 0.5; \
-    else if (v.e < 0.8) \
-        v.e = 0.8; \
-    else if (v.e < 1) \
-        v.e = 1;
-
 void main()
 {
     float d = distance(position, light.LightPosition);
@@ -67,19 +57,18 @@ void main()
     vec4 V = camera - position;
     vec4 H = normalize(L + V);
 
-    vec4 intensitat = vec4(
-            material[matID].ka * llumAmbient +  // Ambient Global
-            (1.0 / atenuacio) * (
-                material[matID].kd * light.Ld * max(dot(normals, L.xyz), 0) + // Difusa
-                material[matID].ks * light.Ls * max(pow(dot(normals, H.xyz), material[matID].shineness), 0) + // Especular
-                material[matID].ka * light.La // Ambient
-            )
-        , 1.0);
 
-    THRESHOLD(intensitat, x);
-    THRESHOLD(intensitat, y);
-    THRESHOLD(intensitat, z);
-    THRESHOLD(intensitat, w);
+    float intensity = (1.0 / atenuacio) * dot(L.xyz, normals);
+    vec4 intensitat;
+
+    if (intensity > 0.95)
+        intensitat = vec4(1.0,0.5,0.5,1.0);
+    else if (intensity > 0.5)
+        intensitat = vec4(0.6,0.3,0.3,1.0);
+    else if (intensity > 0.25)
+        intensitat = vec4(0.4,0.2,0.2,1.0);
+    else
+        intensitat = vec4(0.2,0.1,0.1,1.0);
 
     if (only_color)
         gl_FragColor = intensitat * material[matID].color;

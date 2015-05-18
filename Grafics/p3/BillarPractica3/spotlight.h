@@ -1,12 +1,12 @@
 #ifndef SPOTLIGHT_H
 #define SPOTLIGHT_H
 
-#include "direccional.h"
+#include "llum.h"
 
-class Spotlight : public Direccional
+class Spotlight : public Llum
 {
 public:
-    Spotlight(QGLShaderProgram* program);
+    Spotlight(QGLShaderProgram* program, int id);
 
 private:
     float angle;
