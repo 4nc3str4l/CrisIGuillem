@@ -96,10 +96,21 @@ namespace Common
     const vec3 dimensions(a, h, p);
     const vec3 scale(2/a, 2/h, 2/p);
 
+    enum ShadingMode
+    {
+        FLAT,
+        GOURAUD,
+        PHONG,
+        TOON
+    };
+
     unsigned int getWireframeView();
     void changeViewMode();
     vec3 sceneDimensions();
     vec3 scaleFactor();
+
+    ShadingMode getShadingMode();
+    void setShadingMode(ShadingMode shadingMode);
 }
 
 #endif // __ANGEL_H__

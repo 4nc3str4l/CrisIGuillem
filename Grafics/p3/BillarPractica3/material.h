@@ -13,6 +13,8 @@ struct Coeficients
     float ks;
 
     float shineness;
+
+    vec4 color;
 };
 
 struct CoefsGPU
@@ -22,16 +24,24 @@ struct CoefsGPU
     GLuint ks;
 
     GLuint ss;
+
+    GLuint color;
 };
 
 class Material
 {
 public:
-    Material(QGLShaderProgram* program, float ka, float kd, float ks, float shinesess);
+    Material(QGLShaderProgram* program, int id, float ka, float kd, float ks, float shinesess, vec4 color = vec4(0, 0, 1, 1));
 
     void toGPU(QGLShaderProgram* program);
 
+    int getID()
+    {
+        return id;
+    }
+
 private:
+    int id;
     Coeficients coefs;
     CoefsGPU coefsGPU;
 };

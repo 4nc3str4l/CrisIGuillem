@@ -51,6 +51,8 @@ ConjuntBoles::ConjuntBoles(QGLShaderProgram* program, Objecte* tauler, std::vect
         GLfloat x = -(k*dist/2 - dist/2);
         for (int j = 0; j < k; ++j, ++i) {
             Bola* bola = new Bola(colors[i]/255.0f);
+            bola->setMaterial(program, i + 1, 0.2, 0.6, 0.2, 1);
+
             bola->aplicaTG(Translate(x / ballTableRelation + capsa.center.x,
                                      1 + capsa.center.y,
                                      z / ballTableRelation + capsa.center.z) * scaleMatrix);

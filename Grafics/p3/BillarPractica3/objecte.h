@@ -64,6 +64,7 @@ protected:
     vec3 *gouraud;
     color4 *colors;
     vec2* textures;
+    GLint* idMaterial;
 
     // Tipus d'objecte
     TIPUS_OBJECTE _tipus;
@@ -110,7 +111,7 @@ public:
     virtual bool intersects(Objecte* obj, vec4 delta);
 
     // Material
-    void setMaterial(QGLShaderProgram* program, float ka, float kd, float ks, float shinesess);
+    void setMaterial(QGLShaderProgram* program, int id, float ka, float kd, float ks, float shinesess);
 
     // Tipus
     TIPUS_OBJECTE getTipus() {

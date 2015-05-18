@@ -93,12 +93,16 @@ GLWidget::InitShader(const char* vShaderFile, const char* fShaderFile)
     program->bindAttributeLocation("vPosition", PROGRAM_VERTEX_ATTRIBUTE);
     program->bindAttributeLocation("vColor", PROGRAM_COLOR_ATTRIBUTE);
     program->bindAttributeLocation("vNormals", 3);
+    program->bindAttributeLocation("idMaterial", 4);
 
     // muntatge del shader en el pipeline gràfic per a ser usat
     program->link();
 
     // unió del shader al pipeline gràfic
     program->bind();
+
+    only_color[program] = std::make_pair(program->uniformLocation("only_color"), false);
+    glUniform1i(only_color[program].first, 0);
 }
 
 void GLWidget::initShadersGPU()
@@ -293,6 +297,7 @@ void GLWidget::Pan(int dx, int dy)
 
 }
 
+
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
     //declarem el objectes que usarem.
@@ -300,6 +305,35 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     Objecte* bola = NULL;
     ConjuntBoles* conjuntBoles = NULL;
     PlaBase* plaBase = NULL;
+
+    bool aplicaCanvi = false;
+
+    if (event->key() == Qt::Key_1 && !event->isAutoRepeat())
+    {
+        Common::setShadingMode(Common::FLAT);
+        aplicaCanvi = true;
+    }
+    else if (event->key() == Qt::Key_2)
+    {
+        Common::setShadingMode(Common::GOURAUD);
+        aplicaCanvi = true;
+    }
+
+    if (aplicaCanvi)
+    {
+        if (QApplication::keyboardModifiers() & Qt::ControlModifier)
+        {
+            only_color[program].second = false;
+            glUniform1i(only_color[program].first, 0);
+        }
+        else
+        {
+            only_color[program].second = true;
+            glUniform1i(only_color[program].first, 1);
+        }
+        esc->toGPU(program);
+        updateGL();
+    }
 
     if(event->key() == Qt::Key_Plus)
     {
@@ -762,8 +796,7 @@ void GLWidget::newPlaBase()
 {
     //Instanciem un objecte pla blase
     Objecte* plaBase = new PlaBase();
-    //plaBase->setMaterial(program, 0.4f, 0.6f, 0.0f, 0.0f);
-    plaBase->setMaterial(program, 0.0f, 0.0f, 0.0f, 0.0f);
+    plaBase->setMaterial(program, 18, 0.4f, 0.6f, 0.0f, 0.0f);
 
     //Enviem l'objecte a la gpu amb la seva textura.
     plaBase->toGPU(program, *(textures.end() - 1));
@@ -797,7 +830,7 @@ void GLWidget::newObj(QString fichero)
     TaulaBillar *obj;
 
     obj = new TaulaBillar(fichero);
-    obj->setMaterial(program, 0.2, 0.6, 0.2, 1);
+    obj->setMaterial(program, 17, 0.2, 0.6, 0.2, 1);
     newObjecte(obj);
 }
 
@@ -805,7 +838,7 @@ void GLWidget::newBola()
 {
     //Instanciem una bola de color blanc
     Objecte* bola = new Bola(vec3(1,1,1));
-    bola->setMaterial(program, 0.1, 0.5, 0.4, 1);
+    bola->setMaterial(program, 16, 0.1, 0.5, 0.4, 1);
     bola->setTipus(BOLA_BLANCA);
 
     //Afegim la textura adient a la bola (eviant-la a la gpu amb el seu shader)

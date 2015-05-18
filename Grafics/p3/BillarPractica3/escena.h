@@ -70,6 +70,8 @@ public:
     void setWindowCamera(Camera* camera, bool retallat, Capsa2D window);
     void setDCamera(Camera* camera, float d);
 
+    void toGPU(QGLShaderProgram* program);
+
 private:
     std::vector<Objecte*> objectes;
     // Capsa contenedora de l'escena

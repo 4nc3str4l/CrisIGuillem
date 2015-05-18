@@ -59,6 +59,14 @@ void Escena::CapsaMinCont3DEscena()
 {
 }
 
+void Escena::toGPU(QGLShaderProgram* program)
+{
+    for (std::vector<Objecte*>::iterator it = objectes.begin(); it != objectes.end(); ++it)
+    {
+        (*it)->toGPU(program);
+    }
+}
+
 /*
  * Crida a tots els objectes de l'escena per aplicar-lis una transformació geometrica.
 */

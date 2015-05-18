@@ -7,7 +7,7 @@
 #include <QtWidgets>
 #include <QGLWidget>
 #include <QTime>
-
+#include <map>
 
 #define PROGRAM_VERTEX_ATTRIBUTE 0
 #define PROGRAM_COLOR_ATTRIBUTE 1
@@ -102,6 +102,8 @@ private:
     vec4 camera_advance;
     vec4 auxCamObs;
     vec4 auxCamVRP;
+
+    std::map<QGLShaderProgram*, std::pair<GLuint, bool> > only_color;
 
 private slots:
     void mouBola();

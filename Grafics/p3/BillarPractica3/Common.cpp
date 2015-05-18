@@ -6,6 +6,9 @@
  * */
 namespace Common{
 
+    // Shading Mode
+    ShadingMode _shadingMode = FLAT;
+
     //ens serveix per canviar els modes de vista (o bè en linees o bè en cares)
     bool wireframeView = false;
 
@@ -27,6 +30,16 @@ namespace Common{
     vec3 scaleFactor()
     {
         return scale;
+    }
+
+    ShadingMode getShadingMode()
+    {
+        return _shadingMode;
+    }
+
+    void setShadingMode(ShadingMode shadingMode)
+    {
+        _shadingMode = shadingMode;
     }
 }
 

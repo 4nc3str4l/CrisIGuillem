@@ -11,12 +11,16 @@ Objecte::Objecte(int npoints, QObject *parent) : numPoints(npoints) ,
     QObject(parent)
 {
     material = NULL;
+    _texture = NULL;
 
     points = new point4[npoints];
     normals = new vec3[npoints];
     gouraud = new vec3[npoints];
     colors = new color4[npoints];
     textures = new vec2[npoints];
+
+    idMaterial = new GLint[npoints];
+    memset(idMaterial, 0, npoints * sizeof(GLint));
 }
 
 /**
@@ -28,12 +32,16 @@ Objecte::Objecte(int npoints, QObject *parent) : numPoints(npoints) ,
 Objecte::Objecte(int npoints, QString n) : numPoints(npoints)
 {
     material = NULL;
+    _texture = NULL;
 
     points = new point4[npoints];
     normals = new vec3[npoints];
     gouraud = new vec3[npoints];
     colors = new color4[npoints];
     textures = new vec2[npoints];
+
+    idMaterial = new GLint[npoints];
+    memset(idMaterial, 0, npoints * sizeof(GLint));
 
     xRot = 0;
     yRot = 0;
@@ -53,12 +61,15 @@ Objecte::Objecte(QObject *parent):
     numPoints(0)
 {
     material = NULL;
+    _texture = NULL;
 
     points = NULL;
     normals = NULL;
     gouraud = NULL;
     colors = NULL;
     textures = NULL;
+
+    idMaterial = NULL;
 }
 
 /**
@@ -74,6 +85,7 @@ Objecte::~Objecte()
         delete [] gouraud;
         delete [] colors;
         delete [] textures;
+        delete [] idMaterial;
     }
 
     if (material)
@@ -88,9 +100,12 @@ Objecte::~Objecte()
     }
 }
 
-void Objecte::setMaterial(QGLShaderProgram* program, float ka, float kd, float ks, float shinesess)
+void Objecte::setMaterial(QGLShaderProgram* program, int id, float ka, float kd, float ks, float shinesess)
 {
-    material = new Material(program, ka, kd, ks, shinesess);
+    material = new Material(program, id, ka, kd, ks, shinesess);
+
+    for (int i = 0; i < numPoints; ++i)
+        idMaterial[i] = (GLint)id;
 }
 
 /**
@@ -139,7 +154,12 @@ void Objecte::aplicaTG(mat4 m)
     // Actualitzacio del vertex array per a preparar per pintar
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4) * numPoints, &points[0] );
-    glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints, sizeof(vec3) * numPoints, gouraud );
+
+    if (Common::getShadingMode() == Common::FLAT)
+        glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints, sizeof(vec3) * numPoints, normals );
+    else
+        glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints, sizeof(vec3) * numPoints, gouraud );
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -150,6 +170,9 @@ void Objecte::aplicaTGPoints(mat4 m)
 
         vec4 t = m * vec4(gouraud[i], 0);
         gouraud[i] = normalize(vec3(t.x, t.y, t.z));
+
+        t = m * vec4(normals[i], 0);
+        normals[i] = normalize(vec3(t.x, t.y, t.z));
     }
 }
 
@@ -184,8 +207,12 @@ void Objecte::aplicaTGCentrat(mat4 m, Capsa3D* capsa)
 void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
 
     this->program = program;
-    _texture = texture;
     program->bind();
+
+    if (texture)
+    {
+        _texture = texture;
+    }
 
     if (material)
     {
@@ -196,29 +223,43 @@ void Objecte::toGPU(QGLShaderProgram* program, QOpenGLTexture* texture){
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
 
     //reservem espai per els punts, colors i textures.
-    glBufferData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints + sizeof(vec3) * numPoints, NULL, GL_STATIC_DRAW );
+    glBufferData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints + sizeof(vec3) * numPoints + numPoints * sizeof(GLint), NULL, GL_STATIC_DRAW );
 
     //Les enviem a la gpu.
     glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4) * numPoints, &points[0] );
     glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints, sizeof(color4) * numPoints, &colors[0] );
     glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints, sizeof(vec2) * numPoints, textures );
-    glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints, sizeof(vec3) * numPoints, normals );
+    glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints + sizeof(vec3) * numPoints, numPoints * sizeof(GLint), idMaterial );
+
+
+    if (Common::getShadingMode() == Common::FLAT)
+        glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints, sizeof(vec3) * numPoints, normals );
+    else
+        glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints, sizeof(vec3) * numPoints, gouraud );
 
     // Per a conservar el buffer
     int vertexLocation = program->attributeLocation("vPosition");
     int colorLocation = program->attributeLocation("vColor");
     int coordTextureLocation = program->attributeLocation("vCoordTexture");
     int normalsLocation = program->attributeLocation("vNormals");
+    int idMaterialLocation = program->attributeLocation("idMaterial");
 
     program->enableAttributeArray(vertexLocation);
     program->enableAttributeArray(colorLocation);
     //Informem al shader de que existeix una array que conte les coordenades de la textura
     program->enableAttributeArray(coordTextureLocation);
     program->enableAttributeArray(normalsLocation);
+    program->enableAttributeArray(idMaterialLocation);
 
     glEnable( GL_DEPTH_TEST );
     glEnable(GL_TEXTURE_2D);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    // Cridem al dels fills
+    for (std::vector<Objecte*>::iterator it = fills.begin(); it != fills.end(); ++it)
+    {
+        (*it)->toGPU(program);
+    }
 }
 
 // Pintat en la GPU.
@@ -232,6 +273,7 @@ void Objecte::draw()
     program->setAttributeBuffer("vColor", GL_FLOAT, sizeof(point4) * numPoints, 4);
     program->setAttributeBuffer("vCoordTexture", GL_FLOAT, sizeof(vec4) * numPoints + sizeof(vec4) * numPoints, 2);
     program->setAttributeBuffer("vNormals", GL_FLOAT, sizeof(vec4) * numPoints + sizeof(vec4) * numPoints + sizeof(vec2) * numPoints, 3);
+    program->setAttributeBuffer("idMaterial", GL_FLOAT, sizeof(point4) * numPoints + sizeof(color4) * numPoints + sizeof(vec2) * numPoints + sizeof(vec3) * numPoints, 1 );
 
     //SI hi ha textura li indiquem que utilitzi la textura, sino la desactivem.
     if (_texture)
