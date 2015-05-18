@@ -5,9 +5,20 @@
 #include <Common.h>
 #include <QGLShaderProgram>
 
+enum TipusLlum
+{
+    PUNTUAL,
+    DIRECCIONAL,
+    SPOTLIGH
+};
+
 struct LdLlum
 {
+    GLuint tipus;
+
     GLuint posicio;
+    GLuint direccio;
+    GLuint angle;
 
     GLuint ld;
     GLuint ls;
@@ -20,18 +31,22 @@ struct LdLlum
 
 class Llum
 {
-    // Evitar que la classe sigui instanciada (cal fer-ho a traves
-    // de les subclasses Puntual, Direccional o Spotlight)
-protected:
-    Llum(QGLShaderProgram* program, int id_, char* tipus_);
-
 public:
+    Llum(QGLShaderProgram* program, int id_, TipusLlum tipus_);
     ~Llum();
 
     void toGPU(QGLShaderProgram* program);
 
     inline void setPosicioLlum(vec4 pos){
         this->posicioLlum = pos;
+    }
+
+    inline void setDireccio(vec4 direccio) {
+        this->direccio = direccio;
+    }
+
+    inline void setAngle(float angle) {
+        this->angle = angle;
     }
 
     inline void setDifusa(vec3 difusa){
@@ -57,9 +72,11 @@ private:
     bool locationsCached[SHADING_MAX];
 
     int id;
-    char* tipus;
+    TipusLlum tipus;
 
     vec4 posicioLlum;
+    vec4 direccio;
+    float angle;
 
     vec3 difusa;
     vec3 especular;

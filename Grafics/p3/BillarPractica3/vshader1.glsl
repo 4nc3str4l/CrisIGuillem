@@ -8,10 +8,17 @@
 #define OUT out
 #endif
 
+#define PUNTUAL     0
+#define DIRECCIONAL 1
+#define SPOTLIGH    2
+
+
 struct tipusLlum
 {
+    int tipus;
+
     vec4 LightPosition;
-    vec4 LighDirection;
+    vec4 LightDirection;
     float angle;
 
     vec3 Ld;
@@ -39,9 +46,7 @@ uniform mat4 projection;
 
 uniform vec3 llumAmbient;
 
-uniform tipusLlum puntual[2];
-uniform tipusLlum direccional[2];
-uniform tipusLlum spot[2];
+uniform tipusLlum light[2];
 
 uniform tipusMaterial material[19];
 
@@ -66,18 +71,28 @@ void main()
     vec3 sumatori = vec3(0, 0, 0);
     for (int i = 0; i < 2; ++i)
     {
-        float d = distance(vPosition, puntual[i].LightPosition);
-        float atenuacio = puntual[i].coef_a + puntual[i].coef_b * d + puntual[i].coef_c * pow(d,2);
+        float d = distance(vPosition, light[i].LightPosition);
+        float atenuacio = light[i].coef_a + light[i].coef_b * d + light[i].coef_c * pow(d,2);
 
-        vec4 L = puntual[i].LightPosition - vPosition;
+        vec4 L = light[i].LightPosition - vPosition;
         vec4 V = camera - vPosition;
         vec4 H = normalize(normalize(L) + normalize(V));
 
-        sumatori += (1.0 / atenuacio) * (
-            material[idMaterial].kd * puntual[i].Ld * max(dot(vNormals, L.xyz), 0) + // Difusa
-            material[idMaterial].ks * puntual[i].Ls * pow(max(dot(vNormals, H.xyz), 0), material[idMaterial].shineness * 128) + // Especular
-            material[idMaterial].ka * puntual[i].La // Ambient
-        );
+        bool calculaLlum = (light[i].tipus == PUNTUAL);
+
+        if (light[i].tipus == DIRECCIONAL)
+        {
+            calculaLlum = dot((light[i].LightPosition - light[i].LightDirection).xyz, L.xyz) > 0;
+        }
+
+        if (calculaLlum)
+        {
+            sumatori += (1.0 / atenuacio) * (
+                material[idMaterial].kd * light[i].Ld * max(dot(vNormals, L.xyz), 0) + // Difusa
+                material[idMaterial].ks * light[i].Ls * pow(max(dot(vNormals, H.xyz), 0), material[idMaterial].shineness * 128) + // Especular
+                material[idMaterial].ka * light[i].La // Ambient
+            );
+        }
     }
 
     intensitat = vec4(

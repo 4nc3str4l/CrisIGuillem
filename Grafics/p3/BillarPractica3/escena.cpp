@@ -1,6 +1,6 @@
 #include "escena.h"
 #include "camera.h"
-#include "puntual.h"
+#include "llum.h"
 
 /*
  * Permet pasar el tamany de l'ecena com a parametre,
@@ -17,22 +17,40 @@ Escena::Escena(vec3 dimensions, QGLShaderProgram* program)
     camGeneral = new Camera(program);
     camFP = new Camera(program);
 
-    // Crear llum
-    for (int i = 0; i < 2; ++i)
+    // Crear llum1
     {
-        Puntual* pointLight = new Puntual(program, i);
-        pointLight->setCoeficients(0.1, 0.1, 0.1);
+        Llum* llum = new Llum(program, 0, PUNTUAL);
+        llum->setCoeficients(0.1, 0.1, 0.1);
 
-        pointLight->setDifusa(vec3(1.0, 1.0, 1.0));
-        pointLight->setEspecular(vec3(1.0, 1.0, 1.0));
-        pointLight->setAmbient(vec3(1.0, 1.0, 1.0));
+        llum->setDifusa(vec3(1.0, 1.0, 1.0));
+        llum->setEspecular(vec3(1.0, 1.0, 1.0));
+        llum->setAmbient(vec3(1.0, 1.0, 1.0));
 
-        pointLight->setPosicioLlum(vec4(i*4, 0, 0, 1));
+        llum->setPosicioLlum(vec4(0, 0, 0, 1));
 
         // Send to GPU
-        pointLight->toGPU(program);
+        llum->toGPU(program);
 
-        llums.push_back(pointLight);
+        llums.push_back(llum);
+    }
+
+    // Crear llum2
+    {
+        Llum* llum = new Llum(program, 1, DIRECCIONAL);
+        llum->setCoeficients(0.1, 0.5, 0);
+
+        llum->setDifusa(vec3(0.5, 0.5, 0.5));
+        llum->setEspecular(vec3(0.5, 0.5, 0.5));
+        llum->setAmbient(vec3(0.5, 0.5, 0.5));
+
+        llum->setPosicioLlum(vec4(4.5, 0, 0, 1));
+
+        llum->setDireccio(vec4(0, 0, 0, 1));
+
+        // Send to GPU
+        llum->toGPU(program);
+
+        llums.push_back(llum);
     }
 
     // Carregar localitzacio

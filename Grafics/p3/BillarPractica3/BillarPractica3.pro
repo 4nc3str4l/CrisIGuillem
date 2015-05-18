@@ -25,10 +25,7 @@ SOURCES += main.cpp\
     conjuntboles.cpp \
     camera.cpp \
     llum.cpp \
-    material.cpp \
-    puntual.cpp \
-    direccional.cpp \
-    spotlight.cpp
+    material.cpp
 
 HEADERS  += mainwindow.h \
     vec.h \
@@ -45,10 +42,7 @@ HEADERS  += mainwindow.h \
     conjuntboles.h \
     camera.h \
     llum.h \
-    material.h \
-    puntual.h \
-    direccional.h \
-    spotlight.h
+    material.h
 
 FORMS    += mainwindow.ui
 

@@ -232,8 +232,8 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
         camGeneral->setObs(obs);
         camGeneral->setVUP(camGeneral->CalculVup(angles.x + dy, angles.y + dx, 0));
         camGeneral->CalculaMatriuModelView();
-        camGeneral->toGPU(programs[Common::getShadingMode()]);
-        updateGL();
+        camGeneral->toGPU(currentProgram());
+        update();
     }
 
     lastPos = event->pos();
@@ -242,7 +242,7 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 void GLWidget::Pan(float dx, float dy)
 {
     camActual->pan(dx, dy);
-    camActual->toGPU(programs[Common::getShadingMode()]);
+    camActual->toGPU(currentProgram());
 }
 
 
@@ -285,26 +285,26 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
             color = false;
         }
 
-        programs[Common::getShadingMode()]->bind();
-        camActual->toGPU(programs[Common::getShadingMode()]);
+        currentProgram()->bind();
+        camActual->toGPU(currentProgram());
 
-        only_color[programs[Common::getShadingMode()]].second = color;
-        glUniform1i(only_color[programs[Common::getShadingMode()]].first, (int)color);
+        only_color[currentProgram()].second = color;
+        glUniform1i(only_color[currentProgram()].first, (int)color);
 
-        esc->toGPU(programs[Common::getShadingMode()]);
+        esc->toGPU(currentProgram());
         updateGL();
     }
 
     if(event->key() == Qt::Key_Plus)
     {
         camActual->zoom(-1);
-        camActual->toGPU(programs[Common::getShadingMode()]);
+        camActual->toGPU(currentProgram());
     }
 
     if(event->key() == Qt::Key_Minus)
     {
         camActual->zoom(1);
-        camActual->toGPU(programs[Common::getShadingMode()]);
+        camActual->toGPU(currentProgram());
     }
 
     if (event->key() == Qt::Key_B && camActual == camGeneral)
@@ -317,7 +317,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         camActual = camGeneral;
         camActual->CalculaMatriuModelView();
         camActual->CalculaMatriuProjection();
-        camActual->toGPU(programs[Common::getShadingMode()]);
+        camActual->toGPU(currentProgram());
         updateGL();
     }
 
@@ -463,13 +463,15 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         camFP->setVUP(camFP->CalculVup(-5, angle, 0));
         camFP->CalculaMatriuModelView();
         esc->setWindowCamera(camFP, bola->capsa);
+        camFP->pan();
+        camFP->zoom();
 
         if(this->camActual == camFP)
-            camFP->toGPU(programs[Common::getShadingMode()]);
+            camFP->toGPU(currentProgram());
     }
 
     //Actualitzem l'escena i la pantalla.
-    updateGL();
+    update();
 }
 
 void GLWidget::cameraTransition(){
@@ -490,7 +492,7 @@ void GLWidget::cameraTransition(){
         this->camActual->setD(this->camFP->getD());
         this->camActual->CalculaMatriuModelView();
         this->camActual->CalculaMatriuProjection();
-        this->camActual->toGPU(programs[Common::getShadingMode()]);
+        this->camActual->toGPU(currentProgram());
     }
     else if (camera_moves == 100)
     {
@@ -522,7 +524,7 @@ void GLWidget::cameraTransition(){
         camActual->wd.pmin.y += camera_advance.w;
         camActual->CalculaMatriuProjection();
 
-        this->camActual->toGPU(programs[Common::getShadingMode()]);
+        this->camActual->toGPU(currentProgram());
     }
     else
     {
@@ -535,7 +537,7 @@ void GLWidget::cameraTransition(){
             esc->setWindowCamera(camGeneral, tauler->capsa);
 
             this->camActual = this->camFP;
-            this->camActual->toGPU(programs[Common::getShadingMode()]);
+            this->camActual->toGPU(currentProgram());
         }
 
         this->camera_moves = -1;
@@ -613,7 +615,7 @@ void GLWidget::mouBola()
         esc->setWindowCamera(camFP, bola->capsa);
 
         if(this->camActual == camFP)
-            camFP->toGPU(programs[Common::getShadingMode()]);
+            camFP->toGPU(currentProgram());
 
         // Decrementem la velocitat de la bola segons el temps que fa que esta en moviment.
         if (length(bola->speed + deltaSpeed) < 0.01)
@@ -738,7 +740,7 @@ void GLWidget::adaptaObjecteTamanyWidget(Objecte *obj)
  */
 void GLWidget::newObjecte(Objecte * obj)
 {
-    obj->toGPU(programs[Common::getShadingMode()]);
+    obj->toGPU(currentProgram());
     esc->addObjecte(obj);
 
     updateGL();
@@ -752,10 +754,10 @@ void GLWidget::newPlaBase()
 {
     //Instanciem un objecte pla blase
     Objecte* plaBase = new PlaBase();
-    plaBase->setMaterial(programs[Common::getShadingMode()], 18, vec3(0.0f, 0.05f, 0.0f), vec3(0.4, 0.5, 0.4), vec3(0.04f, 0.04f, 0.04f), 0.078125f);
+    plaBase->setMaterial(currentProgram(), 18, vec3(0.0f, 0.05f, 0.0f), vec3(0.4, 0.5, 0.4), vec3(0.04f, 0.04f, 0.04f), 0.078125f);
 
     //Enviem l'objecte a la gpu amb la seva textura.
-    plaBase->toGPU(programs[Common::getShadingMode()], *(textures.end() - 1));
+    plaBase->toGPU(currentProgram(), *(textures.end() - 1));
 
     //Obtenim el tauler per assignar aquest objecte com a fill de tauler (servira per rotar-lo quan el tauler giri).
     Objecte* tauler = esc->getObjecte(TAULER);
@@ -786,7 +788,7 @@ void GLWidget::newObj(QString fichero)
     TaulaBillar *obj;
 
     obj = new TaulaBillar(fichero);
-    obj->setMaterial(programs[Common::getShadingMode()], 17, vec3(0.02, 0.02, 0.02), vec3(0.01, 0.01, 0.01), vec3(0.4, 0.4, 0.4), 0.078125f);
+    obj->setMaterial(currentProgram(), 17, vec3(0.02, 0.02, 0.02), vec3(0.01, 0.01, 0.01), vec3(0.4, 0.4, 0.4), 0.078125f);
     newObjecte(obj);
 }
 
@@ -794,11 +796,11 @@ void GLWidget::newBola()
 {
     //Instanciem una bola de color blanc
     Objecte* bola = new Bola(vec3(1,1,1));
-    bola->setMaterial(programs[Common::getShadingMode()], 16, vec3(0.05375, 0.05, 0.06625), vec3(0.18275, 0.17, 0.22525), vec3(0.332741, 0.328634, 0.346435), 0.3f);
+    bola->setMaterial(currentProgram(), 16, vec3(0.05375, 0.05, 0.06625), vec3(0.18275, 0.17, 0.22525), vec3(0.332741, 0.328634, 0.346435), 0.3f);
     bola->setTipus(BOLA_BLANCA);
 
     //Afegim la textura adient a la bola (eviant-la a la gpu amb el seu shader)
-    bola->toGPU(programs[Common::getShadingMode()], *(textures.end() - 2));
+    bola->toGPU(currentProgram(), *(textures.end() - 2));
 
     //Obtenim el tauler
     Objecte* tauler = esc->getObjecte(TAULER);
@@ -841,7 +843,7 @@ void GLWidget::newBola()
 void GLWidget::newConjuntBoles()
 {
     Objecte* tauler = esc->getObjecte(TAULER);
-    ConjuntBoles* boles = new ConjuntBoles(programs[Common::getShadingMode()], tauler, textures);
+    ConjuntBoles* boles = new ConjuntBoles(currentProgram(), tauler, textures);
 
     if (!tauler) {
         esc->addObjecte(boles);
@@ -877,6 +879,7 @@ void GLWidget::newSalaBillar()
 
         //calculem capsa 3d del tauler
         tauler->calculCapsa3D();
+        plaBase->calculCapsa3D();
 
         float d = 10.0f;
         camGeneral->setVRP(tauler->capsa.center);
@@ -888,7 +891,7 @@ void GLWidget::newSalaBillar()
         //Calculem la window
         camGeneral->setProjectionType(PERSPECTIVA);
         esc->setWindowCamera(camGeneral, tauler->capsa);
-        camGeneral->toGPU(programs[Common::getShadingMode()]);
+        camGeneral->toGPU(currentProgram());
 
         Objecte* conjunt = tauler->getFill(CONJUNT_BOLES);
         Objecte* bola = tauler->getFill(BOLA_BLANCA);
@@ -910,7 +913,7 @@ void GLWidget::newSalaBillar()
             camFP->setVUP(camFP->CalculVup(-5, angle, 0));
             camFP->CalculaMatriuModelView();
             esc->setWindowCamera(camFP, bola->capsa);
-            camFP->toGPU(programs[Common::getShadingMode()]);
+            camFP->toGPU(currentProgram());
         }
     }
 

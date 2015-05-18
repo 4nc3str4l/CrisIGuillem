@@ -78,7 +78,10 @@ private:
     // Metode per inicialitzar els shaders de l'aplicacio
     void initShadersGPU();
 
-
+    QGLShaderProgram* currentProgram()
+    {
+        return programs[Common::getShadingMode()];
+    }
 
     // Metode que carrega un nou objecte a l'escena
     void newObjecte(Objecte * obj);

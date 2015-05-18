@@ -9,10 +9,16 @@
 #endif
 
 
+#define PUNTUAL     0
+#define DIRECCIONAL 1
+#define SPOTLIGH    2
+
 struct tipusLlum
 {
+    int tipus;
+
     vec4 LightPosition;
-    vec4 LighDirection;
+    vec4 LightDirection;
     float angle;
 
     vec3 Ld;
@@ -42,9 +48,7 @@ flat IN int matID;
 
 uniform vec3 llumAmbient;
 
-uniform tipusLlum puntual[2];
-uniform tipusLlum direccional[2];
-uniform tipusLlum spot[2];
+uniform tipusLlum light[2];
 
 uniform tipusMaterial material[19];
 
@@ -55,15 +59,27 @@ uniform bool only_color;
 
 void main()
 {
+    vec3 normal = normalize(normals);
+
     float intensity = 0;
     for (int i = 0; i < 2; ++i)
     {
-        float d = distance(position, puntual[i].LightPosition);
-        float atenuacio = puntual[i].coef_a + puntual[i].coef_b * d + puntual[i].coef_c * pow(d,2);
+        float d = distance(position, light[i].LightPosition);
+        float atenuacio = light[i].coef_a + light[i].coef_b * d + light[i].coef_c * pow(d,2);
 
-        vec4 L = puntual[i].LightPosition - position;
+        vec4 L = light[i].LightPosition - position;
 
-        intensity += (1.0 / atenuacio) * dot(L.xyz, normals);
+        bool calculaLlum = (light[i].tipus == PUNTUAL);
+
+        if (light[i].tipus == DIRECCIONAL)
+        {
+            calculaLlum = dot((light[i].LightPosition - light[i].LightDirection).xyz, L.xyz) > 0;
+        }
+
+        if (calculaLlum)
+        {
+            intensity += (1.0 / pow(atenuacio, 2)) * dot(L.xyz, normal);
+        }
     }
 
     vec4 intensitat;
