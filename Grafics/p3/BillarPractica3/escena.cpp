@@ -201,6 +201,10 @@ void Escena::setWindowCamera(Camera* camera, bool retallat, Capsa2D window)
 
     camera->AjustaAspectRatioWd();
     camera->CalculaMatriuProjection();
+
+    // Reaplica pan i zoom
+    camFP->pan();
+    camFP->zoom();
 }
 
 

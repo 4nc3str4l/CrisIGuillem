@@ -359,7 +359,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
         if (event->modifiers() & Qt::AltModifier)
         {
-            Pan(0, -0.05);
+            Pan(0, camActual == camFP ? 0.05 : -0.05);
         }
         //si la bola no esta xocant amb res
         else if (bola->intersects(plaBase, vec4(0, 0, -0.35, 0)) &&
@@ -379,7 +379,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
         if (event->modifiers() & Qt::AltModifier)
         {
-            Pan(0, 0.05);
+            Pan(0, camActual == camFP ? -0.05 : 0.05);
         }
         else if (bola->intersects(plaBase, vec4(0, 0, 0.35, 0)) &&
             !conjuntBoles->intersects(bola, vec4(0, 0, 0.11, 0)))
@@ -397,7 +397,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
         if (event->modifiers() & Qt::AltModifier)
         {
-            Pan(0.05, 0);
+            Pan(camActual == camFP ? -0.05 : 0.05, 0);
         }
         else if (bola->intersects(plaBase, vec4(-0.35, 0, 0, 0)) &&
             !conjuntBoles->intersects(bola, vec4(-0.11, 0, 0, 0)))
@@ -415,7 +415,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
 
         if (event->modifiers() & Qt::AltModifier)
         {
-            Pan(-0.05, 0.0);
+            Pan(camActual == camFP ? 0.05 : -0.05, 0.0);
         }
         else if (bola->intersects(plaBase, vec4(0.35, 0, 0, 0)) &&
             !conjuntBoles->intersects(bola, vec4(0.11, 0, 0, 0)))
@@ -463,8 +463,6 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
         camFP->setVUP(camFP->CalculVup(-5, angle, 0));
         camFP->CalculaMatriuModelView();
         esc->setWindowCamera(camFP, bola->capsa);
-        camFP->pan();
-        camFP->zoom();
 
         if(this->camActual == camFP)
             camFP->toGPU(currentProgram());
