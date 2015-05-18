@@ -171,7 +171,7 @@ void Escena::setVRPCamera(Camera* camera, point4 vrp)
     camera->CalculAngleOberturaHoritzontal();
 }
 
-void Escena::setWindowCamera(Camera* camera, Capsa3D capsa)
+void Escena::setWindowCamera(Camera* camera, Capsa3D capsa, bool aplicaTransformacions)
 {
     vec4 vertex_capsa3d[8];
 
@@ -185,10 +185,10 @@ void Escena::setWindowCamera(Camera* camera, Capsa3D capsa)
 
     //Pasem de els punts 3d a punts 2d
     Capsa2D window = camera->CapsaMinCont2DXYVert(vertex_capsa3d, 8);
-    setWindowCamera(camera, true, window);
+    setWindowCamera(camera, true, window, aplicaTransformacions);
 }
 
-void Escena::setWindowCamera(Camera* camera, bool retallat, Capsa2D window)
+void Escena::setWindowCamera(Camera* camera, bool retallat, Capsa2D window, bool aplicaTransformacions)
 {
     camera->CalculWindow(window);
 
@@ -203,8 +203,11 @@ void Escena::setWindowCamera(Camera* camera, bool retallat, Capsa2D window)
     camera->CalculaMatriuProjection();
 
     // Reaplica pan i zoom
-    camFP->pan();
-    camFP->zoom();
+    if (aplicaTransformacions)
+    {
+        camFP->pan();
+        camFP->zoom();
+    }
 }
 
 

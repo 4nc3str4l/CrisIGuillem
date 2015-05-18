@@ -178,7 +178,8 @@ private:
 
 inline void Camera::zoom(float val)
 {
-    if (cameraZoom + val > -piram.d)
+    //if (cameraZoom + val > -piram.d)
+    if (wd.a + val / 2.0f > 0 && wd.h + val / 2.0f > 0 )
     {
         zoom_i(val);
     }

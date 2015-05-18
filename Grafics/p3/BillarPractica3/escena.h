@@ -66,8 +66,8 @@ public:
     void initCamera(bool camGeneral);
     void setAnglesCamera(Camera* camera,float angX, float angY, float angZ);
     void setVRPCamera(Camera* camera, point4 vrp);
-    void setWindowCamera(Camera* camera, Capsa3D capsa);
-    void setWindowCamera(Camera* camera, bool retallat, Capsa2D window);
+    void setWindowCamera(Camera* camera, Capsa3D capsa, bool aplicaTransformacions = true);
+    void setWindowCamera(Camera* camera, bool retallat, Capsa2D window, bool aplicaTransformacions = true);
     void setDCamera(Camera* camera, float d);
 
     void toGPU(QGLShaderProgram* program);
