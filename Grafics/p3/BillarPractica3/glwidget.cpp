@@ -864,6 +864,15 @@ void GLWidget::newConjuntBoles()
  */
 void GLWidget::newSalaBillar()
 {
+    // Evitar afegir més d'una sala
+    static bool afegida = false;
+    if (afegida)
+    {
+        QMessageBox::warning(NULL, "Atencio", "Ja has afegit una taula, no en pots afegir més.");
+        return;
+    }
+    afegida = true;
+
     // Metode que construeix tota la sala de billar: taula, 15 boles i bola blanca
     //Obtenim el path del objecte que defineix la taula
     newObj(":/resources/taula.obj");
