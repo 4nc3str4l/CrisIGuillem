@@ -77,7 +77,9 @@ void Camera::CalculaMatriuProjection()
 #endif
     if (piram.proj == PERSPECTIVA)
     {
-        proj = Frustum(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, piram.dant, piram.dpost);
+        mat4 mdp(1.0);
+        CreaMatDp(mdp);
+        proj = Frustum(wd.pmin.x, wd.pmin.x + wd.a, wd.pmin.y, wd.pmin.y + wd.h, piram.dant, piram.dpost) * mdp;
     }
     else
     {
@@ -250,7 +252,6 @@ void    Camera::AjustaAspectRatioWd()
 
 void Camera::CreaMatDp(mat4 &MDP)
 {
-    MDP = identity();
     MDP[3][2] = -1/piram.d;
 }
 

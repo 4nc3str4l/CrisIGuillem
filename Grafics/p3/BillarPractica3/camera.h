@@ -115,8 +115,8 @@ public:
     inline void setD(float d)
     {
         piram.d = d;
-        piram.dant = d - d / 2.0f;
-        piram.dpost = d + d * 3.0f;
+        piram.dant = d - d / 1.5f;
+        piram.dpost = d + d * 4.0f;
     }
 
     inline vec4 getVRP()

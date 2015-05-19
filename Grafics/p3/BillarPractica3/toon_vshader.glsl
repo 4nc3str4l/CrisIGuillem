@@ -25,9 +25,6 @@ flat OUT int matID;
 void main()
 {
     gl_Position = projection * model_view * vPosition;
-    //gl_Position /= gl_Position.w;
-    //color = vColor * vec4(llumAmbient, 1);
-
 
     // Pas de les coordenades de textura al fragment shader
     // El valor del color i les coordenades de textura s'interpolaran automaticament

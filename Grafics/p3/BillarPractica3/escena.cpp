@@ -65,9 +65,9 @@ Escena::Escena(vec3 dimensions, QGLShaderProgram* program)
         llum->setEspecular(vec3(0.3, 0.3, 0.3));
         llum->setAmbient(vec3(0.3, 0.3, 0.3));
 
-        llum->setPosicioLlum(vec4(2.5, 5, 3, 1));
+        llum->setPosicioLlum(vec4(2.5, 2, 1, 1));
 
-        llum->setDireccio(vec4(2.5, 0.5, 0, 1) - vec4(2.5, 5, 3, 1));
+        llum->setDireccio(vec4(2.5, 1, -2.5, 1) - vec4(2.5, 5, 1, 1));
         llum->setAngle(10.0f);
 
         // Send to GPU
