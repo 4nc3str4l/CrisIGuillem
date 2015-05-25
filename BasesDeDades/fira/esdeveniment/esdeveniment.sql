@@ -1,7 +1,7 @@
 \echo ---------- taula esdeveniment
 
 CREATE DOMAIN domini_periodicitat TEXT
-CHECK (VALUE in ("anual, bianual"));
+CHECK (VALUE in ('anual', 'bianual'));
 
 CREATE TABLE esdeveniment (
   nom TEXT PRIMARY KEY,
