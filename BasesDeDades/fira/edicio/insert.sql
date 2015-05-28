@@ -1,5 +1,5 @@
 \echo ---------- insert edicio
-INSERT INTO edicio VALUES ('2003/9/12', '2003/11/12', 0, 0, 'Esdeveniment 2'),
-('2006/8/2', '2006/9/2', 0, 0, 'Esdeveniment 2'),
-('2005/9/21', '2005/11/21', 0, 0, 'Esdeveniment 2'),
-('2005/6/4', '2005/7/4', 0, 0, 'Esdeveniment 1');
+INSERT INTO edicio VALUES ('2005/1/23', '2005/2/23', 0, 0, 'Esdeveniment 2'),
+('2003/8/8', '2003/9/8', 0, 0, 'Esdeveniment 2'),
+('2013/10/18', '2013/12/18', 0, 0, 'Esdeveniment 2'),
+('2011/6/22', '2011/7/22', 0, 0, 'Esdeveniment 2');

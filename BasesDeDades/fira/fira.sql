@@ -16,6 +16,9 @@ CREATE DATABASE fira;
 \i 'pertany/pertany.sql'
 \i 'aten/aten.sql'
 \i 'reunio/reunio.sql'
+\i 'entrada/entrada.sql'
+
+\i 'disparadors.sql'
 
 \i 'ubicacio/insert.sql'
 \i 'empresa/insert.sql'
@@ -28,6 +31,7 @@ CREATE DATABASE fira;
 \i 'pertany/insert.sql'
 \i 'aten/insert.sql'
 \i 'reunio/insert.sql'
+\i 'entrada/insert.sql'
 
 -- TODO: Al donar d'alta un comercial hem de crear-li un usuari per el postgres .
 -- TODO: Crear grups, tralali, tralala comercials,

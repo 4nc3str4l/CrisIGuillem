@@ -10,5 +10,8 @@ CREATE TABLE entrada (
 	persona TEXT NOT NULL REFERENCES persona
 	ON DELETE SET NULL
   	ON UPDATE CASCADE,
+
+	preu REAL DEFAULT 1.5,
+	
 	UNIQUE(esdeveniment, edicio, persona)
 );

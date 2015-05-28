@@ -1,6 +1,15 @@
 \echo ---------- insert localitzada
-INSERT INTO localitzada VALUES ('Esdeveniment 2', '2003/9/12', 'Ubicacio 1'),
-('Esdeveniment 2', '2003/9/12', 'Ubicacio 2'),
-('Esdeveniment 2', '2003/9/12', 'Ubicacio 3'),
-('Esdeveniment 2', '2006/8/2', 'Ubicacio 1'),
-('Esdeveniment 2', '2006/8/2', 'Ubicacio 2');
+INSERT INTO localitzada VALUES ('Esdeveniment 2', '2005/1/23', 'Ubicacio 1'),
+('Esdeveniment 2', '2005/1/23', 'Ubicacio 2'),
+('Esdeveniment 2', '2005/1/23', 'Ubicacio 3'),
+('Esdeveniment 2', '2005/1/23', 'Ubicacio 4'),
+('Esdeveniment 2', '2003/8/8', 'Ubicacio 1'),
+('Esdeveniment 2', '2003/8/8', 'Ubicacio 2'),
+('Esdeveniment 2', '2003/8/8', 'Ubicacio 3'),
+('Esdeveniment 2', '2003/8/8', 'Ubicacio 4'),
+('Esdeveniment 2', '2013/10/18', 'Ubicacio 2'),
+('Esdeveniment 2', '2013/10/18', 'Ubicacio 4'),
+('Esdeveniment 2', '2011/6/22', 'Ubicacio 1'),
+('Esdeveniment 2', '2011/6/22', 'Ubicacio 2'),
+('Esdeveniment 2', '2011/6/22', 'Ubicacio 3'),
+('Esdeveniment 2', '2011/6/22', 'Ubicacio 4');
