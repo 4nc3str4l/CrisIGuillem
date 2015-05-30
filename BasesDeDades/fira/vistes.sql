@@ -3,7 +3,7 @@
 CREATE OR REPLACE FUNCTION username_nif(username TEXT) RETURNS TEXT AS
 $$
 BEGIN
-    RETURN SUBSTRING(username, 2);
+    RETURN REPLACE(SUBSTRING(username, 2), '-', '');
 END
 $$
 language 'plpgsql';
@@ -125,4 +125,21 @@ $$
 $$
 language 'sql';
 
-GRANT EXECUTE ON FUNCTION llista_entrades(inici TEXT, fi TEXT) TO GROUP comercials;
+GRANT EXECUTE ON FUNCTION llista_entrades(inici TEXT, fi TEXT) TO GROUP administradors;
+
+
+
+CREATE OR REPLACE FUNCTION crear_comercial(nif TEXT, nom TEXT, telefon TEXT, empresa TEXT)
+RETURNS VOID AS
+$$
+BEGIN
+    INSERT INTO persona VALUES (nif, nom, telefon);
+    INSERT INTO comercial VALUES (nif, 0, empresa);
+END
+$$
+language 'plpgsql';
+
+GRANT EXECUTE ON FUNCTION crear_comercial(nif TEXT, nom TEXT, telefon TEXT, empresa TEXT)
+    TO GROUP empreses;
+GRANT SELECT,INSERT ON persona TO GROUP empreses;
+GRANT SELECT,INSERT ON comercial TO GROUP empreses;

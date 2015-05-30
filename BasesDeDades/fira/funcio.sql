@@ -17,22 +17,16 @@ BEGIN
     SELECT CAST(in_inici AS DATE) INTO d_inici;
     SELECT CAST(in_fi AS DATE) INTO d_fi;
 
-    PERFORM * FROM information_schema.tables
-        WHERE table_name = 'informe';
-
-    IF (NOT FOUND) THEN
-        --CREATE TEMP TABLE IF NOT EXISTS Crea un warning
-        CREATE TEMP TABLE informe(
-            inici DATE,
-            fi DATE,
-            total_esdeveniments INTEGER,
-            total_edicions INTEGER,
-            total_visitants REAL,
-            total_recaptació REAL,
-            mitjana_visitants REAL,
-            mitjana_recaptació REAL
-        );
-    END IF;
+    CREATE TEMP TABLE IF NOT EXISTS informe(
+        inici DATE,
+        fi DATE,
+        total_esdeveniments INTEGER,
+        total_edicions INTEGER,
+        total_visitants REAL,
+        total_recaptació REAL,
+        mitjana_visitants REAL,
+        mitjana_recaptació REAL
+    );
 
     INSERT INTO informe VALUES(
         d_inici,

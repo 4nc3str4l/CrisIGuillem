@@ -1,6 +1,13 @@
 DROP GROUP IF EXISTS comercials;
 CREATE GROUP comercials;
 
+DROP GROUP IF EXISTS empreses;
+CREATE GROUP empreses;
+
+DROP GROUP IF EXISTS administradors;
+CREATE GROUP administradors;
+
+
 CREATE OR REPLACE FUNCTION comptador_visitants() RETURNS TRIGGER AS $$
 BEGIN
     UPDATE edicio SET visitants = visitants + 1 WHERE
@@ -76,3 +83,52 @@ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER trigger_comercial_config AFTER INSERT ON comercial
 FOR EACH ROW EXECUTE PROCEDURE comercial_config();
+
+
+
+CREATE OR REPLACE FUNCTION afegir_empresa() RETURNS TRIGGER AS $$
+DECLARE
+    uname TEXT;
+BEGIN
+    SELECT REPLACE(NEW.nif, '-','') INTO uname;
+
+    EXECUTE 'DROP USER IF EXISTS u' || uname;
+    EXECUTE 'CREATE USER u' || uname || ' WITH PASSWORD ''db1''';
+    EXECUTE 'ALTER GROUP empreses ADD USER u' || uname;
+
+    RETURN NEW;
+END
+$$
+LANGUAGE 'plpgsql';
+
+CREATE TRIGGER trigger_afegir_empresa AFTER INSERT ON empresa
+FOR EACH ROW EXECUTE PROCEDURE afegir_empresa();
+
+
+CREATE OR REPLACE FUNCTION comproba_aten() RETURNS TRIGGER AS $$
+BEGIN
+    PERFORM * FROM pertany p, comercial c WHERE
+        p.empresa = c.empresa AND
+        c.persona = NEW.comercial AND
+        p.estand = NEW.estand;
+
+    IF (NOT FOUND) THEN
+        RAISE EXCEPTION 'Un comercial solament pot atendre estands de la seva empresa';
+    END IF;
+
+    PERFORM * FROM aten a WHERE
+        a.esdeveniment = NEW.esdeveniment AND
+        a.edicio = NEW.edicio AND
+        a.comercial = NEW.comercial;
+
+    IF (FOUND) THEN
+        RAISE EXCEPTION 'Un comercial no pot atendre dos estands al mateix temps';
+    END IF;
+
+    RETURN NEW;
+END
+$$
+language 'plpgsql';
+
+CREATE TRIGGER trigger_comproba_aten BEFORE INSERT ON aten
+FOR EACH ROW EXECUTE PROCEDURE comproba_aten();

@@ -1,3 +1,5 @@
+SET client_min_messages TO WARNING;
+
 \echo escript principal per la base de dades fira
 \echo -------------------------------------------
 
