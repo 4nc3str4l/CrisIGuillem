@@ -1,4 +1,4 @@
--- Seleccionar edicions
+\echo ----- Seleccionar edicions
 SELECT
     es.nom,
     EXTRACT(YEAR FROM ed.inici) as edicio,
@@ -23,7 +23,7 @@ ORDER BY
     ed.inici;
 
 
--- Seleccionar la edició amb més preu
+\echo ----- Seleccionar la edició amb més preu
 SELECT
     es.nom,
     EXTRACT(YEAR FROM ed.inici) as edicio,
@@ -49,8 +49,8 @@ LIMIT
     1;
 
 
--- Seleccionar edicio amb visitants maxim de cada esdeveniment
-SELECT tmp.nom, EXTRACT(YEAR FROM ed.inici), tmp.visitants as edicio
+\echo ----- Seleccionar edicio amb visitants maxim de cada esdeveniment
+SELECT tmp.nom, EXTRACT(YEAR FROM ed.inici) as edicio, tmp.visitants as visitants
 FROM
     (
         SELECT
@@ -70,7 +70,7 @@ WHERE
     ed.visitants = tmp.visitants;
 
 
--- Visitants per esdeveniment
+\echo ----- Visitants per esdeveniment
 SELECT
    es.nom,
    SUM(ed.visitants) as visitants
@@ -83,7 +83,7 @@ GROUP BY
     es.nom;
 
 
--- Runions i persones ateses per comercial en total
+\echo ----- Runions i persones ateses per comercial en total
 SELECT
     p.nom,
     p.nif,

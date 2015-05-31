@@ -1,13 +1,4 @@
-DROP GROUP IF EXISTS comercials;
-CREATE GROUP comercials;
-
-DROP GROUP IF EXISTS empreses;
-CREATE GROUP empreses;
-
-DROP GROUP IF EXISTS administradors;
-CREATE GROUP administradors;
-
-
+\echo ----- Trigger comptador de visitants
 CREATE OR REPLACE FUNCTION comptador_visitants() RETURNS TRIGGER AS $$
 BEGIN
     UPDATE edicio SET visitants = visitants + 1 WHERE
@@ -24,7 +15,7 @@ FOR EACH ROW EXECUTE PROCEDURE comptador_visitants();
 
 
 
-
+\echo ----- Trigger comptador d''expositors
 CREATE OR REPLACE FUNCTION comptador_expositors() RETURNS TRIGGER AS $$
 BEGIN
     UPDATE edicio SET expositors = expositors + 1 WHERE
@@ -40,6 +31,8 @@ CREATE TRIGGER trigger_comptador_expositors AFTER INSERT ON pertany
 FOR EACH ROW EXECUTE PROCEDURE comptador_expositors();
 
 
+
+\echo ----- Trigger comprobacio comercials empresa
 CREATE OR REPLACE FUNCTION comproba_empresa() RETURNS TRIGGER AS $$
 DECLARE
     total INTEGER;
@@ -60,7 +53,7 @@ CREATE TRIGGER trigger_comproba_empresa BEFORE INSERT ON comercial
 FOR EACH ROW EXECUTE PROCEDURE comproba_empresa();
 
 
-
+\echo ----- Trigger configuracio comercial
 CREATE OR REPLACE FUNCTION comercial_config() RETURNS TRIGGER AS $$
 BEGIN
     INSERT INTO _config VALUES (
@@ -86,27 +79,12 @@ FOR EACH ROW EXECUTE PROCEDURE comercial_config();
 
 
 
-CREATE OR REPLACE FUNCTION afegir_empresa() RETURNS TRIGGER AS $$
-DECLARE
-    uname TEXT;
-BEGIN
-    SELECT REPLACE(NEW.nif, '-','') INTO uname;
-
-    EXECUTE 'DROP USER IF EXISTS u' || uname;
-    EXECUTE 'CREATE USER u' || uname || ' WITH PASSWORD ''db1''';
-    EXECUTE 'ALTER GROUP empreses ADD USER u' || uname;
-
-    RETURN NEW;
-END
-$$
-LANGUAGE 'plpgsql';
-
-CREATE TRIGGER trigger_afegir_empresa AFTER INSERT ON empresa
-FOR EACH ROW EXECUTE PROCEDURE afegir_empresa();
-
-
+\echo ----- Trigger comprobacio comercial aten
 CREATE OR REPLACE FUNCTION comproba_aten() RETURNS TRIGGER AS $$
+DECLARE
+    empresa_comercial TEXT;
 BEGIN
+    -- Evitar que un comercial atengui un estand d'una altre empresa
     PERFORM * FROM pertany p, comercial c WHERE
         p.empresa = c.empresa AND
         c.persona = NEW.comercial AND
@@ -116,6 +94,7 @@ BEGIN
         RAISE EXCEPTION 'Un comercial solament pot atendre estands de la seva empresa';
     END IF;
 
+    -- Evitar que un comercial atengui dos estands
     PERFORM * FROM aten a WHERE
         a.esdeveniment = NEW.esdeveniment AND
         a.edicio = NEW.edicio AND
@@ -123,6 +102,21 @@ BEGIN
 
     IF (FOUND) THEN
         RAISE EXCEPTION 'Un comercial no pot atendre dos estands al mateix temps';
+    END IF;
+
+    -- Si l'estand no esta marcat com que pertany a l'empresa, fer-ho
+    SELECT empresa INTO empresa_comercial FROM comercial WHERE
+        persona = NEW.comercial;
+
+    PERFORM * FROM pertany WHERE
+        estand = NEW.estand AND
+        empresa = empresa_comercial AND
+        esdeveniment = NEW.esdeveniment AND
+        edicio = NEW.edicio;
+
+    IF (NOT FOUND) THEN
+        INSERT INTO pertany VALUES
+            (NEW.esdeveniment, NEW.edicio, NEW.estand, empresa_comercial);
     END IF;
 
     RETURN NEW;

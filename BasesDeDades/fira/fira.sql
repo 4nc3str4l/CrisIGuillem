@@ -1,5 +1,3 @@
-SET client_min_messages TO WARNING;
-
 \echo escript principal per la base de dades fira
 \echo -------------------------------------------
 
@@ -7,6 +5,9 @@ SET client_min_messages TO WARNING;
 DROP DATABASE fira;
 CREATE DATABASE fira;
 \c fira
+
+SET client_min_messages TO WARNING;
+
 \i 'ubicacio/ubicacio.sql'
 \i 'empresa/empresa.sql'
 \i 'persona/persona.sql'
@@ -21,6 +22,7 @@ CREATE DATABASE fira;
 \i 'entrada/entrada.sql'
 \i 'config/config.sql'
 
+\i 'grups.sql'
 \i 'disparadors.sql'
 
 \i 'ubicacio/insert.sql'

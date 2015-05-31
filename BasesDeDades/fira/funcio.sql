@@ -1,3 +1,4 @@
+\echo ----- Funcio resum activitat
 CREATE OR REPLACE FUNCTION resum_activitat(in_inici TEXT, in_fi TEXT) RETURNS TABLE(
     data_inici DATE,
     data_fi DATE,
